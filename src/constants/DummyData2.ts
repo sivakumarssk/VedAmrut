@@ -1,0 +1,32 @@
+export const products = [
+  {
+    id: '1',
+    name: 'Tulsi Drops\n30ml',
+    image: require('../assets/images/TulsiDrops.png'),
+    price: 199,
+    oldPrice: 249,
+    rating: 4.8,
+    reviews: 120,
+    discount: 9,
+  },
+  {
+    id: '2',
+    name: 'Neem Capsules\n60 Tabs',
+    image: require('../assets/images/NeemCapsules.png'),
+    price: 349,
+    oldPrice: 399,
+    rating: 4.7,
+    reviews: 95,
+    discount: 6,
+  },
+  {
+    id: '3',
+    name: 'Brahmi\nTablets',
+    image: require('../assets/images/product1.png'),
+    price: 299,
+    oldPrice: 349,
+    rating: 4.6,
+    reviews: 110,
+    discount: 12,
+  },
+];
