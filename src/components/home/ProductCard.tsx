@@ -1,13 +1,14 @@
 import React from 'react';
 import {
   Image,
+  StyleProp,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  ViewStyle,
 } from 'react-native';
 
-import { Feather } from '@expo/vector-icons';
 import RatingBadge from './RatingBadge';
 
 type ProductCardProps = {
@@ -18,6 +19,8 @@ type ProductCardProps = {
   rating: number;
   reviews: number;
   discount: number;
+  onPress?: () => void;
+  style?: StyleProp<ViewStyle>;
 };
 
 export default function ProductCard({
@@ -28,9 +31,15 @@ export default function ProductCard({
   rating,
   reviews,
   discount,
+  onPress,
+  style,
 }: ProductCardProps) {
   return (
-    <View style={styles.container}>
+    <TouchableOpacity
+      style={[styles.container, style]}
+      activeOpacity={0.85}
+      onPress={onPress}
+    >
       {/* Top Row */}
       <View style={styles.topRow}>
         <View style={styles.discountBadge}>
@@ -38,16 +47,6 @@ export default function ProductCard({
             -{discount}%
           </Text>
         </View>
-
-        <TouchableOpacity style={styles.favoriteButton}>
-          <Image
-          source={require('../../assets/icons/heart.png')}
-          style={{
-            height:17,
-            width:20,
-          }}
-          />
-        </TouchableOpacity>
       </View>
 
       {/* Product Image */}
@@ -80,7 +79,7 @@ export default function ProductCard({
         rating={rating}
         reviews={reviews}
       />
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -125,28 +124,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '600',
-  },
-
-  favoriteButton: {
-    width: 32,
-    height: 32,
-
-    borderRadius: 16,
-
-    backgroundColor: '#FFFFFF',
-
-    justifyContent: 'center',
-    alignItems: 'center',
-
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-
-    elevation: 3,
   },
 
   image: {

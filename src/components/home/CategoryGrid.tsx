@@ -1,5 +1,6 @@
 import React from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
 
 import CategoryCard from './CategoryCard';
 import { categories } from '@/constants/DummyData';
@@ -18,7 +19,12 @@ export default function CategoryGrid() {
           <CategoryCard
             title={item.title}
             image={item.image}
-            onPress={() => console.log(item.title)}
+            onPress={() =>
+              router.push({
+                pathname: '/(home)/products',
+                params: { category: item.title },
+              })
+            }
           />
         )}
       />

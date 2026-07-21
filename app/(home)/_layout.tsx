@@ -1,138 +1,122 @@
 import { Tabs } from 'expo-router';
-import {Image} from 'react-native';
-import {useLoginPopup } from '../../src/hooks/useLoginPopup'
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useLoginPopup } from '../../src/hooks/useLoginPopup';
+import { useAuth } from '../../src/hooks/useAuth';
+import {
+  TAB_BAR_BOTTOM_MARGIN,
+  TAB_BAR_HEIGHT,
+} from '../../src/constants/Layout';
+
+const TAB_ICONS: Record<string, any> = {
+  home: require('../../src/assets/icons/home.png'),
+  scanner: require('../../src/assets/icons/scanner.png'),
+  cart: require('../../src/assets/icons/cart.png'),
+  profile: require('../../src/assets/icons/profile.png'),
+};
+
+const TAB_LABELS: Record<string, string> = {
+  home: 'Home',
+  scanner: 'Scanner',
+  cart: 'Cart',
+  profile: 'Profile',
+};
+
+const GATED_TABS = new Set(['scanner', 'profile']);
+
+function CustomTabBar({ state, navigation }: BottomTabBarProps) {
+  const insets = useSafeAreaInsets();
+  const { showLoginPopup } = useLoginPopup();
+  const { isLoggedIn } = useAuth();
+
+  const visibleRoutes = state.routes.filter((route) => route.name in TAB_ICONS);
+  const activeRouteName = state.routes[state.index]?.name;
+  const SHOW_ON_ROUTES = new Set(['home', 'cart', 'profile']);
+
+  if (!SHOW_ON_ROUTES.has(activeRouteName)) {
+    return null;
+  }
+
+  return (
+    <View
+      style={[styles.tabBar, { bottom: insets.bottom + TAB_BAR_BOTTOM_MARGIN }]}
+    >
+      {visibleRoutes.map((route) => {
+        const index = state.routes.findIndex((r) => r.key === route.key);
+        const focused = state.index === index;
+
+        const onPress = () => {
+          if (GATED_TABS.has(route.name) && !isLoggedIn) {
+            showLoginPopup();
+            return;
+          }
+
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+
+          if (!focused && !event.defaultPrevented) {
+            navigation.navigate(route.name);
+          }
+        };
+
+        return (
+          <TouchableOpacity
+            key={route.key}
+            style={styles.tabItem}
+            activeOpacity={0.7}
+            onPress={onPress}
+          >
+            <View
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: focused ? '#1C9C57' : 'transparent',
+                overflow: 'hidden',
+              }}
+            >
+              <Image
+                source={TAB_ICONS[route.name]}
+                style={[
+                  styles.iconImage,
+                  { tintColor: focused ? '#FFFFFF' : '#6E6E6E' },
+                ]}
+                resizeMode="contain"
+              />
+            </View>
+
+            <Text
+              style={[styles.labelText, focused && styles.labelTextActive]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+            >
+              {TAB_LABELS[route.name]}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
 
 export default function HomeLayout() {
-const { showLoginPopup } = useLoginPopup();
   return (
     <Tabs
+      tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-
-      
-
-        tabBarShowLabel: true,
-
-        tabBarStyle: {
-          position: 'absolute',
-          marginLeft: 20,
-          marginRight: 20,
-          bottom: 20,
-
-          height: 74,
-
-          borderRadius: 22,
-
-          backgroundColor: '#FFFFFF',
-
-          elevation: 8,
-
-          shadowColor: '#000',
-          shadowOpacity: 0.08,
-          shadowRadius: 10,
-          shadowOffset: {
-            width: 0,
-            height: 3,
-          },
-        },
-
-        tabBarActiveTintColor: '#1C9C57',
-
-        tabBarInactiveTintColor: '#6E6E6E',
-
-        tabBarLabelStyle: {
-          fontSize: 11,
-          marginBottom: 8,
-        },
       }}
     >
-      <Tabs.Screen
-        name="home"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({focused, color, size }) => (
-           <Image
-            source={require('../../src/assets/icons/home.png')}
-            style={{
-              width:22,
-              height:17,
-              tintColor: focused ? '#1C9C57' : '#6E6E6E',
-            }}
-            />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-  name="scanner"
-  listeners={{
-    tabPress: (e) => {
-      const isLoggedIn = false;
-
-      if (!isLoggedIn) {
-        e.preventDefault();
-        showLoginPopup();
-      }
-    },
-  }}
-  options={{
-    title: 'Scanner',
-    tabBarIcon: ({ focused }) => (
-      <Image
-        source={require('../../src/assets/icons/scanner.png')}
-        style={{
-          width: 22,
-          height: 17,
-          tintColor: focused ? '#1C9C57' : '#6E6E6E',
-        }}
-      />
-    ),
-  }}
-/>
-
-      <Tabs.Screen
-        name="cart"
-        options={{
-          title: 'Cart',
-          tabBarIcon: ({focused, color, size }) => (
-            <Image
-            source={require('../../src/assets/icons/cart.png')}
-            style={{
-              width:22,
-              height:17,
-              tintColor: focused ? '#1C9C57' : '#6E6E6E',
-            }}
-            />
-          ),
-        }}
-      />
-
-      <Tabs.Screen
-  name="profile"
-  listeners={{
-    tabPress: (e) => {
-      const isLoggedIn = false;
-
-      if (!isLoggedIn) {
-        e.preventDefault();
-        showLoginPopup();
-      }
-    },
-  }}
-  options={{
-    title: 'Profile',
-    tabBarIcon: ({ focused }) => (
-      <Image
-        source={require('../../src/assets/icons/profile.png')}
-        style={{
-          width: 22,
-          height: 18,
-          tintColor: focused ? '#1C9C57' : '#6E6E6E',
-        }}
-      />
-    ),
-  }}
-/>
+      <Tabs.Screen name="home" options={{ title: 'Home' }} />
+      <Tabs.Screen name="scanner" options={{ title: 'Scanner' }} />
+      <Tabs.Screen name="cart" options={{ title: 'Cart' }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
 
       {/* Hide these from the tab bar */}
       <Tabs.Screen
@@ -148,6 +132,88 @@ const { showLoginPopup } = useLoginPopup();
           href: null,
         }}
       />
+
+      <Tabs.Screen
+        name="saved-addresses"
+        options={{
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="add-address"
+        options={{
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="edit-profile"
+        options={{
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="wallet"
+        options={{
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="search"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    position: 'absolute',
+    left: 20,
+    right: 20,
+
+    flexDirection: 'row',
+
+    height: TAB_BAR_HEIGHT,
+    paddingHorizontal: 8,
+
+    borderRadius: 22,
+
+    backgroundColor: '#FFFFFF',
+
+    elevation: 8,
+
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+  },
+  tabItem: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 10,
+    paddingBottom: 8,
+  },
+  iconImage: {
+    width: 22,
+    height: 22,
+  },
+  labelText: {
+    marginTop: 4,
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#6E6E6E',
+  },
+  labelTextActive: {
+    color: '#1C9C57',
+  },
+});

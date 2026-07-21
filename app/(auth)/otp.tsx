@@ -5,6 +5,9 @@ import OTPInput from '../../src/components/auth/OTPInput';
 import CountdownTimer from '../../src/components/auth/CountdownTimer';
 import { useLocalSearchParams } from 'expo-router';
 import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -27,92 +30,104 @@ useEffect(() => {
 
   const timer = setTimeout(() => {
     setShowSuccessPopup(false);
-    router.replace('/(home)/home');
+    router.replace({
+      pathname: '/(auth)/register',
+      params: { mobile },
+    });
   }, 2000);
 
   return () => clearTimeout(timer);
 }, [showSuccessPopup]);
   return (
     <SafeAreaView style={styles.container}>
-
-      {/* Back Button */}
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => router.back()}
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <Ionicons
-          name="arrow-back"
-          size={28}
-          color="#222"
-        />
-      </TouchableOpacity>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Back Button */}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Ionicons
+              name="arrow-back"
+              size={28}
+              color="#222"
+            />
+          </TouchableOpacity>
 
-      {/* Title */}
-      <Text style={styles.title}>
-        Verification Email
+          {/* Title */}
+          <Text style={styles.title}>
+            Verification Email
+          </Text>
+
+          {/* Subtitle */}
+          <Text style={styles.subTitle}>
+            we have sent a verification code{"\n"}
+            to +91 {mobile}
+          </Text>
+
+          {/* OTP Boxes (Temporary) */}
+          <OTPInput
+          otp={otp}
+          setOtp={setOtp}
+          />
+
+          {/* Timer */}
+          {/* <View style={styles.timerRow}>
+            <Text style={styles.timerText}>
+              Auto Verification is enabled
+            </Text>
+
+            <Text style={styles.timerText}>
+              70 Sec
+            </Text>
+          </View> */}
+
+          {/* Resend */}
+          {/* <TouchableOpacity>
+            <Text style={styles.resendText}>
+              Didn't receive OTP ?
+            </Text>
+          </TouchableOpacity> */}
+          <CountdownTimer
+      onResend={() => {
+        console.log('Resend OTP');
+      }}
+    />
+
+          {/* Confirm Button */}
+         <TouchableOpacity
+         onPress={() => {
+      setShowSuccessPopup(true);
+    }}
+      style={[
+        styles.confirmButton,
+        {
+          backgroundColor:
+            otp.every(item => item !== '')
+              ? '#1C9C57'
+              : '#B5B5B5',
+        },
+      ]}
+
+      disabled={!otp.every(item => item !== '')}
+
+    >
+      <Text style={styles.confirmText}>
+        Confirm
       </Text>
-
-      {/* Subtitle */}
-      <Text style={styles.subTitle}>
-        we have sent a verification code{"\n"}
-        to +91 {mobile}
-      </Text>
-
-      {/* OTP Boxes (Temporary) */}
-      <OTPInput
-      otp={otp}
-      setOtp={setOtp}
+    </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
+      <OtpVerifiedPopup
+        visible={showSuccessPopup}
       />
-
-      {/* Timer */}
-      {/* <View style={styles.timerRow}>
-        <Text style={styles.timerText}>
-          Auto Verification is enabled
-        </Text>
-
-        <Text style={styles.timerText}>
-          70 Sec
-        </Text>
-      </View> */}
-
-      {/* Resend */}
-      {/* <TouchableOpacity>
-        <Text style={styles.resendText}>
-          Didn't receive OTP ?
-        </Text>
-      </TouchableOpacity> */}
-      <CountdownTimer
-  onResend={() => {
-    console.log('Resend OTP');
-  }}
-/>
-
-      {/* Confirm Button */}
-     <TouchableOpacity
-     onPress={() => {
-  setShowSuccessPopup(true);
-}}
-  style={[
-    styles.confirmButton,
-    {
-      backgroundColor:
-        otp.every(item => item !== '')
-          ? '#1C9C57'
-          : '#B5B5B5',
-    },
-  ]}
-  
-  disabled={!otp.every(item => item !== '')}
-
->
-  <Text style={styles.confirmText}>
-    Confirm
-  </Text>
-</TouchableOpacity>
-<OtpVerifiedPopup
-  visible={showSuccessPopup}
-/>
-
     </SafeAreaView>
   );
 }
@@ -122,7 +137,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+
+  flex: {
+    flex: 1,
+  },
+
+  scrollContent: {
     paddingHorizontal: 24,
+    paddingBottom: 40,
   },
 
   backButton: {

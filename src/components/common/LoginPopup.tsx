@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { router } from 'expo-router';
 import {
+  Keyboard,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -30,10 +33,14 @@ export default function LoginPopup({
       animationType="fade"
       statusBarTranslucent
     >
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.overlay}>
 
-          <TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View style={styles.container}>
 
               <Image
@@ -97,11 +104,16 @@ export default function LoginPopup({
 
         </View>
       </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+
+  flex: {
+    flex: 1,
+  },
 
   overlay: {
     flex: 1,

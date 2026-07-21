@@ -5,6 +5,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { router } from 'expo-router';
 
 import ProductCard from './ProductCard';
 import { products } from '../../constants/DummyData2';
@@ -35,6 +36,12 @@ export default function ProductSection() {
       rating={item.rating}
       reviews={item.reviews}
       discount={item.discount}
+      onPress={() =>
+        router.push({
+          pathname: '/(home)/product-details',
+          params: { id: item.id },
+        })
+      }
     />
   )}
   showsHorizontalScrollIndicator={false}
@@ -73,7 +80,6 @@ const styles = StyleSheet.create({
   },
  flatList: {
   flexGrow: 0,
-  marginBottom:40,
 },
 
 });

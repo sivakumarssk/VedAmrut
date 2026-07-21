@@ -2,14 +2,20 @@ import { router } from 'expo-router';
 import React, { useEffect } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
+import { useAuth } from '@/hooks/useAuth';
+
 export default function SplashScreen() {
+  const { isLoading } = useAuth();
+
   useEffect(() => {
+    if (isLoading) return;
+
     const timer = setTimeout(() => {
       router.replace('/(home)/home');
     }, 2500);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isLoading]);
 
   return (
     <View style={styles.container}>

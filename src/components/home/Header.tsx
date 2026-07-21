@@ -1,12 +1,32 @@
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
 import SearchBar from '../home/SearchBar';
 
 import Colors from '@/constants/Colors';
+import { useAddress } from '@/hooks/useAddress';
+import { useAuth } from '@/hooks/useAuth';
+import { useLoginPopup } from '@/hooks/useLoginPopup';
 
 export default function Header() {
+  const { isLoggedIn } = useAuth();
+  const { showLoginPopup } = useLoginPopup();
+  const { selectedAddress } = useAddress();
+
+  const handleAddressPress = () => {
+    if (!isLoggedIn) {
+      showLoginPopup();
+      return;
+    }
+    if (!selectedAddress) {
+      router.push('/(home)/add-address');
+      return;
+    }
+    router.push('/(home)/saved-addresses');
+  };
+
   return (
     <LinearGradient
    colors={['#B8FAD8', '#B8FAD8']}
@@ -27,7 +47,10 @@ export default function Header() {
               Hello, Diva
             </Text>
 
-            <View style={styles.locationRow}>
+            <TouchableOpacity
+              style={styles.locationRow}
+              onPress={handleAddressPress}
+            >
 
               <Ionicons
                 name="location-outline"
@@ -35,11 +58,15 @@ export default function Header() {
                 color="#5B5B5B"
               />
 
-              <Text style={styles.location}>
-                Delivery to Hyderabad - 500001
+              <Text style={styles.location} numberOfLines={1}>
+                {selectedAddress
+                  ? `Delivery to : ${selectedAddress.city} - ${selectedAddress.pincode}`
+                  : 'Add delivery address'}
               </Text>
 
-            </View>
+              <Ionicons name="chevron-forward" size={14} color="#5B5B5B" />
+
+            </TouchableOpacity>
 
           </View>
 
@@ -47,7 +74,10 @@ export default function Header() {
 
         <View style={styles.rightSection}>
 
-          <TouchableOpacity style={styles.iconButton}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => router.push('/(home)/wallet')}
+          >
             <Image
             source={require('../../assets/images/wallet.png')}
             style={{
@@ -57,7 +87,10 @@ export default function Header() {
             />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.iconButton}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => router.push('/(home)/cart')}
+          >
             <Image
             source={require("../../assets/images/cart.png")}
             style={{
@@ -86,9 +119,9 @@ export default function Header() {
 const styles = StyleSheet.create({
 
  container: {
-  paddingTop: 60,
+  paddingTop: 34,
   paddingHorizontal: 18,
-  paddingBottom: 24,
+  paddingBottom: 16,
   borderBottomLeftRadius: 24,
   borderBottomRightRadius: 24,
 },
@@ -105,9 +138,9 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
+    width: 54,
+    height: 54,
+    borderRadius: 32,
     marginRight: 12,
   },
 
@@ -154,15 +187,16 @@ const styles = StyleSheet.create({
   },
 
   title: {
-  marginTop: 22,
-  marginBottom: 12,
+  marginTop: 24,
+  marginBottom: 10,
   fontSize: 16,
   fontWeight: '600',
   color: '#1F1F1F',
 },
 
 searchWrapper: {
-  marginBottom: 4,
+  marginTop: 14,
+  marginBottom: 0,
 },
 
 });
