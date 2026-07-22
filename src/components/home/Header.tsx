@@ -11,7 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useLoginPopup } from '@/hooks/useLoginPopup';
 
 export default function Header() {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const { showLoginPopup } = useLoginPopup();
   const { selectedAddress } = useAddress();
 
@@ -44,8 +44,8 @@ export default function Header() {
           <View>
 
             <Text style={styles.greeting}>
-              Hello, Diva
-            </Text>
+  Hello, {isLoggedIn ? user?.fullName : "Guest"}
+</Text>
 
             <TouchableOpacity
               style={styles.locationRow}
