@@ -1,20 +1,18 @@
-import { router } from 'expo-router';
-import OtpVerifiedPopup from '../../src/components/common/OtpVerifiedPopup'
+import { Ionicons } from '@expo/vector-icons';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import OTPInput from '../../src/components/auth/OTPInput';
-import CountdownTimer from '../../src/components/auth/CountdownTimer';
-import { useLocalSearchParams } from 'expo-router';
 import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
-  View,
+  TouchableOpacity
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import CountdownTimer from '../../src/components/auth/CountdownTimer';
+import OTPInput from '../../src/components/auth/OTPInput';
+import OtpVerifiedPopup from '../../src/components/common/OtpVerifiedPopup';
 
 export default function OtpScreen() {
     const [otp, setOtp] = useState([
@@ -41,14 +39,19 @@ useEffect(() => {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
+  style={styles.flex}
+  behavior={
+    Platform.OS === 'ios'
+      ? 'padding'
+      : 'height'
+  }
+  keyboardVerticalOffset={80}
+>
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+  contentContainerStyle={styles.scrollContent}
+  keyboardShouldPersistTaps="handled"
+  showsVerticalScrollIndicator={false}
+>
           {/* Back Button */}
           <TouchableOpacity
             style={styles.backButton}
