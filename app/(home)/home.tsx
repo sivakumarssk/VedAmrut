@@ -2,7 +2,7 @@ import { ScrollView } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Header from '../../src/components/home/Header';
 import CategoryGrid from '../../src/components/home/CategoryGrid';
-import BannerCarousel from '../../src/components/home/BannerCarousel';
+import HeroPromo from '../../src/components/home/HeroPromo';
 import ProductSection from '../../src/components/home/ProductSection';
 import { useState } from 'react';
 import LoginPopup from '../../src/components/common/LoginPopup';
@@ -33,10 +33,9 @@ export default function HomeScreen() {
   
         <Header />
 
-        
-         <CategoryGrid />
-          <BannerCarousel />
-          <ProductSection />
+        <CategoryGrid />
+        <HeroPromo />
+        <ProductSection />
 
       </ScrollView>
     </SafeAreaView>

@@ -35,7 +35,7 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#0F5132',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     fontSize: 18,
     fontWeight: '600',
-    color: '#2D2D2D',
+    color: '#FFFFFF',
     textAlign: 'center',
   },
 });

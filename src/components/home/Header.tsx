@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -28,10 +27,7 @@ export default function Header() {
   };
 
   return (
-    <LinearGradient
-   colors={['#B8FAD8', '#B8FAD8']}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <View style={styles.topRow}>
 
         <View style={styles.leftSection}>
@@ -55,7 +51,7 @@ export default function Header() {
               <Ionicons
                 name="location-outline"
                 size={15}
-                color="#5B5B5B"
+                color="#1F5C3D"
               />
 
               <Text style={styles.location} numberOfLines={1}>
@@ -64,7 +60,7 @@ export default function Header() {
                   : 'Add delivery address'}
               </Text>
 
-              <Ionicons name="chevron-forward" size={14} color="#5B5B5B" />
+              <Ionicons name="chevron-forward" size={14} color="#1F5C3D" />
 
             </TouchableOpacity>
 
@@ -112,18 +108,19 @@ export default function Header() {
   <SearchBar />
 </View>
 
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
 
  container: {
+  backgroundColor: '#8DF0B4',
   paddingTop: 34,
   paddingHorizontal: 18,
-  paddingBottom: 16,
-  borderBottomLeftRadius: 24,
-  borderBottomRightRadius: 24,
+  paddingBottom: 38,
+  // borderBottomLeftRadius: 32,
+  // borderBottomRightRadius: 32,
 },
 
   topRow: {
@@ -142,12 +139,14 @@ const styles = StyleSheet.create({
     height: 54,
     borderRadius: 32,
     marginRight: 12,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.7)',
   },
 
   greeting: {
     fontSize: 17,
     fontWeight: '700',
-    color: Colors.black,
+    color: '#0F3D26',
   },
 
   locationRow: {
@@ -158,7 +157,7 @@ const styles = StyleSheet.create({
 
   location: {
     fontSize: 12,
-    color: 'gray',
+    color: '#1F5C3D',
     marginLeft: 4,
   },
 
@@ -191,7 +190,7 @@ const styles = StyleSheet.create({
   marginBottom: 10,
   fontSize: 16,
   fontWeight: '600',
-  color: '#1F1F1F',
+  color: '#0F3D26',
 },
 
 searchWrapper: {
