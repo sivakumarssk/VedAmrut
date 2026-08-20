@@ -1,16 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ScreenHeader from '../../src/components/common/ScreenHeader';
+import ScreenHeader from '@/components/common/ScreenHeader';
 
 const transactions = [
   {

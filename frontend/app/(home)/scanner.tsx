@@ -2,16 +2,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import React, { useState } from 'react';
 import {
-    Alert,
-    Dimensions,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ScreenHeader from '../../src/components/common/ScreenHeader';
+import ScreenHeader from '@/components/common/ScreenHeader';
 
 const { width } = Dimensions.get('window');
 const FRAME_SIZE = width - 64;

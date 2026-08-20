@@ -1,4 +1,4 @@
-import { useAddressContext } from '../../src/context/AddressContext';
+import { useAddressContext } from '@/context/AddressContext';
 
 export const useAddress = () => {
   return useAddressContext();

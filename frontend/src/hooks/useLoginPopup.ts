@@ -1,4 +1,4 @@
-import { useLoginPopupContext } from '../../src/context/LoginPopupContext';
+import { useLoginPopupContext } from '@/context/LoginPopupContext';
 
 export const useLoginPopup = () => {
   return useLoginPopupContext();

@@ -11,12 +11,16 @@ import {
 type CategoryCardProps = {
   title: string;
   image: ImageSourcePropType;
+  color: string;
+  transparent?: boolean;
   onPress?: () => void;
 };
 
 export default function CategoryCard({
   title,
   image,
+  color,
+  transparent,
   onPress,
 }: CategoryCardProps) {
   return (
@@ -25,18 +29,15 @@ export default function CategoryCard({
       style={styles.container}
       onPress={onPress}
     >
-      <View style={styles.card}>
+      <View style={[styles.card, { backgroundColor: color }]}>
         <Image
           source={image}
-          resizeMode="contain"
-          style={styles.image}
+          resizeMode={transparent ? 'contain' : 'cover'}
+          style={[styles.image, transparent && styles.imageContained]}
         />
       </View>
 
-      <Text
-        style={styles.title}
-        numberOfLines={2}
-      >
+      <Text style={styles.title} numberOfLines={2}>
         {title}
       </Text>
     </TouchableOpacity>
@@ -47,48 +48,47 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     width: '23%',
-    marginBottom: 18,
+    marginBottom: 20,
   },
 
   card: {
-    width: 58,
-    height: 58,
+    width: 68,
+    height: 68,
 
-    borderRadius: 14,
+    borderRadius: 18,
 
-    backgroundColor: '#FFFFFF',
+    overflow: 'hidden',
 
     borderWidth: 1,
-
-    borderColor: '#AEEAC0',
-
-    justifyContent: 'center',
-
-    alignItems: 'center',
+    borderColor: 'rgba(0,0,0,0.06)',
 
     shadowColor: '#000',
-
-    shadowOpacity: 0.05,
-
-    shadowRadius: 4,
-
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 3,
     },
 
-    elevation: 2,
+    elevation: 3,
   },
 
   image: {
-    width: 38,
-    height: 38,
+    width: '100%',
+    height: '100%',
+  },
+
+  imageContained: {
+    width: '82%',
+    height: '82%',
+    alignSelf: 'center',
+    marginTop: '9%',
   },
 
   title: {
     marginTop: 8,
 
-    fontSize: 11,
+    fontSize: 11.5,
 
     textAlign: 'center',
 
@@ -96,6 +96,6 @@ const styles = StyleSheet.create({
 
     lineHeight: 14,
 
-    fontWeight: '500',
+    fontWeight: '600',
   },
 });

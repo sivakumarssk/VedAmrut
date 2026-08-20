@@ -2,24 +2,24 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import {
-    FlatList,
-    Image,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import {
-    SafeAreaView,
-    useSafeAreaInsets,
+  SafeAreaView,
+  useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
-import ScreenHeader from '../../src/components/common/ScreenHeader';
-import { TAB_BAR_BOTTOM_MARGIN, TAB_BAR_HEIGHT } from '../../src/constants/Layout';
-import { useAddress } from '../../src/hooks/useAddress';
-import { useAuth } from '../../src/hooks/useAuth';
-import { useCart } from '../../src/hooks/useCart';
-import { useLoginPopup } from '../../src/hooks/useLoginPopup';
+import ScreenHeader from '@/components/common/ScreenHeader';
+import { TAB_BAR_BOTTOM_MARGIN, TAB_BAR_HEIGHT } from '@/constants/Layout';
+import { useAddress } from '@/hooks/useAddress';
+import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
+import { useLoginPopup } from '@/hooks/useLoginPopup';
 
 const DELIVERY_FEE = 0;
 const FOOTER_HEIGHT = 100;

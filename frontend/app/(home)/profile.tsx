@@ -2,18 +2,18 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ScreenHeader from '../../src/components/common/ScreenHeader';
-import { SCREEN_BOTTOM_PADDING } from '../../src/constants/Layout';
-import { useAuth } from '../../src/hooks/useAuth';
+import ScreenHeader from '@/components/common/ScreenHeader';
+import { SCREEN_BOTTOM_PADDING } from '@/constants/Layout';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();

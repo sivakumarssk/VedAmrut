@@ -1,17 +1,17 @@
 import React, {
-    createContext,
-    ReactNode,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
 } from 'react';
 
-import { products } from '../../src/constants/DummyData2';
+import { products } from '@/constants/DummyData2';
 import {
-    getCartItems,
-    saveCartItems,
-    StoredCartItem,
-} from '../../src/utils/storage';
+  getCartItems,
+  saveCartItems,
+  StoredCartItem,
+} from '@/utils/storage';
 
 export type CartLine = StoredCartItem & {
   product: (typeof products)[number];

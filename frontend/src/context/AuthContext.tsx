@@ -1,18 +1,18 @@
 import React, {
-    createContext,
-    ReactNode,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
 } from 'react';
 
 import {
-    clearUser,
-    getIsLoggedIn,
-    getUser,
-    saveUser,
-    StoredUser,
-} from '../../src/utils/storage';
+  clearUser,
+  getIsLoggedIn,
+  getUser,
+  saveUser,
+  StoredUser,
+} from '@/utils/storage';
 
 type AuthContextType = {
   isLoggedIn: boolean;

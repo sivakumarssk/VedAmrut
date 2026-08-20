@@ -1,16 +1,16 @@
 import React, {
-    createContext,
-    ReactNode,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
 } from 'react';
 
 import {
-    getUserReviews,
-    saveUserReviews,
-    UserReview,
-} from '../../src/utils/storage';
+  getUserReviews,
+  saveUserReviews,
+  UserReview,
+} from '@/utils/storage';
 
 type ReviewsContextType = {
   reviews: UserReview[];

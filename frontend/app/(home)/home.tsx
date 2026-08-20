@@ -1,11 +1,15 @@
 import { ScrollView } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import BannerCarousel from '../../src/components/home/BannerCarousel';
-import CategoryGrid from '../../src/components/home/CategoryGrid';
 import Header from '../../src/components/home/Header';
+import CategoryGrid from '../../src/components/home/CategoryGrid';
+import HeroPromo from '../../src/components/home/HeroPromo';
 import ProductSection from '../../src/components/home/ProductSection';
-import { TAB_BAR_BOTTOM_MARGIN, TAB_BAR_HEIGHT } from '../../src/constants/Layout';
+import { useState } from 'react';
+import LoginPopup from '../../src/components/common/LoginPopup';
+import {TouchableOpacity,Text} from 'react-native'
 import { useLoginPopup } from '../../src/hooks/useLoginPopup';
+import { Button } from 'react-native';
+import { TAB_BAR_BOTTOM_MARGIN, TAB_BAR_HEIGHT } from '../../src/constants/Layout';
 
 export default function HomeScreen() {
   //const [showLoginPopup, setShowLoginPopup] = useState(false);
@@ -29,10 +33,9 @@ export default function HomeScreen() {
   
         <Header />
 
-        
-         <CategoryGrid />
-          <BannerCarousel />
-          <ProductSection />
+        <CategoryGrid />
+        <HeroPromo />
+        <ProductSection />
 
       </ScrollView>
     </SafeAreaView>

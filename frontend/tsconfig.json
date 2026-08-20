@@ -1,27 +1,10 @@
-// {
-//   "extends": "expo/tsconfig.base",
-//   "compilerOptions": {
-//     "strict": true,
-//     "baseUrl": ".",
-//     "paths": {
-//       "@/*": ["frontend/src/*"]
-//     },
-//     "ignoreDeprecations": "6.0"
-//   },
-//   "include": [
-//     "**/*.ts",
-//     "**/*.tsx",
-//     "frontend/.expo/types/**/*.ts",
-//     "frontend/expo-env.d.ts"
-//   ]
-// }
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "src/*": ["src/*"]
+      "@/*": ["src/*"]
     },
     "ignoreDeprecations": "6.0"
   },

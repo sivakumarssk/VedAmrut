@@ -4,23 +4,23 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import {
-    SafeAreaView,
-    useSafeAreaInsets,
+  SafeAreaView,
+  useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
-import ScreenHeader from '../../src/components/common/ScreenHeader';
-import { useAuth } from '../../src/hooks/useAuth';
+import ScreenHeader from '@/components/common/ScreenHeader';
+import { useAuth } from '@/hooks/useAuth';
 
 
 export default function EditProfileScreen() {

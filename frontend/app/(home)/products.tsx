@@ -3,9 +3,9 @@ import React from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ScreenHeader from '../../src/components/common/ScreenHeader';
-import ProductCard from '../../src/components/home/ProductCard';
-import { products } from '../../src/constants/DummyData2';
+import ScreenHeader from '@/components/common/ScreenHeader';
+import ProductCard from '@/components/home/ProductCard';
+import { products } from '@/constants/DummyData2';
 
 export default function ProductsScreen() {
   const { category } = useLocalSearchParams<{ category?: string }>();

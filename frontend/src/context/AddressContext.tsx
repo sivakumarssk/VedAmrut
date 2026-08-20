@@ -1,18 +1,18 @@
 import React, {
-    createContext,
-    ReactNode,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
 } from 'react';
 
 import {
-    getAddresses,
-    getSelectedAddressId,
-    saveAddresses,
-    SavedAddress,
-    saveSelectedAddressId,
-} from '../../src/utils/storage';
+  getAddresses,
+  getSelectedAddressId,
+  saveAddresses,
+  SavedAddress,
+  saveSelectedAddressId,
+} from '@/utils/storage';
 
 type AddressContextType = {
   addresses: SavedAddress[];

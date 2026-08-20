@@ -2,33 +2,33 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Dimensions,
-    FlatList,
-    Image,
-    Keyboard,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    View,
+  Dimensions,
+  FlatList,
+  Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 import {
-    SafeAreaView,
-    useSafeAreaInsets,
+  SafeAreaView,
+  useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
-import RatingBadge from '../../src/components/home/RatingBadge';
-import { products } from '../../src/constants/DummyData2';
-import { useAddress } from '../../src/hooks/useAddress';
-import { useAuth } from '../../src/hooks/useAuth';
-import { useCart } from '../../src/hooks/useCart';
-import { useLoginPopup } from '../../src/hooks/useLoginPopup';
-import { useReviews } from '../../src/hooks/useReviews';
+import RatingBadge from '@/components/home/RatingBadge';
+import { products } from '@/constants/DummyData2';
+import { useAddress } from '@/hooks/useAddress';
+import { useAuth } from '@/hooks/useAuth';
+import { useCart } from '@/hooks/useCart';
+import { useLoginPopup } from '@/hooks/useLoginPopup';
+import { useReviews } from '@/hooks/useReviews';
 
 const { width } = Dimensions.get('window');
 

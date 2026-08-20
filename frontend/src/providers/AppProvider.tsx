@@ -1,10 +1,10 @@
 import React, { ReactNode } from 'react';
 
-import { AddressProvider } from '../../src/context/AddressContext';
-import { AuthProvider } from '../../src/context/AuthContext';
-import { CartProvider } from '../../src/context/CartContext';
-import { LoginPopupProvider } from '../../src/context/LoginPopupContext';
-import { ReviewsProvider } from '../../src/context/ReviewsContext';
+import { AddressProvider } from '@/context/AddressContext';
+import { AuthProvider } from '@/context/AuthContext';
+import { CartProvider } from '@/context/CartContext';
+import { LoginPopupProvider } from '@/context/LoginPopupContext';
+import { ReviewsProvider } from '@/context/ReviewsContext';
 
 type Props = {
   children: ReactNode;

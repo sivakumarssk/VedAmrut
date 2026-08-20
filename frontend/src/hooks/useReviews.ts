@@ -1,4 +1,4 @@
-import { useReviewsContext } from '../../src/context/ReviewsContext';
+import { useReviewsContext } from '@/context/ReviewsContext';
 
 export const useReviews = () => {
   return useReviewsContext();

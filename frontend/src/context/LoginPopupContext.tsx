@@ -1,11 +1,11 @@
 import React, {
-    createContext,
-    ReactNode,
-    useContext,
-    useState,
+  createContext,
+  ReactNode,
+  useContext,
+  useState,
 } from 'react';
 
-import LoginPopup from '../../src/components/common/LoginPopup';
+import LoginPopup from '@/components/common/LoginPopup';
 
 type LoginPopupContextType = {
   showLoginPopup: () => void;

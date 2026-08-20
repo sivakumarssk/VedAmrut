@@ -1,13 +1,13 @@
-import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Tabs } from 'expo-router';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useLoginPopup } from '../../src/hooks/useLoginPopup';
+import { useAuth } from '../../src/hooks/useAuth';
 import {
   TAB_BAR_BOTTOM_MARGIN,
   TAB_BAR_HEIGHT,
 } from '../../src/constants/Layout';
-import { useAuth } from '../../src/hooks/useAuth';
-import { useLoginPopup } from '../../src/hooks/useLoginPopup';
 
 const TAB_ICONS: Record<string, any> = {
   home: require('../../src/assets/icons/home.png'),

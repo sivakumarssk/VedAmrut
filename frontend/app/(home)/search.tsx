@@ -2,21 +2,21 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    FlatList,
-    Image,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import {
-    SafeAreaView,
-    useSafeAreaInsets,
+  SafeAreaView,
+  useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
-import { products } from '../../src/constants/DummyData2';
-import { getSearchHistory, saveSearchHistory } from '../../src/utils/storage';
+import { products } from '@/constants/DummyData2';
+import { getSearchHistory, saveSearchHistory } from '@/utils/storage';
 
 export default function SearchScreen() {
   const [query, setQuery] = useState('');

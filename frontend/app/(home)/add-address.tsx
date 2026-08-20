@@ -3,24 +3,24 @@ import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 
 import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import {
-    SafeAreaView,
-    useSafeAreaInsets,
+  SafeAreaView,
+  useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
-import ScreenHeader from '../../src/components/common/ScreenHeader';
-import { useAddress } from '../../src/hooks/useAddress';
-import { SavedAddress } from '../../src/utils/storage';
+import ScreenHeader from '@/components/common/ScreenHeader';
+import { useAddress } from '@/hooks/useAddress';
+import { SavedAddress } from '@/utils/storage';
 
 const LABELS: SavedAddress['label'][] = ['Home', 'Work', 'Other'];
 
