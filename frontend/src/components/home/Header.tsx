@@ -37,10 +37,12 @@ export default function Header() {
             style={styles.logo}
           />
 
-          <View>
+          <View style={{ flex: 1, minWidth: 0 }}>
 
             <Text style={styles.greeting}>
-  Hello, {isLoggedIn ? user?.fullName : "Guest"}
+  Hello, {isLoggedIn ? user?.fullName : "Guest"}'
+  
+   '
 </Text>
 
             <TouchableOpacity
@@ -54,11 +56,13 @@ export default function Header() {
                 color="#1F5C3D"
               />
 
-              <Text style={styles.location} numberOfLines={1}>
-                {selectedAddress
-                  ? `Delivery to : ${selectedAddress.city} - ${selectedAddress.pincode}`
-                  : 'Add delivery address'}
-              </Text>
+  <Text style={styles.location} numberOfLines={1}>
+  {user?.address
+    ? `Delivery to : ${user.address}`
+    : selectedAddress
+      ? `Delivery to : ${selectedAddress.city} - ${selectedAddress.pincode}`
+      : 'Add delivery address'}
+</Text>
 
               <Ionicons name="chevron-forward" size={14} color="#1F5C3D" />
 
@@ -68,7 +72,7 @@ export default function Header() {
 
         </View>
 
-        <View style={styles.rightSection}>
+        {/* <View style={styles.rightSection}>
 
           <TouchableOpacity
             style={styles.iconButton}
@@ -96,7 +100,37 @@ export default function Header() {
             />
           </TouchableOpacity>
 
-        </View>
+        </View> */}
+
+        <View style={styles.rightSection}>
+
+  {/* WALLET ICON */}
+  <TouchableOpacity
+    style={styles.iconButton}
+    onPress={() => router.push('/(home)/wallet')}
+  >
+    <Ionicons
+      name="wallet-outline"
+      size={23}
+      color="#1F5C3D"
+    />
+  </TouchableOpacity>
+
+  {/* CART ICON */}
+  <TouchableOpacity
+    style={styles.iconButton}
+    onPress={() => router.push('/(home)/cart')}
+  >
+    <Image
+      source={require('../../assets/images/cart.png')}
+      style={{
+        width: 22,
+        height: 22,
+      }}
+    />
+  </TouchableOpacity>
+
+</View>
 
       </View>
 
@@ -129,10 +163,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  leftSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+leftSection: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  flex: 1,
+  minWidth: 0,
+},
 
   logo: {
     width: 54,
@@ -161,14 +197,16 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
 
-  rightSection: {
-    flexDirection: 'row',
-  },
+ rightSection: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginLeft: 16,
+},
 
   iconButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',

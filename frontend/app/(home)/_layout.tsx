@@ -167,6 +167,14 @@ export default function HomeLayout() {
           href: null,
         }}
       />
+
+      {/* <Tabs.Screen
+  name="checkout"
+  options={{
+    href: null,
+  }}
+/> */}
+
     </Tabs>
   );
 }

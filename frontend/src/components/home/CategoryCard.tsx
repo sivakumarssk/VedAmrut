@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
   ImageSourcePropType,
   StyleSheet,
@@ -23,21 +24,78 @@ export default function CategoryCard({
   transparent,
   onPress,
 }: CategoryCardProps) {
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+
   return (
     <TouchableOpacity
-      activeOpacity={0.8}
-      style={styles.container}
+      style={[
+        styles.container,
+        {
+          backgroundColor: color,
+        },
+      ]}
+      activeOpacity={0.85}
       onPress={onPress}
     >
-      <View style={[styles.card, { backgroundColor: color }]}>
-        <Image
-          source={image}
-          resizeMode={transparent ? 'contain' : 'cover'}
-          style={[styles.image, transparent && styles.imageContained]}
-        />
+      <View style={styles.imageContainer}>
+        {imageLoading && !imageError && (
+          <ActivityIndicator
+            size="small"
+            color="#1C9C57"
+            style={styles.loader}
+          />
+        )}
+
+        {!imageError ? (
+          // <Image source={image}
+          //   resizeMode="contain"
+          //   style={[
+          //     styles.image,
+          //     imageLoading && styles.hiddenImage,
+          //   ]}
+          //   onLoadStart={() => {
+          //     setImageLoading(true);
+          //   }}
+          //   onLoad={() => {
+          //     setImageLoading(false);
+          //   }}
+          //   onError={(error) => {
+          //     console.log(
+          //       `CATEGORY IMAGE ERROR - ${title}:`,
+          //       error.nativeEvent.error
+          //     );
+
+          //     setImageLoading(false);
+          //     setImageError(true);
+          //   }}
+          // />
+    <Image
+  source={image}
+  resizeMode="contain"
+  style={styles.image}
+  onError={(error) => {
+    console.log(
+      'IMAGE ERROR:',
+      title,
+      error.nativeEvent
+    );
+    setImageError(true);
+  }}
+/>
+        ) : (
+          <View style={styles.imageError}>
+            <Text style={styles.imageErrorText}>
+              Image unavailable
+            </Text>
+          </View>
+        )}
       </View>
 
-      <Text style={styles.title} numberOfLines={2}>
+      <Text
+        style={styles.title}
+        numberOfLines={2}
+      >
         {title}
       </Text>
     </TouchableOpacity>
@@ -46,56 +104,51 @@ export default function CategoryCard({
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
     width: '23%',
-    marginBottom: 20,
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    alignItems: 'center',
   },
 
-  card: {
-    width: 68,
-    height: 68,
-
-    borderRadius: 18,
-
-    overflow: 'hidden',
-
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.06)',
-
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-
-    elevation: 3,
+  imageContainer: {
+    width: 65,
+    height: 65,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   image: {
-    width: '100%',
-    height: '100%',
+    width: 65,
+    height: 65,
   },
 
-  imageContained: {
-    width: '82%',
-    height: '82%',
-    alignSelf: 'center',
-    marginTop: '9%',
+  hiddenImage: {
+    opacity: 0,
+  },
+
+  loader: {
+    position: 'absolute',
+  },
+
+  imageError: {
+    width: 65,
+    height: 65,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  imageErrorText: {
+    fontSize: 9,
+    color: '#999',
+    textAlign: 'center',
   },
 
   title: {
-    marginTop: 8,
-
-    fontSize: 11.5,
-
-    textAlign: 'center',
-
-    color: '#222',
-
-    lineHeight: 14,
-
+    marginTop: 6,
+    fontSize: 11,
     fontWeight: '600',
+    color: '#222',
+    textAlign: 'center',
   },
 });

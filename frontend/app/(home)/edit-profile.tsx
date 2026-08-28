@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -22,13 +23,10 @@ import {
 import ScreenHeader from '@/components/common/ScreenHeader';
 import { useAuth } from '@/hooks/useAuth';
 
-
 export default function EditProfileScreen() {
-
   const { user, updateUser } = useAuth();
 
   const insets = useSafeAreaInsets();
-
 
   const [fullName, setFullName] = useState(
     user?.fullName ?? ''
@@ -50,114 +48,112 @@ export default function EditProfileScreen() {
     user?.address ?? ''
   );
 
-
   const [submitting, setSubmitting] = useState(false);
 
-
+  // =========================
+  // FORM VALIDATION
+  // =========================
 
   const isFormValid =
     fullName.trim().length > 0 &&
-    phone.length === 10;
+    phone.length === 10 &&
+    email.trim().length > 0;
 
+  // =========================
+  // SAVE PROFILE
+  // =========================
 
+ const handleSave = async () => {
+  if (!isFormValid || submitting) {
+    return;
+  }
 
-  const handleSave = async () => {
+  if (!user?.id) {
+    Alert.alert(
+      'Error',
+      'User information not found. Please login again.'
+    );
+    return;
+  }
 
-    if (!isFormValid || submitting) return;
+  setSubmitting(true);
 
+  try {
+    console.log('Updating user:', user.id);
 
-    setSubmitting(true);
+    // AuthContext handles backend + local storage
+    await updateUser({
+      id: user.id,
+      fullName: fullName.trim(),
+      mobile: phone,
+      email: email.trim(),
+      dob: dob.trim(),
+      address: address.trim(),
+      role: user.role,
+    });
 
+    Alert.alert(
+      'Success',
+      'Profile updated successfully',
+      [
+        {
+          text: 'OK',
+          onPress: () => {
+            router.back();
+          },
+        },
+      ]
+    );
+  } catch (error) {
+    console.error('Update Profile Error:', error);
 
-    try {
-
-      await updateUser({
-
-        fullName: fullName.trim(),
-
-        mobile: phone,
-
-        email: email.trim(),
-
-        dob: dob.trim(),
-
-        address: address.trim(),
-
-      });
-
-
-      router.back();
-
-
-    } finally {
-
-      setSubmitting(false);
-
-    }
-
-  };
-
-
-
-
+    Alert.alert(
+      'Update Failed',
+      error instanceof Error
+        ? error.message
+        : 'Unable to update profile'
+    );
+  } finally {
+    setSubmitting(false);
+  }
+};
   return (
-
     <SafeAreaView
       style={styles.safeArea}
       edges={['top']}
     >
-
-
       <KeyboardAvoidingView
-
-  style={styles.flex}
-
-  behavior={
-    Platform.OS === 'ios'
-    ? 'padding'
-    : 'height'
-  }
-
-  keyboardVerticalOffset={80}
-
->
-
-
+        style={styles.flex}
+        behavior={
+          Platform.OS === 'ios'
+            ? 'padding'
+            : 'height'
+        }
+        keyboardVerticalOffset={80}
+      >
         <View style={styles.flex}>
 
-
-          <ScreenHeader
-            title="Edit Profile"
-          />
-
-
+          <ScreenHeader title="Edit Profile" />
 
           <ScrollView
+            contentContainerStyle={[
+              styles.scrollContent,
+              {
+                paddingBottom:
+                  120 + insets.bottom,
+              },
+            ]}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
 
-  contentContainerStyle={[
-    styles.scrollContent,
-    {
-      paddingBottom:
-      120 + insets.bottom
-    }
-  ]}
-
-  keyboardShouldPersistTaps="always"
-
-  keyboardDismissMode="none"
-
-  showsVerticalScrollIndicator={false}
-
->
-
-
-
+            {/* =========================
+                AVATAR
+            ========================= */}
 
             <View style={styles.avatarWrapper}>
 
-
               <View style={styles.avatarContainer}>
-
 
                 <Ionicons
                   name="person"
@@ -165,51 +161,43 @@ export default function EditProfileScreen() {
                   color="#555"
                 />
 
-
                 <TouchableOpacity
                   style={styles.avatarEditBadge}
                 >
-
                   <Ionicons
                     name="add"
                     size={16}
                     color="#222"
                   />
-
                 </TouchableOpacity>
-
 
               </View>
 
-
             </View>
 
-
-
-
+            {/* =========================
+                TITLE
+            ========================= */}
 
             <Text style={styles.updateTitle}>
               Update Profile Details
             </Text>
 
-
             <Text style={styles.updateSubtitle}>
               Keep your account information fresh and accurate
             </Text>
 
-
-
-
+            {/* =========================
+                BASIC INFORMATION
+            ========================= */}
 
             <Text style={styles.sectionLabel}>
               Basic Information
             </Text>
 
-
-
             <View style={styles.card}>
 
-
+              {/* FULL NAME */}
 
               <Text style={styles.label}>
                 Full name
@@ -218,440 +206,258 @@ export default function EditProfileScreen() {
                 </Text>
               </Text>
 
-
-
               <TextInput
-
-                autoFocus
-
                 placeholder="Enter your name"
-
                 placeholderTextColor="#9A9A9A"
-
                 value={fullName}
-
-                onChangeText={(text)=>
-                  setFullName(text)
-                }
-
+                onChangeText={setFullName}
                 style={styles.input}
-
                 returnKeyType="next"
-                 
               />
 
-
-
-
-
+              {/* PHONE */}
 
               <Text style={styles.label}>
-
                 Phone number
                 <Text style={styles.required}>
                   *
                 </Text>
-
               </Text>
 
-
-
-
               <TextInput
-
                 placeholder="Enter your phone number"
-
                 placeholderTextColor="#9A9A9A"
-
                 value={phone}
-
-
-                onChangeText={(text)=>{
-
-                  setPhone(
+                onChangeText={(text) => {
+                  const formatted =
                     text
-                    .replace(/[^0-9]/g,'')
-                    .slice(0,10)
-                  );
+                      .replace(/[^0-9]/g, '')
+                      .slice(0, 10);
 
+                  setPhone(formatted);
                 }}
-
-
                 style={styles.input}
-
                 keyboardType="number-pad"
-
                 maxLength={10}
-
                 returnKeyType="next"
-
               />
 
-
-
-
-
-
+              {/* EMAIL */}
 
               <Text style={styles.label}>
                 Email
+                <Text style={styles.required}>
+                  *
+                </Text>
               </Text>
 
-
-
-
               <TextInput
-
                 placeholder="Enter your email"
-
                 placeholderTextColor="#9A9A9A"
-
                 value={email}
-
                 onChangeText={setEmail}
-
                 style={styles.input}
-
                 keyboardType="email-address"
-
                 autoCapitalize="none"
-
               />
-
-
 
             </View>
 
-
-
-
-
+            {/* =========================
+                PERSONAL INFORMATION
+            ========================= */}
 
             <Text style={styles.sectionLabel}>
               Personal Information
             </Text>
 
-
-
-
-
             <View style={styles.card}>
 
-
+              {/* DOB */}
 
               <Text style={styles.label}>
-
                 Date of Birth
-
-                <Text style={styles.required}>
-                  *
-                </Text>
-
               </Text>
 
+            <TextInput
+  placeholder="DD/MM/YYYY"
+  placeholderTextColor="#9A9A9A"
+  value={dob}
+  onChangeText={setDob}
+  style={styles.input}
+/>
 
-
-              <TextInput
-
-                placeholder="Enter DOB"
-
-                placeholderTextColor="#9A9A9A"
-
-                value={dob}
-
-                onChangeText={setDob}
-
-                style={styles.input}
-
-              />
-
-
-
-
-
+              {/* ADDRESS */}
 
               <Text style={styles.label}>
                 Address
               </Text>
 
-
-
-
-
               <TextInput
-
                 placeholder="Enter Your Complete address"
-
                 placeholderTextColor="#9A9A9A"
-
                 value={address}
-
                 onChangeText={setAddress}
-
-                style={styles.input}
-
+                style={[
+                  styles.input,
+                  styles.addressInput,
+                ]}
+                multiline
+                textAlignVertical="top"
               />
-
-
 
             </View>
 
-
-
-
-
-
+            {/* =========================
+                SAVE BUTTON
+            ========================= */}
 
             <TouchableOpacity
-
               disabled={
                 !isFormValid ||
                 submitting
               }
-
               onPress={handleSave}
-
-
               style={[
                 styles.saveButton,
                 {
                   backgroundColor:
-                  isFormValid
-                  ? '#1C9C57'
-                  : '#B5B5B5'
-                }
+                    isFormValid && !submitting
+                      ? '#1C9C57'
+                      : '#B5B5B5',
+                },
               ]}
-
-
             >
-
               <Text style={styles.saveButtonText}>
-
-                {
-                  submitting
-                  ? "Saving..."
-                  : "Save Changes"
-                }
-
+                {submitting
+                  ? 'Saving...'
+                  : 'Save Changes'}
               </Text>
-
-
             </TouchableOpacity>
-
-
-
-
 
           </ScrollView>
 
-
-
         </View>
-
-
-
       </KeyboardAvoidingView>
-
-
-
     </SafeAreaView>
-
   );
-
 }
 
-
-
-
-
+// =========================
+// STYLES
+// =========================
 
 const styles = StyleSheet.create({
-
-safeArea:{
-  flex:1,
-  backgroundColor:'#F5F5F5'
-},
-
-
-flex:{
-  flex:1
-},
-
-
-scrollContent:{
-  paddingHorizontal:20,
-  paddingBottom:40
-},
-
-
-avatarWrapper:{
-  alignItems:'center',
-  marginTop:8
-},
-
-
-avatarContainer:{
-
-  width:88,
-
-  height:88,
-
-  borderRadius:20,
-
-  borderWidth:1.5,
-
-  borderColor:'#1C9C57',
-
-  backgroundColor:'#EDEDED',
-
-  justifyContent:'center',
-
-  alignItems:'center'
-
-},
-
-
-avatarEditBadge:{
-
- position:'absolute',
-
- bottom:-6,
-
- right:-6,
-
- width:28,
-
- height:28,
-
- borderRadius:14,
-
- backgroundColor:'#fff',
-
- justifyContent:'center',
-
- alignItems:'center',
-
- elevation:3
-
-},
-
-
-updateTitle:{
-
- textAlign:'center',
-
- fontSize:19,
-
- fontWeight:'700',
-
- color:'#222',
-
- marginTop:16
-
-},
-
-
-updateSubtitle:{
-
- textAlign:'center',
-
- fontSize:13,
-
- color:'#777',
-
- marginTop:4,
-
- marginBottom:24
-
-},
-
-
-sectionLabel:{
-
- fontSize:16,
-
- fontWeight:'700',
-
- color:'#222',
-
- marginBottom:10
-
-},
-
-
-card:{
-
- backgroundColor:'#fff',
-
- borderRadius:20,
-
- padding:20,
-
- marginBottom:24
-
-},
-
-
-label:{
-
- fontSize:15,
-
- color:'#222',
-
- marginBottom:8
-
-},
-
-
-required:{
-
- color:'#E53935'
-
-},
-
-
-input:{
-
- height:52,
-
- borderWidth:1,
-
- borderColor:'#D9D9D9',
-
- borderRadius:26,
-
- paddingHorizontal:18,
-
- fontSize:15,
-
- color:'#222',
-
- marginBottom:18
-
-},
-
-
-saveButton:{
-
- height:56,
-
- borderRadius:28,
-
- justifyContent:'center',
-
- alignItems:'center'
-
-},
-
-
-saveButtonText:{
-
- fontSize:17,
-
- fontWeight:'600',
-
- color:'#fff'
-
-}
-
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F5F5F5',
+  },
+
+  flex: {
+    flex: 1,
+  },
+
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+  },
+
+  avatarWrapper: {
+    alignItems: 'center',
+    marginTop: 8,
+  },
+
+  avatarContainer: {
+    width: 88,
+    height: 88,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: '#1C9C57',
+    backgroundColor: '#EDEDED',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  avatarEditBadge: {
+    position: 'absolute',
+    bottom: -6,
+    right: -6,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+  },
+
+  updateTitle: {
+    textAlign: 'center',
+    fontSize: 19,
+    fontWeight: '700',
+    color: '#222',
+    marginTop: 16,
+  },
+
+  updateSubtitle: {
+    textAlign: 'center',
+    fontSize: 13,
+    color: '#777',
+    marginTop: 4,
+    marginBottom: 24,
+  },
+
+  sectionLabel: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#222',
+    marginBottom: 10,
+  },
+
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 24,
+  },
+
+  label: {
+    fontSize: 15,
+    color: '#222',
+    marginBottom: 8,
+  },
+
+  required: {
+    color: '#E53935',
+  },
+
+  input: {
+    height: 52,
+    borderWidth: 1,
+    borderColor: '#D9D9D9',
+    borderRadius: 26,
+    paddingHorizontal: 18,
+    fontSize: 15,
+    color: '#222',
+    marginBottom: 18,
+  },
+
+  addressInput: {
+    height: 90,
+    paddingTop: 16,
+    borderRadius: 20,
+  },
+
+  saveButton: {
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  saveButtonText: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
 });
