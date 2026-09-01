@@ -1,267 +1,13 @@
-// const bcrypt = require("bcrypt");
-// const jwt = require("jsonwebtoken");
-
-// const {
-//   createAuthUser,
-//   getUserByEmail,
-//   getUserByPhone,
-// } = require("../models/authModel");
-
-
-// // Register User
-// const register = async (req, res) => {
-//   try {
-//     const { name, email, phone, password } = req.body;
-
-//     // Validation
-//     if (!name || !email || !phone || !password) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "All fields are required",
-//       });
-//     }
-
-//     // Check existing user
-//     const existingUser = await getUserByEmail(email);
-
-//     if (existingUser) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Email already exists",
-//       });
-//     }
-
-//     // Hash password
-//     const hashedPassword = await bcrypt.hash(password, 10);
-
-//     // Create user
-//     const user = await createAuthUser(
-//       name,
-//       email,
-//       phone,
-//       hashedPassword
-//     );
-
-//     // Remove password from response
-//     const { password: _, ...userData } = user;
-
-//     res.status(201).json({
-//       success: true,
-//       message: "Register successful",
-//       data: userData,
-//     });
-
-//   } catch (error) {
-//     console.error(error);
-
-//     res.status(500).json({
-//       success: false,
-//       message: "Internal Server Error",
-//     });
-//   }
-// };
-
-
-// // Login User
-// // const login = async (req, res) => {
-// //   try {
-// //     const { email, password } = req.body;
-
-// //     // Validation
-// //     if (!email || !password) {
-// //       return res.status(400).json({
-// //         success: false,
-// //         message: "Email and password required",
-// //       });
-// //     }
-
-// //     // Find user
-// //     const user = await getUserByEmail(email);
-
-// //     if (!user) {
-// //       return res.status(404).json({
-// //         success: false,
-// //         message: "User not found",
-// //       });
-// //     }
-
-// //     // Compare password
-// //     const isMatch = await bcrypt.compare(
-// //       password,
-// //       user.password
-// //     );
-
-// //     if (!isMatch) {
-// //       return res.status(401).json({
-// //         success: false,
-// //         message: "Invalid password",
-// //       });
-// //     }
-
-// //     // Generate JWT token
-// //     const token = jwt.sign(
-// //       {
-// //         id: user.id,
-// //         email: user.email,
-// //         role: user.role,
-// //       },
-// //       process.env.JWT_SECRET,
-// //       {
-// //         expiresIn: "7d",
-// //       }
-// //     );
-
-// //     res.status(200).json({
-// //       success: true,
-// //       message: "Login successful",
-// //       token,
-// //       user: {
-// //         id: user.id,
-// //         name: user.name,
-// //         email: user.email,
-// //         phone: user.phone,
-// //         role: user.role,
-// //       },
-// //     });
-
-// //   } catch (error) {
-// //     console.error(error);
-
-// //     res.status(500).json({
-// //       success: false,
-// //       message: "Internal Server Error",
-// //     });
-// //   }
-// // };
-
-// const login = async (req, res) => {
-//   try {
-//     const { phone, password } = req.body;
-
-//     // Validation
-//     if (!phone || !password) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Mobile number and password required",
-//       });
-//     }
-
-//     // Find user by mobile number
-//     const user = await getUserByPhone(phone);
-
-//     if (!user) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Mobile number not registered",
-//       });
-//     }
-
-//     // Compare password
-//     const isMatch = await bcrypt.compare(
-//       password,
-//       user.password
-//     );
-
-//     if (!isMatch) {
-//       return res.status(401).json({
-//         success: false,
-//         message: "Invalid password",
-//       });
-//     }
-
-//     // Generate JWT
-//     const token = jwt.sign(
-//       {
-//         id: user.id,
-//         phone: user.phone,
-//         email: user.email,
-//         role: user.role,
-//       },
-//       process.env.JWT_SECRET,
-//       {
-//         expiresIn: "7d",
-//       }
-//     );
-
-//     // Send response
-//     return res.status(200).json({
-//       success: true,
-//       message: "Login successful",
-//       token,
-//       user: {
-//         id: user.id,
-//         name: user.name,
-//         email: user.email,
-//         phone: user.phone,
-//         role: user.role,
-//       },
-//     });
-
-//   } catch (error) {
-//     console.error("Login error:", error);
-
-//     return res.status(500).json({
-//       success: false,
-//       message: "Internal Server Error",
-//     });
-//   }
-// };
-// const checkMobile = async (req, res) => {
-//   try {
-//     const { phone } = req.body;
-
-//     if (!phone) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Mobile number is required",
-//       });
-//     }
-
-//     const user = await getUserByPhone(phone);
-
-//     if (!user) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Mobile number is not registered",
-//       });
-//     }
-
-//     res.status(200).json({
-//       success: true,
-//       message: "Mobile number verified",
-//       user: {
-//         id: user.id,
-//         name: user.name,
-//         email: user.email,
-//         phone: user.phone,
-//         role: user.role,
-//       },
-//     });
-
-//   } catch (error) {
-//     console.error(error);
-
-//     res.status(500).json({
-//       success: false,
-//       message: "Internal Server Error",
-//     });
-//   }
-// };
-
-// module.exports = {
-//   register,
-//   login,
-//   checkMobile,
-// };
-
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const {
   createAuthUser,
+  createRegistrationAddress,
   getUserByEmail,
   getUserByPhone,
 } = require("../models/authModel");
+
 
 // =====================================================
 // REGISTER USER
@@ -269,18 +15,59 @@ const {
 
 const register = async (req, res) => {
   try {
-    const { name, email, phone, password } = req.body;
+    const {
+      name,
+      email,
+      phone,
+      password,
+      address,
+    } = req.body;
 
-    // Validation
-    if (!name || !email || !phone || !password) {
+    console.log("=================================");
+    console.log("REGISTER REQUEST");
+    console.log("Name:", name);
+    console.log("Email:", email);
+    console.log("Phone:", phone);
+    console.log("Address:", address);
+    console.log("=================================");
+
+
+    // =====================================================
+    // BASIC VALIDATION
+    // =====================================================
+
+    if (
+      !name ||
+      !email ||
+      !phone ||
+      !password
+    ) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required",
+        message:
+          "Name, email, phone and password are required",
       });
     }
 
-    // Check existing email
-    const existingUser = await getUserByEmail(email);
+    const finalAddress =
+      typeof address === "string"
+        ? address.trim()
+        : "";
+
+    if (!finalAddress) {
+      return res.status(400).json({
+        success: false,
+        message: "Address is required",
+      });
+    }
+
+
+    // =====================================================
+    // CHECK EMAIL
+    // =====================================================
+
+    const existingUser =
+      await getUserByEmail(email.trim());
 
     if (existingUser) {
       return res.status(400).json({
@@ -289,8 +76,13 @@ const register = async (req, res) => {
       });
     }
 
-    // Check existing phone
-    const existingPhone = await getUserByPhone(phone);
+
+    // =====================================================
+    // CHECK PHONE
+    // =====================================================
+
+    const existingPhone =
+      await getUserByPhone(phone.trim());
 
     if (existingPhone) {
       return res.status(400).json({
@@ -299,23 +91,33 @@ const register = async (req, res) => {
       });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(
-      password,
-      10
-    );
 
-    // Create user
+    // =====================================================
+    // HASH PASSWORD
+    // =====================================================
+
+    const hashedPassword =
+      await bcrypt.hash(password, 10);
+
     const user = await createAuthUser(
-      name,
-      email,
-      phone,
-      hashedPassword
+      name.trim(),
+      email.trim(),
+      phone.trim(),
+      hashedPassword,
+      finalAddress
     );
+    const userAddress =
+      await createRegistrationAddress(
+        user.id,
+        name.trim(),
+        phone.trim(),
+        finalAddress
+      );
 
-    // =================================================
-    // GENERATE JWT TOKEN
-    // =================================================
+
+    // =====================================================
+    // GENERATE JWT
+    // =====================================================
 
     const token = jwt.sign(
       {
@@ -330,21 +132,42 @@ const register = async (req, res) => {
       }
     );
 
-    // Remove password
-    const { password: _, ...userData } = user;
 
-    // =================================================
+    // =====================================================
+    // REMOVE PASSWORD
+    // =====================================================
+
+    const {
+      password: _password,
+      ...userData
+    } = user;
+
+
+    // =====================================================
+    // IMPORTANT:
+    // RETURN ADDRESS INSIDE USER DATA
+    // =====================================================
+
+    userData.address = finalAddress;
+
+
+    // =====================================================
     // RESPONSE
-    // =================================================
+    // =====================================================
 
     return res.status(201).json({
       success: true,
-      message: "Register successful",
+      message: "Registration successful",
+
       token,
+
       data: userData,
+
+      address: userAddress,
     });
 
   } catch (error) {
+
     console.error(
       "Register error:",
       error
@@ -353,9 +176,14 @@ const register = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
+      error:
+        process.env.NODE_ENV === "development"
+          ? error.message
+          : undefined,
     });
   }
 };
+
 
 // =====================================================
 // LOGIN USER
@@ -363,9 +191,17 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { phone, password } = req.body;
 
-    // Validation
+    const {
+      phone,
+      password,
+    } = req.body;
+
+
+    // =====================================================
+    // VALIDATION
+    // =====================================================
+
     if (!phone || !password) {
       return res.status(400).json({
         success: false,
@@ -374,8 +210,13 @@ const login = async (req, res) => {
       });
     }
 
-    // Find user
-    const user = await getUserByPhone(phone);
+
+    // =====================================================
+    // FIND USER
+    // =====================================================
+
+    const user =
+      await getUserByPhone(phone.trim());
 
     if (!user) {
       return res.status(404).json({
@@ -385,11 +226,16 @@ const login = async (req, res) => {
       });
     }
 
-    // Compare password
-    const isMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
+
+    // =====================================================
+    // CHECK PASSWORD
+    // =====================================================
+
+    const isMatch =
+      await bcrypt.compare(
+        password,
+        user.password
+      );
 
     if (!isMatch) {
       return res.status(401).json({
@@ -398,9 +244,10 @@ const login = async (req, res) => {
       });
     }
 
-    // =================================================
+
+    // =====================================================
     // GENERATE JWT
-    // =================================================
+    // =====================================================
 
     const token = jwt.sign(
       {
@@ -415,24 +262,41 @@ const login = async (req, res) => {
       }
     );
 
-    // =================================================
+
+    // =====================================================
     // RESPONSE
-    // =================================================
+    // =====================================================
 
-    return res.status(200).json({
-      success: true,
-      message: "Login successful",
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-      },
-    });
+    // return res.status(200).json({
+    //   success: true,
+    //   message: "Login successful",
 
+    //   token,
+
+    //   user: {
+    //     id: user.id,
+    //     name: user.name,
+    //     email: user.email,
+    //     phone: user.phone,
+    //     address: user.address || "",
+    //     role: user.role,
+    //   },
+    // });
+return res.status(200).json({
+  success: true,
+  message: "Login successful",
+  token,
+  user: {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    address: user.address || "",
+    role: user.role,
+  },
+});
   } catch (error) {
+
     console.error(
       "Login error:",
       error
@@ -445,13 +309,20 @@ const login = async (req, res) => {
   }
 };
 
+
 // =====================================================
 // CHECK MOBILE
 // =====================================================
 
 const checkMobile = async (req, res) => {
   try {
+
     const { phone } = req.body;
+
+
+    // =====================================================
+    // VALIDATION
+    // =====================================================
 
     if (!phone) {
       return res.status(400).json({
@@ -461,8 +332,13 @@ const checkMobile = async (req, res) => {
       });
     }
 
+
+    // =====================================================
+    // FIND USER
+    // =====================================================
+
     const user =
-      await getUserByPhone(phone);
+      await getUserByPhone(phone.trim());
 
     if (!user) {
       return res.status(404).json({
@@ -472,19 +348,35 @@ const checkMobile = async (req, res) => {
       });
     }
 
+
+    // =====================================================
+    // RESPONSE
+    // =====================================================
+
     return res.status(200).json({
       success: true,
       message: "Mobile number verified",
+
+      // user: {
+      //   id: user.id,
+      //   name: user.name,
+      //   email: user.email,
+      //   phone: user.phone,
+      //   address: user.address || "",
+      //   role: user.role,
+      // },
       user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-      },
+  id: user.id,
+  name: user.name,
+  email: user.email,
+  phone: user.phone,
+  address: user.address || "",
+  role: user.role,
+},
     });
 
   } catch (error) {
+
     console.error(
       "Check mobile error:",
       error
@@ -496,6 +388,7 @@ const checkMobile = async (req, res) => {
     });
   }
 };
+
 
 // =====================================================
 // EXPORT

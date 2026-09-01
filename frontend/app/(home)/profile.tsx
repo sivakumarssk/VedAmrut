@@ -288,14 +288,17 @@ const handleDeleteAccount = () => {
                   : displayName}
               </Text>
 
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={() =>
-                  router.push(
-                    '/(home)/edit-profile'
-                  )
-                }
-              >
+            <TouchableOpacity
+  style={styles.editButton}
+  onPress={() =>
+    router.push({
+      pathname: '/(home)/edit-profile',
+      params: {
+        from: 'profile',
+      },
+    })
+  }
+>
                 <Ionicons
                   name="pencil"
                   size={12}
@@ -331,9 +334,16 @@ const handleDeleteAccount = () => {
       color="#666"
     />
 
-    <Text style={styles.address}>
+    {/* <Text style={styles.address}>
       {profile?.address || user?.address}
-    </Text>
+    </Text> */}
+    <Text>
+  {String(user?.address || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .join(", ")}
+</Text>
   </View>
 )}
 
@@ -381,9 +391,20 @@ const handleDeleteAccount = () => {
   }
   title="Orders"
   subtitle="Check all your orders"
-  onPress={() =>
-    router.push('/(home)/my-orders')
-  }
+ onPress={() =>
+  // router.push({
+  //   pathname: '/(home)/my-orders',
+  //   params: {
+  //     returnTo: 'profile',
+  //   },
+  // })
+  router.push({
+  pathname: '/(home)/my-orders',
+  params: {
+    from: 'profile',
+  },
+})
+}
 />
 
           <MenuRow
@@ -476,11 +497,14 @@ const handleDeleteAccount = () => {
               />
             }
             title="Saved Addresses"
-            onPress={() =>
-              router.push(
-                '/(home)/saved-addresses'
-              )
-            }
+           onPress={() =>
+  router.push({
+    pathname: '/(home)/saved-addresses',
+    params: {
+      returnTo: 'profile',
+    },
+  })
+}
           />
 
           <MenuRow

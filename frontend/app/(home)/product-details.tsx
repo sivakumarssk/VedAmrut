@@ -94,7 +94,9 @@ export default function ProductDetailsScreen() {
   const [ reviewTitle,setReviewTitle,] = useState('');
   const [reviewComment,setReviewComment,] = useState('');
   const [submittingReview,setSubmittingReview,] = useState(false);
-
+  // const [showCartSuccess, setShowCartSuccess] = useState(false);
+const [addingToCart, setAddingToCart] = useState(false);
+const [productAdded, setProductAdded] = useState(false);
   useEffect(() => {
     if (params.qrCode) {setScannedQrCode(params.qrCode);}
     if ( params.rewardAmount !== undefined) {
@@ -378,8 +380,7 @@ useEffect(() => {
         String(product.id)
     );
 
-  const isInCart =
-    !!existingLine;
+  const isInCart =!!existingLine;
 
   // =====================================================
   // REVIEWS
@@ -394,96 +395,56 @@ useEffect(() => {
   // ADD TO CART
   // =====================================================
 
-  const handleAddToCart =
-    async () => {
-      if (!isLoggedIn) {
-        showLoginPopup();
-        return;
-      }
 
-      if (product.stock <= 0) {
-        return;
-      }
+const handleAddToCart = async () => {
+  if (!isLoggedIn) {
+    showLoginPopup();
+    return;
+  }
 
-      if (isInCart) {
-        router.push(
-          '/(home)/cart'
-        );
-        return;
-      }
+  if (product.stock <= 0) {
+    return;
+  }
 
-      console.log(
-        '================================'
-      );
+  // Already in cart → go directly to cart
+  if (isInCart) {
+    router.push({
+      pathname: '/(home)/cart',
+      params: {
+        from: 'product-details',
+      },
+    });
+    return;
+  }
 
-      console.log(
-        'ADDING PRODUCT TO CART'
-      );
+  try {
+    setAddingToCart(true);
 
-      console.log(
-        'USER ID:',
-        user?.id
-      );
+    console.log('ADDING PRODUCT TO CART:', product.id);
 
-      console.log(
-        'PRODUCT ID:',
-        product.id
-      );
+    await addToCart(product.id, 1);
 
-      console.log(
-        'QR CODE:',
-        scannedQrCode
-      );
+    console.log('PRODUCT ADDED SUCCESSFULLY');
 
-      console.log(
-        'QR CLAIMED:',
-        qrRewardClaimed
-      );
+    // Product Details → Cart Success
+   
+router.push({
+  pathname: '/(home)/cart-success',
+  params: {
+    productName: String(product.name),
+    productId: String(product.id),
+    returnTo: 'product-details',
+  },
+});
 
-      console.log(
-        'QR REWARD:',
-        claimedReward
-      );
 
-      console.log(
-        'QR UNIT:',
-        scannedUnitNumber
-      );
+  } catch (error) {
+    console.error('ADD TO CART ERROR:', error);
+  } finally {
+    setAddingToCart(false);
+  }
+};
 
-      console.log(
-        '================================'
-      );
-
-      try {
-        await addToCart(
-          product.id,
-          1
-        );
-
-        console.log(
-          'PRODUCT ADDED TO CART'
-        );
-
-        console.log(
-          'QR CLAIM STATE PRESERVED'
-        );
-
-        console.log(
-          'CLAIMED:',
-          qrRewardClaimed
-        );
-
-        console.log(
-          'REWARD:',
-          claimedReward
-        );
-      } catch (error) {
-        console.error(
-          'ADD TO CART ERROR:',
-          error
-        );
-      }
-    };
 
 // =====================================================
 // BUY NOW
@@ -510,18 +471,30 @@ const handleBuyNow = async () => {
   }
 
   // No address → go add address
-  if (!selectedAddress) {
-    router.push({
-      pathname: '/(home)/add-address',
-      params: {
-        buyNow: 'true',
-        buyNowProductId: String(product.id),
-        buyNowQuantity: '1',
-      },
-    });
+if (!selectedAddress) {
+  router.push({
+    pathname: '/(home)/saved-addresses',
+    params: {
+      returnTo: 'checkout',
+      mode: 'buyNow',
+      productId: String(product.id),
+      productName: String(product.name),
+      productPrice: String(product.price),
+      productImage:
+        typeof product.image === 'object' &&
+        product.image !== null &&
+        'uri' in product.image
+          ? String(product.image.uri)
+          : '',
+      categoryName: String(
+        product.category_name || ''
+      ),
+      quantity: '1',
+    },
+  });
 
-    return;
-  }
+  return;
+}
 
   // ✅ Directly go to checkout
   // ❌ DO NOT call addToCart()
@@ -549,25 +522,34 @@ const handleBuyNow = async () => {
   // DELIVERY
   // =====================================================
 
-  const handleDeliveryPress =
-    () => {
-      if (!isLoggedIn) {
-        showLoginPopup();
-        return;
-      }
+// const handleDeliveryPress = () => {
+//   if (!isLoggedIn) {
+//     showLoginPopup();
+//     return;
+//   }
 
-      if (!selectedAddress) {
-        router.push(
-          '/(home)/add-address'
-        );
-        return;
-      }
+//   // Product Details → Change Address
+//   router.push({
+//     pathname: '/(home)/saved-addresses',
+//     params: {
+//       fromProductDetails: 'true',
+//     },
+//   });
+// };
+const handleDeliveryPress = () => {
+  if (!isLoggedIn) {
+    showLoginPopup();
+    return;
+  }
 
-      router.push(
-        '/(home)/saved-addresses'
-      );
-    };
-
+  router.push({
+    pathname: '/(home)/saved-addresses',
+    params: {
+      returnTo: 'product-details',
+      productId: String(product.id),
+    },
+  });
+};
   // =====================================================
   // WRITE REVIEW
   // =====================================================
@@ -712,7 +694,7 @@ const handleBuyNow = async () => {
 
           {/* =========== ADD TO CART ==============*/}
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[
               styles.addToCartButton,
               product.stock <= 0 && {
@@ -745,8 +727,76 @@ const handleBuyNow = async () => {
                 ? 'Go to Cart'
                 : 'Add to cart'}
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+<TouchableOpacity
+  style={[
+    styles.addToCartButton,
+    product.stock <= 0 && {
+      backgroundColor: '#B5B5B5',
+    },
+    (productAdded || isInCart) &&
+      product.stock > 0 && {
+        backgroundColor: '#1C9C57',
+      },
+  ]}
+  disabled={product.stock <= 0 || addingToCart}
+  onPress={handleAddToCart}
+>
+  {addingToCart ? (
+    <ActivityIndicator
+      size="small"
+      color="#FFFFFF"
+    />
+  ) : product.stock <= 0 ? (
+    <>
+      <Ionicons
+        name="close-circle-outline"
+        size={20}
+        color="#FFFFFF"
+      />
 
+      <Text style={styles.addToCartText}>
+        Out of Stock
+      </Text>
+    </>
+  ) : productAdded ? (
+    <>
+      <Ionicons
+        name="checkmark-circle"
+        size={21}
+        color="#FFFFFF"
+      />
+
+      <Text style={styles.addToCartText}>
+        Product Added to Cart
+      </Text>
+    </>
+  ) : isInCart ? (
+    <>
+      <Ionicons
+        name="cart-outline"
+        size={20}
+        color="#FFFFFF"
+      />
+
+      <Text style={styles.addToCartText}>
+        Go to Cart
+      </Text>
+    </>
+  ) : (
+    <>
+      <Ionicons
+        name="cart-outline"
+        size={20}
+        color="#FFFFFF"
+      />
+
+      <Text style={styles.addToCartText}>
+        Add to Cart
+      </Text>
+    </>
+  )}
+</TouchableOpacity>
           {/* =================================================
               BUY NOW
           ================================================= */}
@@ -789,69 +839,101 @@ const handleBuyNow = async () => {
             }
           >
             Delivery Details
-          </Text>
+          </Text>    
+{/* {selectedAddress || user?.address ? (
+  <View style={styles.deliveryRow}>
+    <Text
+      style={styles.deliveryText}
+      numberOfLines={2}
+    >
+      Delivery to:{' '}
+      {selectedAddress
+        ? [
+            selectedAddress.addressLine,
+            selectedAddress.area,
+            selectedAddress.city,
+            selectedAddress.state,
+            selectedAddress.pincode,
+          ]
+            .filter(Boolean)
+            .join(', ')
+        : user?.address}
+    </Text>
 
-          {selectedAddress ? (
-            <View
-              style={
-                styles.deliveryRow
-              }
-            >
-              <Text
-                style={
-                  styles.deliveryText
-                }
-                numberOfLines={1}
-              >
-                Delivery to:{' '}
-                {
-                  selectedAddress.city
-                }{' '}
-                -{' '}
-                {
-                  selectedAddress.pincode
-                }
-              </Text>
+    <TouchableOpacity onPress={handleDeliveryPress}>
+      <Text style={styles.changeText}>
+        Change
+      </Text>
+    </TouchableOpacity>
+  </View>
+) : (
+  <TouchableOpacity
+    style={styles.addAddressButton}
+    onPress={handleDeliveryPress}
+  >
+    <Ionicons
+      name="add"
+      size={18}
+      color="#1C6FD9"
+    />
 
-              <TouchableOpacity
-                onPress={
-                  handleDeliveryPress
-                }
-              >
-                <Text
-                  style={
-                    styles.changeText
-                  }
-                >
-                  Change
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity
-              style={
-                styles.addAddressButton
-              }
-              onPress={
-                handleDeliveryPress
-              }
-            >
-              <Ionicons
-                name="add"
-                size={18}
-                color="#1C6FD9"
-              />
+    <Text style={styles.addAddressText}>
+      Add Delivery Address
+    </Text>
+  </TouchableOpacity>
+)} */}
+{selectedAddress || user?.address ? (
+  <View style={styles.deliveryRow}>
+    <Text
+      style={styles.deliveryText}
+      numberOfLines={2}
+    >
+      Delivery to:{' '}
+      {selectedAddress
+        ? [
+            selectedAddress.addressLine,
+            selectedAddress.area,
+            selectedAddress.city,
+            selectedAddress.state,
+            selectedAddress.pincode,
+          ]
+            .filter(
+              (value) =>
+                value &&
+                value.trim() !== ''
+            )
+            .join(', ')
+        : user?.address
+            ?.split(',')
+            .map((value) => value.trim())
+            .filter(Boolean)
+            .join(', ')}
+    </Text>
 
-              <Text
-                style={
-                  styles.addAddressText
-                }
-              >
-                Add Delivery Address
-              </Text>
-            </TouchableOpacity>
-          )}
+    <TouchableOpacity
+      onPress={handleDeliveryPress}
+    >
+      <Text style={styles.changeText}>
+        Change
+      </Text>
+    </TouchableOpacity>
+  </View>
+) : (
+  <TouchableOpacity
+    style={styles.addAddressButton}
+    onPress={handleDeliveryPress}
+  >
+    <Ionicons
+      name="add"
+      size={18}
+      color="#1C6FD9"
+    />
 
+    <Text style={styles.addAddressText}>
+      Add Delivery Address
+    </Text>
+  </TouchableOpacity>
+)}
           {/* =================================================
               STOCK
           ================================================= */}
@@ -1141,6 +1223,9 @@ const handleBuyNow = async () => {
           )}
         </View>
       </ScrollView>
+
+     
+
 
       {/* =====================================================
           REVIEW MODAL

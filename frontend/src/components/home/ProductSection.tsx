@@ -11,16 +11,6 @@ import { router } from 'expo-router';
 import ProductCard from './ProductCard';
 import { API_BASE_URL } from '@/constants/api';
 
-// type Product = {
-//   id: number | string;
-//   name: string;
-//   price: number | string;
-//   oldPrice?: number | string;
-//   rating?: number | string;
-//   reviews?: number | string;
-//   discount?: number | string;
-//   image?: string | null;
-// };
 type Product = {
   id: number | string;
   name: string;
@@ -199,35 +189,34 @@ export default function ProductSection() {
                 styles.cardContainer
               }
             >
-              {/* <ProductCard image={
-    item.image
-      ? {
-          uri: `${API_BASE_URL}/uploads/${item.image}?v=${Date.now()}`,
-        }
-      : require('@/assets/images/product1.png')
-  }
-                name={item.name}
-                price={Number(
-                  item.price
-                )}
-                style={
-                  styles.highlightedCard
-                }
-                onPress={() =>
-                  handleProductPress(
-                    item.id
-                  )
-                }
-              /> */}
-              <ProductCard
-  image={
-    item.image
-      ? {
-          uri: `${API_BASE_URL}/uploads/${item.image}?v=${Date.now()}`,
-        }
-      : require('@/assets/images/product1.png')
-  }
-
+    
+              <ProductCard 
+  //             image={
+  //   item.image
+  //     ? {
+  //         uri: `${API_BASE_URL}/uploads/${item.image}?v=${Date.now()}`,
+  //       }
+  //     : require('@/assets/images/product1.png')
+  // }
+image={
+  item.id === 13
+    ? require('@/assets/images/bestselling1.png')
+    : item.id === 16
+    ? require('@/assets/images/bestselling2.png')
+    : item.id === 17
+    ? require('@/assets/images/bestselling3.png')
+    : item.id === 19
+    ? require('@/assets/images/bestselling4.png')
+    : item.id === 20
+    ? require('@/assets/images/bestselling5.png')
+     : item.id === 21
+    ? require('@/assets/images/bestselling6.png')
+    : item.image
+    ? {
+        uri: `${API_BASE_URL}/uploads/${item.image}?v=${Date.now()}`,
+      }
+    : require('@/assets/images/product1.png')
+}
   name={item.name}
 
   price={Number(item.price)}
@@ -317,25 +306,13 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
 
+ 
   highlightedCard: {
-    width: 150,
-    marginRight: 0,
-
-    borderWidth: 1,
-    borderColor: '#E7F3EA',
-
-    shadowColor: '#1C9C57',
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-
-    elevation: 4,
-  },
-
+  width: 150,
+  marginRight: 0,
+  borderWidth: 1,
+  borderColor: '#E7F3EA',
+},
   loaderContainer: {
     height: 180,
     alignItems: 'center',

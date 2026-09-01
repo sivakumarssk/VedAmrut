@@ -143,6 +143,7 @@ export function AuthProvider({
             email,
             phone: mobile,
             password,
+            address: address.trim(),
           }),
         }
       );
@@ -175,15 +176,22 @@ export function AuthProvider({
       // =================================================
       // CREATE USER
       // =================================================
+const cleanAddress = String(
+  data.data.address || address || ''
+)
+  .split(',')
+  .map((value) => value.trim())
+  .filter(Boolean)
+  .join(', ');
 
-      const registeredUser: StoredUser = {
-        id: data.data.id,
-        fullName: data.data.name,
-        email: data.data.email,
-        mobile: data.data.phone,
-        address,
-        role: data.data.role,
-      };
+const registeredUser: StoredUser = {
+  id: data.data.id,
+  fullName: data.data.name,
+  email: data.data.email,
+  mobile: data.data.phone,
+  address: cleanAddress,
+  role: data.data.role,
+};
 
       // =================================================
       // SAVE USER + TOKEN
@@ -262,9 +270,13 @@ export function AuthProvider({
               phone:
                 updatedUser.mobile,
 
-              address:
-                updatedUser.address ?? "",
-
+              // address:
+              //   updatedUser.address ?? "",
+address: String(updatedUser.address ?? "")
+  .split(",")
+  .map((value) => value.trim())
+  .filter(Boolean)
+  .join(", "),
               dob:
                 updatedUser.dob ?? "",
             }),

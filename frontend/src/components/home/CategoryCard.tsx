@@ -48,28 +48,6 @@ export default function CategoryCard({
         )}
 
         {!imageError ? (
-          // <Image source={image}
-          //   resizeMode="contain"
-          //   style={[
-          //     styles.image,
-          //     imageLoading && styles.hiddenImage,
-          //   ]}
-          //   onLoadStart={() => {
-          //     setImageLoading(true);
-          //   }}
-          //   onLoad={() => {
-          //     setImageLoading(false);
-          //   }}
-          //   onError={(error) => {
-          //     console.log(
-          //       `CATEGORY IMAGE ERROR - ${title}:`,
-          //       error.nativeEvent.error
-          //     );
-
-          //     setImageLoading(false);
-          //     setImageError(true);
-          //   }}
-          // />
     <Image
   source={image}
   resizeMode="contain"
@@ -102,6 +80,58 @@ export default function CategoryCard({
   );
 }
 
+// const styles = StyleSheet.create({
+
+//   container: {
+//     width: '23%',
+//     borderRadius: 14,
+//     paddingVertical: 10,
+//     paddingHorizontal: 5,
+//     alignItems: 'center',
+//   },
+
+//   imageContainer: {
+//     width: 65,
+//     height: 65,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+
+//   image: {
+//     width: 65,
+//     height: 65,
+//   },
+
+//   hiddenImage: {
+//     opacity: 0,
+//   },
+
+//   loader: {
+//     position: 'absolute',
+//   },
+
+//   imageError: {
+//     width: 65,
+//     height: 65,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+
+//   imageErrorText: {
+//     fontSize: 9,
+//     color: '#999',
+//     textAlign: 'center',
+//   },
+
+//   title: {
+//     marginTop: 6,
+//     fontSize: 11,
+//     fontWeight: '600',
+//     color: '#222',
+//     textAlign: 'center',
+//   },
+// });
+
 const styles = StyleSheet.create({
   container: {
     width: '23%',
@@ -109,6 +139,21 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 5,
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+
+    // Box shadow
+    shadowColor: '#000',
+    shadowOpacity: 0.10,
+    shadowRadius: 6,
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+
+    // Android
+    elevation: 4,
+
+    marginBottom: 4,
   },
 
   imageContainer: {

@@ -67,10 +67,10 @@ if (!response.ok) {
 }
 
       // Backend successfully created OTP
-      Alert.alert(
-        'OTP Sent',
-        'Testing OTP is 1234'
-      );
+      // Alert.alert(
+      //   'OTP Sent',
+      //   'Testing OTP is 1234'
+      // );
 
       // Close popup
       onClose();

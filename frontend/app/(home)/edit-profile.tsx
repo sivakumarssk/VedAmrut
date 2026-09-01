@@ -1,8 +1,11 @@
 
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+// import { router } from 'expo-router';
+import {
+  router,
+  useLocalSearchParams,
+} from 'expo-router';
 import React, { useState } from 'react';
-
 import {
   Alert,
   KeyboardAvoidingView,
@@ -14,56 +17,90 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
-
+import {SafeAreaView,useSafeAreaInsets} from 'react-native-safe-area-context';
 import ScreenHeader from '@/components/common/ScreenHeader';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function EditProfileScreen() {
   const { user, updateUser } = useAuth();
-
   const insets = useSafeAreaInsets();
-
-  const [fullName, setFullName] = useState(
-    user?.fullName ?? ''
-  );
-
-  const [phone, setPhone] = useState(
-    user?.mobile ?? ''
-  );
-
-  const [email, setEmail] = useState(
-    user?.email ?? ''
-  );
-
-  const [dob, setDob] = useState(
-    user?.dob ?? ''
-  );
-
-  const [address, setAddress] = useState(
-    user?.address ?? ''
-  );
-
+  const [fullName, setFullName] = useState(user?.fullName ?? '');
+  const [phone, setPhone] = useState( user?.mobile ?? '');
+  const [email, setEmail] = useState(user?.email ?? '' );
+  const [dob, setDob] = useState(user?.dob ?? '');
+  const [address, setAddress] = useState( user?.address ?? '');
   const [submitting, setSubmitting] = useState(false);
-
-  // =========================
-  // FORM VALIDATION
-  // =========================
-
   const isFormValid =
     fullName.trim().length > 0 &&
     phone.length === 10 &&
     email.trim().length > 0;
-
+const { from } = useLocalSearchParams<{
+  from?: string;
+}>();
   // =========================
   // SAVE PROFILE
   // =========================
 
- const handleSave = async () => {
+//  const handleSave = async () => {
+//   if (!isFormValid || submitting) {
+//     return;
+//   }
+
+//   if (!user?.id) {
+//     Alert.alert(
+//       'Error',
+//       'User information not found. Please login again.'
+//     );
+//     return;
+//   }
+
+//   setSubmitting(true);
+
+//   try {
+//     console.log('Updating user:', user.id);
+
+//     // AuthContext handles backend + local storage
+//     await updateUser({
+//       id: user.id,
+//       fullName: fullName.trim(),
+//       mobile: phone,
+//       email: email.trim(),
+//       dob: dob.trim(),
+//       address: address.trim(),
+//       role: user.role,
+//     });
+
+//    Alert.alert(
+//   'Success',
+//   'Profile updated successfully',
+//   [
+//     {
+//       text: 'OK',
+//       onPress: () => {
+//         if (from === 'profile') {
+//           router.replace('/(home)/profile');
+//           return;
+//         }
+
+//         router.back();
+//       },
+//     },
+//   ]
+// );
+//   } catch (error) {
+//     console.error('Update Profile Error:', error);
+
+//     Alert.alert(
+//       'Update Failed',
+//       error instanceof Error
+//         ? error.message
+//         : 'Unable to update profile'
+//     );
+//   } finally {
+//     setSubmitting(false);
+//   }
+// };
+const handleSave = async () => {
   if (!isFormValid || submitting) {
     return;
   }
@@ -81,7 +118,6 @@ export default function EditProfileScreen() {
   try {
     console.log('Updating user:', user.id);
 
-    // AuthContext handles backend + local storage
     await updateUser({
       id: user.id,
       fullName: fullName.trim(),
@@ -99,7 +135,11 @@ export default function EditProfileScreen() {
         {
           text: 'OK',
           onPress: () => {
-            router.back();
+            if (from === 'profile') {
+              router.replace('/(home)/profile');
+            } else {
+              router.back();
+            }
           },
         },
       ]
@@ -117,6 +157,21 @@ export default function EditProfileScreen() {
     setSubmitting(false);
   }
 };
+
+// =====================================================
+// BACK TO PROFILE
+// =====================================================
+
+const handleBackToProfile = () => {
+  console.log('================================');
+  console.log('EDIT PROFILE → BACK PRESSED');
+  console.log('GOING TO PROFILE');
+  console.log('================================');
+
+  router.replace('/(home)/profile');
+};
+
+
   return (
     <SafeAreaView
       style={styles.safeArea}
@@ -133,7 +188,29 @@ export default function EditProfileScreen() {
       >
         <View style={styles.flex}>
 
-          <ScreenHeader title="Edit Profile" />
+          {/* <ScreenHeader title="Edit Profile" /> */}
+          
+<View style={styles.header}>
+
+  <TouchableOpacity
+    style={styles.headerBackButton}
+    activeOpacity={0.7}
+    onPress={handleBackToProfile}
+  >
+    <Ionicons
+      name="arrow-back"
+      size={24}
+      color="#222222"
+    />
+  </TouchableOpacity>
+
+  <Text style={styles.headerTitle}>
+    Edit Profile
+  </Text>
+
+</View>
+
+
 
           <ScrollView
             contentContainerStyle={[
@@ -460,4 +537,28 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
+  
+header: {
+  height: 58,
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingHorizontal: 20,
+  backgroundColor: '#F5F5F5',
+},
+
+headerBackButton: {
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+headerTitle: {
+  fontSize: 20,
+  fontWeight: '700',
+  color: '#222222',
+  marginLeft: 8,
+},
+
 });

@@ -1,26 +1,141 @@
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { router } from 'expo-router';
-
 import { Feather } from '@expo/vector-icons';
 
+import { API_BASE_URL } from '@/constants/api';
+
+type Product = {
+  id: number | string;
+  name: string;
+};
+
 export default function SearchBar() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // ==========================================
+  // FETCH PRODUCT NAMES
+  // ==========================================
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/api/products`
+        );
+
+        const result = await response.json();
+
+        console.log(
+          'SEARCH BAR PRODUCTS:',
+          result
+        );
+
+        if (
+          response.ok &&
+          result.success &&
+          Array.isArray(result.data)
+        ) {
+          // Only keep products that have a name
+          const productNames = result.data
+            .filter(
+              (item: Product) =>
+                item.name &&
+                item.name.trim() !== ''
+            )
+            .map((item: Product) => ({
+              id: item.id,
+              name: item.name,
+            }));
+
+          setProducts(productNames);
+        }
+      } catch (error) {
+        console.error(
+          'Search bar product error:',
+          error
+        );
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // ==========================================
+  // CHANGE PRODUCT NAME
+  // ==========================================
+
+  useEffect(() => {
+    if (products.length <= 1) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setCurrentIndex((previousIndex) => {
+        return (
+          (previousIndex + 1) %
+          products.length
+        );
+      });
+    }, 10000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [products]);
+
+  // ==========================================
+  // CURRENT PRODUCT
+  // ==========================================
+
+  const currentProduct =
+    products.length > 0
+      ? products[currentIndex]?.name
+      : 'Skin Care';
+
+  // ==========================================
+  // UI
+  // ==========================================
+
   return (
     <TouchableOpacity
       style={styles.container}
       activeOpacity={0.8}
-      onPress={() => router.push('/(home)/search')}
+      onPress={() =>
+        router.push('/(home)/search')
+      }
     >
       <View style={styles.leftSection}>
-        <Feather name="search" size={20} color="#666" />
+        <Feather
+          name="search"
+          size={20}
+          color="#666"
+        />
 
-        <Text style={styles.placeholder}>Search Products</Text>
+        <Text style={styles.placeholder}>
+          Search Products
+        </Text>
       </View>
 
-      <Text style={styles.suggestion}>"Skin Care"</Text>
+      <Text
+        style={styles.suggestion}
+        numberOfLines={1}
+      >
+        "{currentProduct}"
+      </Text>
     </TouchableOpacity>
   );
 }
+
+// ==========================================
+// STYLES
+// ==========================================
 
 const styles = StyleSheet.create({
   container: {
@@ -37,6 +152,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.08,
     shadowRadius: 8,
+
     shadowOffset: {
       width: 0,
       height: 3,
@@ -48,17 +164,20 @@ const styles = StyleSheet.create({
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexShrink: 1,
   },
 
   placeholder: {
     marginLeft: 10,
-    fontSize: 15,
+    fontSize: 14,
     color: '#9A9A9A',
   },
 
   suggestion: {
     marginLeft: 10,
-    fontSize: 15,
+    fontSize: 10,
     color: '#3B3B3B',
+    fontWeight: '500',
+    flexShrink: 1,
   },
 });

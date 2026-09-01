@@ -52,6 +52,7 @@ const registerUser = async (req, res) => {
 const getUsers = async (req, res) => {
   try {
     const users = await getAllUsers();
+    console.log("ADMIN USERS:", users);
 
     res.status(200).json({
       success: true,

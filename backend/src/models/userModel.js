@@ -22,6 +22,7 @@ const createUser = async (name, email, phone) => {
 // ==========================================
 // GET ALL USERS WITH ADDRESS
 // ==========================================
+
 const getAllUsers = async () => {
   const result = await pool.query(`
     SELECT
@@ -34,18 +35,15 @@ const getAllUsers = async () => {
       u.created_at,
       u.updated_at,
 
-      COALESCE(
-        NULLIF(u.address, ''),
-        CONCAT_WS(
-          ', ',
-          a.address_line1,
-          a.address_line2,
-          a.city,
-          a.state,
-          a.pincode,
-          a.landmark
-        )
-      ) AS address
+     CONCAT_WS(
+  ', ',
+  NULLIF(TRIM(a.address_line1), ''),
+  NULLIF(TRIM(a.address_line2), ''),
+  NULLIF(TRIM(a.city), ''),
+  NULLIF(TRIM(a.state), ''),
+  NULLIF(TRIM(a.pincode), ''),
+  NULLIF(TRIM(a.landmark), '')
+) AS address
 
     FROM users u
 
@@ -61,6 +59,7 @@ const getAllUsers = async () => {
       WHERE addresses.user_id = u.id
       ORDER BY
         is_default DESC,
+        updated_at DESC,
         created_at DESC
       LIMIT 1
     ) a ON TRUE
@@ -70,10 +69,10 @@ const getAllUsers = async () => {
 
   return result.rows;
 };
-
 // ==========================================
 // GET USER BY ID WITH ADDRESS
 // ==========================================
+
 const getUserById = async (id) => {
   const result = await pool.query(
     `
@@ -86,19 +85,15 @@ const getUserById = async (id) => {
       u.role,
       u.created_at,
       u.updated_at,
-
-      COALESCE(
-        NULLIF(u.address, ''),
-        CONCAT_WS(
-          ', ',
-          a.address_line1,
-          a.address_line2,
-          a.city,
-          a.state,
-          a.pincode,
-          a.landmark
-        )
-      ) AS address
+CONCAT_WS(
+  ', ',
+  NULLIF(TRIM(a.address_line1), ''),
+  NULLIF(TRIM(a.address_line2), ''),
+  NULLIF(TRIM(a.city), ''),
+  NULLIF(TRIM(a.state), ''),
+  NULLIF(TRIM(a.pincode), ''),
+  NULLIF(TRIM(a.landmark), '')
+) AS address
 
     FROM users u
 
@@ -114,6 +109,7 @@ const getUserById = async (id) => {
       WHERE addresses.user_id = u.id
       ORDER BY
         is_default DESC,
+        updated_at DESC,
         created_at DESC
       LIMIT 1
     ) a ON TRUE
@@ -125,7 +121,6 @@ const getUserById = async (id) => {
 
   return result.rows[0];
 };
-
 // ==========================================
 // UPDATE USER
 // ==========================================

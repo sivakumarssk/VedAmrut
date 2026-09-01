@@ -56,14 +56,26 @@ export default function Header() {
                 color="#1F5C3D"
               />
 
-  <Text style={styles.location} numberOfLines={1}>
-  {user?.address
-    ? `Delivery to : ${user.address}`
-    : selectedAddress
-      ? `Delivery to : ${selectedAddress.city} - ${selectedAddress.pincode}`
+  
+{/* <Text style={styles.location} numberOfLines={1}>
+  {selectedAddress
+    ? `Delivery to : ${selectedAddress.city} - ${selectedAddress.pincode}`
+    : user?.address
+      ? `Delivery to : ${user.address}`
+      : 'Add delivery address'}
+</Text> */}
+<Text style={styles.location} numberOfLines={1}>
+  {selectedAddress
+    ? `Delivery to : ${
+        selectedAddress.city &&
+        selectedAddress.pincode
+          ? `${selectedAddress.city} - ${selectedAddress.pincode}`
+          : selectedAddress.addressLine
+      }`
+    : user?.address
+      ? `Delivery to : ${user.address}`
       : 'Add delivery address'}
 </Text>
-
               <Ionicons name="chevron-forward" size={14} color="#1F5C3D" />
 
             </TouchableOpacity>
@@ -72,35 +84,7 @@ export default function Header() {
 
         </View>
 
-        {/* <View style={styles.rightSection}>
-
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => router.push('/(home)/wallet')}
-          >
-            <Image
-            source={require('../../assets/images/wallet.png')}
-            style={{
-              width:22,
-              height:22,
-            }}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={() => router.push('/(home)/cart')}
-          >
-            <Image
-            source={require("../../assets/images/cart.png")}
-            style={{
-              width:22,
-              height:22,
-            }}
-            />
-          </TouchableOpacity>
-
-        </View> */}
+     
 
         <View style={styles.rightSection}>
 
@@ -192,37 +176,38 @@ leftSection: {
   },
 
   location: {
-    fontSize: 12,
-    color: '#1F5C3D',
-    marginLeft: 4,
-  },
+  flex: 1,
+  fontSize: 11,
+  color: '#1F5C3D',
+  marginLeft: 3,
+  marginRight: 2,
+},
 
  rightSection: {
   flexDirection: 'row',
   alignItems: 'center',
-  marginLeft: 16,
+  marginLeft: 20,
 },
 
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
+ iconButton: {
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  backgroundColor: Colors.white,
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginLeft: 6,
 
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-
-    elevation: 3,
+  shadowColor: '#000',
+  shadowOpacity: 0.08,
+  shadowRadius: 8,
+  shadowOffset: {
+    width: 0,
+    height: 2,
   },
 
+  elevation: 3,
+},
   title: {
   marginTop: 24,
   marginBottom: 10,

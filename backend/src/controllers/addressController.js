@@ -15,7 +15,8 @@ const {
 const addAddress = async (req, res) => {
   try {
     const userId = req.user.id;
-
+console.log("ADDING ADDRESS FOR USER:", userId);
+console.log("ADDRESS BODY:", req.body);
     const {
       fullName,
       phone,

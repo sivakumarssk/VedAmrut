@@ -1,13 +1,12 @@
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React, { useState } from 'react';
+import {Ionicons,MaterialCommunityIcons,} from '@expo/vector-icons';
+import { router,useLocalSearchParams,} from 'expo-router';
+import React from 'react';
 import {
+  Alert,
   FlatList,
-  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,144 +15,662 @@ import ScreenHeader from '@/components/common/ScreenHeader';
 import { useAddress } from '@/hooks/useAddress';
 import { SavedAddress } from '@/utils/storage';
 
-function AddressIcon({ label }: { label: SavedAddress['label'] }) {
+function AddressIcon({
+  label,
+}: {
+  label: SavedAddress['label'];
+}) {
   const iconName =
-    label === 'Home' ? 'home-outline' : label === 'Work' ? 'domain' : 'map-marker-outline';
+    label === 'Home'
+      ? 'home-outline'
+      : label === 'Work'
+      ? 'domain'
+      : 'map-marker-outline';
 
   return (
     <View style={styles.iconContainer}>
-      <MaterialCommunityIcons name={iconName as any} size={22} color="#222" />
+      <MaterialCommunityIcons
+        name={iconName as any}
+        size={22}
+        color="#222"
+      />
     </View>
   );
 }
 
 export default function SavedAddressesScreen() {
-  const { addresses, selectedAddressId, selectAddress, deleteAddress } =
-    useAddress();
-  const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
+  // =====================================================
+  // PARAMETERS
+  // =====================================================
+
+  const params = useLocalSearchParams<{
+    returnTo?: string | string[];
+
+    mode?: string | string[];
+
+    productId?: string | string[];
+    productName?: string | string[];
+    productPrice?: string | string[];
+    productImage?: string | string[];
+    categoryName?: string | string[];
+    quantity?: string | string[];
+  }>();
+
+  // =====================================================
+  // PARAM HELPER
+  // =====================================================
+
+  const getParam = (
+    value?: string | string[],
+  ): string => {
+    if (Array.isArray(value)) {
+      return value[0] || '';
+    }
+
+    return value || '';
+  };
+
+  const returnTo = getParam(params.returnTo);
+
+  const mode = getParam(params.mode);
+
+  const isBuyNow = mode === 'buyNow';
+
+  const productId = getParam(params.productId);
+
+  const productName = getParam(params.productName);
+
+  const productPrice = getParam(params.productPrice);
+
+  const productImage = getParam(params.productImage);
+
+  const categoryName = getParam(params.categoryName);
+
+  const quantity = getParam(params.quantity) || '1';
+
+  // =====================================================
+  // ADDRESS HOOK
+  // =====================================================
+
+  const {
+    addresses,
+    selectedAddressId,
+    selectAddress,
+    deleteAddress,
+  } = useAddress();
+
+  // =====================================================
+  // NAVIGATION PARAMS
+  // =====================================================
+
+  const getNavigationParams = () => {
+    const navigationParams: Record<
+      string,
+      string
+    > = {};
+
+    if (returnTo) {
+      navigationParams.returnTo = returnTo;
+    }
+
+    if (mode) {
+      navigationParams.mode = mode;
+    }
+
+    if (isBuyNow) {
+      if (productId) {
+        navigationParams.productId = productId;
+      }
+
+      if (productName) {
+        navigationParams.productName =
+          productName;
+      }
+
+      if (productPrice) {
+        navigationParams.productPrice =
+          productPrice;
+      }
+
+      if (productImage) {
+        navigationParams.productImage =
+          productImage;
+      }
+
+      if (categoryName) {
+        navigationParams.categoryName =
+          categoryName;
+      }
+
+      navigationParams.quantity = quantity;
+    }
+
+    return navigationParams;
+  };
+
+  // =====================================================
+  // RETURN TO PREVIOUS SCREEN
+  // =====================================================
+// const handleBack = () => {
+//   // If Saved Addresses was opened from Profile
+//   if (returnTo === 'profile') {
+//     router.replace('/(home)/profile');
+//     return;
+//   }
+
+//   // If opened from Checkout
+//   if (returnTo === 'checkout') {
+//     router.back();
+//     return;
+//   }
+
+//   // If opened from Cart
+//   if (returnTo === 'cart') {
+//     router.replace('/(home)/cart');
+//     return;
+//   }
+
+//   // If opened from Product Details
+//   if (returnTo === 'product-details') {
+//     router.back();
+//     return;
+//   }
+
+//   // Default
+//   router.back();
+// };
+
+// =====================================================
+// BACK BUTTON
+// =====================================================
+
+const handleBack = () => {
+  console.log('================================');
+  console.log('SAVED ADDRESSES → BACK PRESSED');
+  console.log('RETURN TO:', returnTo);
+  console.log('MODE:', mode);
+  console.log('================================');
+
+  // ============================================
+  // FROM CHECKOUT
+  // ============================================
+  if (returnTo === 'checkout') {
+    console.log('→ GOING BACK TO CHECKOUT');
+
+    router.replace({
+      pathname: '/(home)/checkout',
+      params: getNavigationParams(),
+    });
+
+    return;
+  }
+
+  // ============================================
+  // FROM PROFILE
+  // ============================================
+  if (returnTo === 'profile') {
+    console.log('→ GOING BACK TO PROFILE');
+
+    router.replace('/(home)/profile');
+
+    return;
+  }
+
+  // ============================================
+  // FROM CART
+  // ============================================
+  if (returnTo === 'cart') {
+    console.log('→ GOING BACK TO CART');
+
+    router.replace('/(home)/cart');
+
+    return;
+  }
+
+  // ============================================
+  // FROM PRODUCT DETAILS
+  // ============================================
+  if (returnTo === 'product-details') {
+    console.log('→ GOING BACK TO PRODUCT DETAILS');
+
+    router.replace({
+      pathname: '/(home)/product-details',
+      params: {
+        id: productId,
+      },
+    });
+
+    return;
+  }
+
+  // ============================================
+  // DEFAULT
+  // ============================================
+  console.log('→ NO RETURN PATH, GOING HOME');
+
+  router.replace('/');
+};
+
+
+
+  // =====================================================
+  // SELECT ADDRESS
+  // =====================================================
+
+  const handleSelectAddress = async (
+    addressId: string,
+  ) => {
+    try {
+      await selectAddress(addressId);
+
+      // =============================================
+      // CHECKOUT
+      // =============================================
+
+      if (returnTo === 'checkout') {
+      router.replace({
+        pathname: '/(home)/checkout',
+        params: getNavigationParams(),
+      });
+      return;
+    }
+
+      // =============================================
+      // PROFILE
+      // =============================================
+
+      if (returnTo === 'profile') {
+        router.replace('/(home)/profile');
+        return;
+      }
+
+      // =============================================
+      // CART
+      // =============================================
+
+      if (returnTo === 'cart') {
+        router.replace('/(home)/cart');
+        return;
+      }
+
+      // =============================================
+      // PRODUCT DETAILS
+      // =============================================
+
+//    if (returnTo === 'product-details') {
+//   router.replace({
+//     pathname: '/(home)/product-details',
+//     params: {
+//       id: productId,
+//     },
+//   });
+//   return;
+// }
+// =============================================
+// PRODUCT DETAILS / BUY NOW
+// =============================================
+
+if (returnTo === 'product-details') {
+
+  // If this came from Buy Now,
+  // continue directly to Checkout
+  if (mode === 'buyNow') {
+    router.replace({
+      pathname: '/(home)/checkout',
+      params: {
+        mode: 'buyNow',
+        productId,
+        productName,
+        productPrice,
+        productImage,
+        categoryName,
+        quantity,
+      },
+    });
+    return;
+  }
+
+  // Normal product-details address selection
+  router.replace({
+    pathname: '/(home)/product-details',
+    params: {
+      id: productId,
+    },
+  });
+
+  return;
+}
+
+      // =============================================
+      // DEFAULT
+      // =============================================
+
+      router.back();
+    } catch (error) {
+      console.error(
+        'Select address error:',
+        error,
+      );
+    }
+  };
+
+  // =====================================================
+  // ADD NEW ADDRESS
+  // =====================================================
+
+  // const handleAddNew = () => {
+  //   router.push({
+  //     pathname: '/(home)/add-address',
+  //     params: getNavigationParams(),
+  //   });
+  // };
+const handleAddNew = () => {
+  router.push({
+    pathname: '/(home)/add-address',
+    params: {
+      ...getNavigationParams(),
+      mode: 'add',
+    },
+  });
+};
+  // =====================================================
+  // EDIT ADDRESS
+  // =====================================================
+
+  const handleEdit = (id: string) => {
+    router.push({
+      pathname: '/(home)/add-address',
+      params: {
+        ...getNavigationParams(),
+        id,
+      },
+    });
+  };
+
+  // =====================================================
+  // DELETE ADDRESS
+  // =====================================================
+
+  const handleDelete = (id: string) => {
+    Alert.alert(
+      'Delete Address',
+      'Are you sure you want to delete this address?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteAddress(id);
+            } catch (error) {
+              console.error(
+                'Delete address error:',
+                error,
+              );
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  // =====================================================
+  // UI
+  // =====================================================
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScreenHeader title="Saved Addresses" />
+      {/* ================================================= */}
+      {/* HEADER */}
+      {/* ================================================= */}
+
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          activeOpacity={0.7}
+          onPress={handleBack}
+        >
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color="#222"
+          />
+        </TouchableOpacity>
+
+        <Text style={styles.headerTitle}>
+          Saved Addresses
+        </Text>
+
+        <View style={styles.headerRight} />
+      </View>
+
+      {/* ================================================= */}
+      {/* ADD NEW */}
+      {/* ================================================= */}
 
       <TouchableOpacity
         style={styles.addNewButton}
-        onPress={() => router.push('/(home)/add-address')}
+        activeOpacity={0.8}
+        onPress={handleAddNew}
       >
         <View style={styles.addNewLeft}>
-          <Ionicons name="add" size={20} color="#1C6FD9" />
-          <Text style={styles.addNewText}>Add New</Text>
+          <Ionicons
+            name="add"
+            size={21}
+            color="#1C6FD9"
+          />
+
+          <Text style={styles.addNewText}>
+            Add New Address
+          </Text>
         </View>
-        <Ionicons name="chevron-forward" size={18} color="#1C6FD9" />
+
+        <Ionicons
+          name="chevron-forward"
+          size={19}
+          color="#1C6FD9"
+        />
       </TouchableOpacity>
 
+      {/* ================================================= */}
+      {/* TITLE */}
+      {/* ================================================= */}
+
       {addresses.length > 0 && (
-        <Text style={styles.sectionLabel}>Saved addresses</Text>
+        <Text style={styles.sectionLabel}>
+          Saved Addresses
+        </Text>
       )}
+
+      {/* ================================================= */}
+      {/* ADDRESS LIST */}
+      {/* ================================================= */}
 
       <FlatList
         data={addresses}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => String(item.id)}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Ionicons name="location-outline" size={48} color="#B5B5B5" />
-            <Text style={styles.emptyText}>No saved addresses yet</Text>
+            <Ionicons
+              name="location-outline"
+              size={48}
+              color="#B5B5B5"
+            />
+
+            <Text style={styles.emptyText}>
+              No saved addresses yet
+            </Text>
           </View>
         }
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[
-              styles.addressCard,
-              item.id === selectedAddressId && styles.addressCardSelected,
-            ]}
-            activeOpacity={0.8}
-            onPress={async () => {
-              await selectAddress(item.id);
-              router.back();
-            }}
-          >
-            <AddressIcon label={item.label} />
+        renderItem={({ item }) => {
+          const isSelected =
+            String(item.id) ===
+            String(selectedAddressId);
 
-            <View style={styles.addressInfo}>
-              <Text style={styles.name}>{item.fullName}</Text>
-              <Text style={styles.addressLine}>
-                {item.addressLine}, {item.area}, {item.city}, {item.state} -{' '}
-                {item.pincode}
-              </Text>
-              <View style={styles.phoneRow}>
-                <Ionicons name="call-outline" size={14} color="#555" />
-                <Text style={styles.phone}>{item.phone}</Text>
-              </View>
-            </View>
-
+          return (
             <TouchableOpacity
-              style={styles.menuButton}
-              onPress={() => setMenuOpenFor(item.id)}
+              style={[
+                styles.addressCard,
+                isSelected &&
+                  styles.addressCardSelected,
+              ]}
+              activeOpacity={0.9}
+              onPress={() =>
+                handleSelectAddress(
+                  String(item.id),
+                )
+              }
             >
-              <Ionicons name="ellipsis-vertical" size={18} color="#444" />
-            </TouchableOpacity>
-          </TouchableOpacity>
-        )}
-      />
+              {/* ICON */}
 
-      <Modal
-        visible={!!menuOpenFor}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setMenuOpenFor(null)}
-      >
-        <TouchableWithoutFeedback onPress={() => setMenuOpenFor(null)}>
-          <View style={styles.modalOverlay}>
-            <TouchableWithoutFeedback>
-              <View style={styles.menuCard}>
-                <TouchableOpacity
-                  style={styles.menuItem}
-                  onPress={() => {
-                    const id = menuOpenFor;
-                    setMenuOpenFor(null);
-                    if (id) {
-                      router.push({
-                        pathname: '/(home)/add-address',
-                        params: { id },
-                      });
-                    }
-                  }}
-                >
-                  <Ionicons name="create-outline" size={18} color="#222" />
-                  <Text style={styles.menuItemText}>Edit</Text>
-                </TouchableOpacity>
+              <AddressIcon label={item.label} />
 
-                <TouchableOpacity
-                  style={styles.menuItem}
-                  onPress={() => {
-                    const id = menuOpenFor;
-                    setMenuOpenFor(null);
-                    if (id) {
-                      deleteAddress(id);
-                    }
-                  }}
-                >
-                  <Ionicons name="trash-outline" size={18} color="#E53935" />
-                  <Text style={[styles.menuItemText, { color: '#E53935' }]}>
-                    Delete
+              {/* DETAILS */}
+
+              <View style={styles.addressInfo}>
+                <View style={styles.nameRow}>
+                  <Text style={styles.name}>
+                    {item.fullName}
                   </Text>
-                </TouchableOpacity>
+
+                  <View style={styles.labelBadge}>
+                    <Text
+                      style={
+                        styles.labelBadgeText
+                      }
+                    >
+                      {item.label}
+                    </Text>
+                  </View>
+                </View>
+
+                <Text style={styles.addressLine}>
+                  {item.addressLine},{' '}
+                  {item.area},{' '}
+                  {item.city},{' '}
+                  {item.state} - {item.pincode}
+                </Text>
+
+                <View style={styles.phoneRow}>
+                  <Ionicons
+                    name="call-outline"
+                    size={14}
+                    color="#555"
+                  />
+
+                  <Text style={styles.phone}>
+                    {item.phone}
+                  </Text>
+                </View>
+
+                {/* ACTIONS */}
+
+                <View style={styles.actionRow}>
+                  <TouchableOpacity
+                    style={styles.editButton}
+                    activeOpacity={0.7}
+                    onPress={() =>
+                      handleEdit(
+                        String(item.id),
+                      )
+                    }
+                  >
+                    <Ionicons
+                      name="create-outline"
+                      size={16}
+                      color="#1C6FD9"
+                    />
+
+                    <Text
+                      style={
+                        styles.editButtonText
+                      }
+                    >
+                      Edit
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={
+                      styles.deleteButton
+                    }
+                    activeOpacity={0.7}
+                    onPress={() =>
+                      handleDelete(
+                        String(item.id),
+                      )
+                    }
+                  >
+                    <Ionicons
+                      name="trash-outline"
+                      size={16}
+                      color="#E53935"
+                    />
+
+                    <Text
+                      style={
+                        styles.deleteButtonText
+                      }
+                    >
+                      Delete
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
+            </TouchableOpacity>
+          );
+        }}
+      />
     </SafeAreaView>
   );
 }
+
+// =====================================================
+// STYLES
+// =====================================================
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#F7F8FA',
   },
+
+  header: {
+    height: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 19,
+    fontWeight: '600',
+    color: '#222222',
+  },
+
+  headerRight: {
+    width: 40,
+  },
+
   addNewButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -161,39 +678,48 @@ const styles = StyleSheet.create({
     backgroundColor: '#E3F0FE',
     borderRadius: 18,
     marginHorizontal: 20,
+    marginTop: 12,
     paddingHorizontal: 20,
     paddingVertical: 18,
   },
+
   addNewLeft: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+
   addNewText: {
     marginLeft: 8,
     fontSize: 16,
     fontWeight: '700',
     color: '#1C6FD9',
   },
+
   sectionLabel: {
     fontSize: 16,
+    fontWeight: '600',
     color: '#333',
     marginHorizontal: 20,
     marginTop: 24,
     marginBottom: 12,
   },
+
   listContent: {
     paddingHorizontal: 20,
     paddingBottom: 32,
   },
+
   emptyContainer: {
     alignItems: 'center',
     marginTop: 60,
   },
+
   emptyText: {
     marginTop: 12,
     fontSize: 15,
     color: '#888',
   },
+
   addressCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -204,9 +730,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     backgroundColor: '#FFFFFF',
   },
+
   addressCardSelected: {
     borderColor: '#1C9C57',
+    borderWidth: 1.5,
   },
+
   iconContainer: {
     width: 44,
     height: 44,
@@ -216,56 +745,93 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 14,
   },
+
   addressInfo: {
     flex: 1,
   },
+
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+
   name: {
     fontSize: 17,
     fontWeight: '700',
     color: '#222',
   },
+
+  labelBadge: {
+    marginLeft: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    backgroundColor: '#E8F5E9',
+  },
+
+  labelBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#1C9C57',
+  },
+
   addressLine: {
     fontSize: 14,
     color: '#555',
-    marginTop: 4,
+    marginTop: 5,
     lineHeight: 20,
   },
+
   phoneRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 8,
   },
+
   phone: {
     marginLeft: 6,
     fontSize: 14,
     fontWeight: '600',
     color: '#333',
   },
-  menuButton: {
-    padding: 6,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.25)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  menuCard: {
-    width: 180,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingVertical: 8,
-  },
-  menuItem: {
+
+  actionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 18,
-    paddingVertical: 14,
+    marginTop: 13,
   },
-  menuItemText: {
-    marginLeft: 10,
-    fontSize: 15,
-    color: '#222',
-    fontWeight: '500',
+
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 13,
+    paddingVertical: 8,
+    borderRadius: 9,
+    backgroundColor: '#E3F0FE',
+  },
+
+  editButtonText: {
+    marginLeft: 5,
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1C6FD9',
+  },
+
+  deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 13,
+    paddingVertical: 8,
+    borderRadius: 9,
+    backgroundColor: '#FDECEC',
+    marginLeft: 8,
+  },
+
+  deleteButtonText: {
+    marginLeft: 5,
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#E53935',
   },
 });
