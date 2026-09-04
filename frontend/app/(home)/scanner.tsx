@@ -739,8 +739,8 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
 
 import {
   ActivityIndicator,
@@ -770,6 +770,13 @@ export default function ScannerScreen() {
   const [torchOn, setTorchOn] = useState(false);
   const [scanned, setScanned] = useState(false);
   const [processing, setProcessing] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      setScanned(false);
+      setProcessing(false);
+    }, [])
+  );
 
   // =====================================================
   // QR SCANNED
