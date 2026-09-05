@@ -89,13 +89,7 @@ export default function ProductCard({
 }
 
 const styles = StyleSheet.create({
-  // container: {
-  //   width: 150,
-  //   backgroundColor: '#FFFFFF',
-  //   borderRadius: 18,
-  //   padding: 12,
-  //   marginRight: 14,
-  // },
+
 container: {
   width: 150,
   backgroundColor: '#FFFFFF',
@@ -103,17 +97,10 @@ container: {
   padding: 12,
   marginRight: 14,
 
-  // Box shadow
-  shadowColor: '#000',
-  shadowOpacity: 0.15,
-  shadowRadius: 8,
-  shadowOffset: {
-    width: 0,
-    height: 4,
-  },
-
-  elevation: 5,
+  borderWidth: 1,
+  borderColor: '#E7F3EA',
 },
+
   topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -130,7 +117,7 @@ container: {
   discountText: {
     color: '#FFFFFF',
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: 'InterSemiBold',
   },
 
   image: {
@@ -142,7 +129,8 @@ container: {
 
   name: {
     fontSize: 14,
-    color: '#222',
+    fontFamily: 'InterRegular',
+    color: '#222222',
     lineHeight: 18,
     minHeight: 38,
   },
@@ -150,14 +138,15 @@ container: {
   price: {
     marginTop: 6,
     fontSize: 16,
-    fontWeight: '700',
-    color: '#222',
+    fontFamily: 'InterBold',
+    color: '#222222',
   },
 
   oldPrice: {
     marginTop: 2,
     fontSize: 13,
-    color: '#888',
+    fontFamily: 'InterRegular',
+    color: '#888888',
     textDecorationLine: 'line-through',
   },
 });

@@ -170,14 +170,15 @@ const styles = StyleSheet.create({
   placeholder: {
     marginLeft: 10,
     fontSize: 14,
+    fontFamily: 'InterRegular',
     color: '#9A9A9A',
   },
 
   suggestion: {
     marginLeft: 10,
     fontSize: 10,
+    fontFamily: 'InterMedium',
     color: '#3B3B3B',
-    fontWeight: '500',
     flexShrink: 1,
   },
 });

@@ -40,9 +40,7 @@ export default function Header() {
           <View style={{ flex: 1, minWidth: 0 }}>
 
             <Text style={styles.greeting}>
-  Hello, {isLoggedIn ? user?.fullName : "Guest"}'
-  
-   '
+  Hello, {isLoggedIn ? user?.fullName : "Guest"}
 </Text>
 
             <TouchableOpacity
@@ -56,14 +54,7 @@ export default function Header() {
                 color="#1F5C3D"
               />
 
-  
-{/* <Text style={styles.location} numberOfLines={1}>
-  {selectedAddress
-    ? `Delivery to : ${selectedAddress.city} - ${selectedAddress.pincode}`
-    : user?.address
-      ? `Delivery to : ${user.address}`
-      : 'Add delivery address'}
-</Text> */}
+
 <Text style={styles.location} numberOfLines={1}>
   {selectedAddress
     ? `Delivery to : ${
@@ -131,15 +122,12 @@ export default function Header() {
 }
 
 const styles = StyleSheet.create({
-
- container: {
-  backgroundColor: '#8DF0B4',
-  paddingTop: 34,
-  paddingHorizontal: 18,
-  paddingBottom: 38,
-  // borderBottomLeftRadius: 32,
-  // borderBottomRightRadius: 32,
-},
+  container: {
+    backgroundColor: '#8DF0B4',
+    paddingTop: 34,
+    paddingHorizontal: 18,
+    paddingBottom: 38,
+  },
 
   topRow: {
     flexDirection: 'row',
@@ -147,12 +135,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-leftSection: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  flex: 1,
-  minWidth: 0,
-},
+  leftSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    minWidth: 0,
+  },
 
   logo: {
     width: 54,
@@ -165,7 +153,7 @@ leftSection: {
 
   greeting: {
     fontSize: 17,
-    fontWeight: '700',
+    fontFamily: 'InterBold',
     color: '#0F3D26',
   },
 
@@ -176,49 +164,50 @@ leftSection: {
   },
 
   location: {
-  flex: 1,
-  fontSize: 11,
-  color: '#1F5C3D',
-  marginLeft: 3,
-  marginRight: 2,
-},
-
- rightSection: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  marginLeft: 20,
-},
-
- iconButton: {
-  width: 40,
-  height: 40,
-  borderRadius: 20,
-  backgroundColor: Colors.white,
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginLeft: 6,
-
-  shadowColor: '#000',
-  shadowOpacity: 0.08,
-  shadowRadius: 8,
-  shadowOffset: {
-    width: 0,
-    height: 2,
+    flex: 1,
+    fontSize: 11,
+    fontFamily: 'InterRegular',
+    color: '#1F5C3D',
+    marginLeft: 3,
+    marginRight: 2,
   },
 
-  elevation: 3,
-},
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 20,
+  },
+
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 6,
+
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+
+    elevation: 3,
+  },
+
   title: {
-  marginTop: 24,
-  marginBottom: 10,
-  fontSize: 16,
-  fontWeight: '600',
-  color: '#0F3D26',
-},
+    marginTop: 24,
+    marginBottom: 10,
+    fontSize: 16,
+    fontFamily: 'InterSemiBold',
+    color: '#0F3D26',
+  },
 
-searchWrapper: {
-  marginTop: 14,
-  marginBottom: 0,
-},
-
+  searchWrapper: {
+    marginTop: 14,
+    marginBottom: 0,
+  },
 });

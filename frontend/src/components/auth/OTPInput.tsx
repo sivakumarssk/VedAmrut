@@ -71,24 +71,22 @@ export default function OTPInput({
 
 
 const styles = StyleSheet.create({
-
-  container:{
-    marginTop:55,
-    flexDirection:"row",
-    justifyContent:"space-between",
-    paddingHorizontal:20,
+  container: {
+    marginTop: 55,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
   },
 
-
-  input:{
-    width:56,
-    height:56,
-    borderWidth:1.5,
-    borderColor:"#92F0C2",
-    borderRadius:14,
-    fontSize:22,
-    fontWeight:"700",
-    color:"#222",
-  }
-
+  input: {
+    width: 56,
+    height: 56,
+    borderWidth: 1.5,
+    borderColor: '#92F0C2',
+    borderRadius: 14,
+    fontSize: 22,
+    fontFamily: 'InterBold',
+    color: '#222222',
+    textAlign: 'center',
+  },
 });

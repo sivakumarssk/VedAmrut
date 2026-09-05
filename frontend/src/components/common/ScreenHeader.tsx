@@ -46,18 +46,21 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 12,
   },
+
   backButton: {
     width: 40,
     height: 40,
     justifyContent: 'center',
   },
+
   title: {
     flex: 1,
     fontSize: 22,
-    fontWeight: '700',
-    color: '#222',
+    fontFamily: 'InterBold',
+    color: '#222222',
     marginLeft: 4,
   },
+
   rightElement: {
     marginLeft: 12,
   },

@@ -204,6 +204,7 @@ const styles = StyleSheet.create({
       height: 3,
     },
   },
+
   tabItem: {
     flex: 1,
     justifyContent: 'center',
@@ -211,17 +212,21 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 8,
   },
+
   iconImage: {
     width: 22,
     height: 22,
   },
+
   labelText: {
     marginTop: 4,
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: 'InterMedium',
     color: '#6E6E6E',
   },
+
   labelTextActive: {
     color: '#1C9C57',
+    fontFamily: 'InterSemiBold',
   },
 });

@@ -307,11 +307,10 @@ const styles = StyleSheet.create({
   },
 
  
-  highlightedCard: {
+highlightedCard: {
   width: 150,
   marginRight: 0,
-  borderWidth: 1,
-  borderColor: '#E7F3EA',
+  backgroundColor: '#FFFFFF',
 },
   loaderContainer: {
     height: 180,

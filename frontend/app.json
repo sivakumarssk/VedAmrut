@@ -47,7 +47,8 @@
         {
           "photosPermission": "Allow $(PRODUCT_NAME) to access your photos to scan a QR code from an image."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true

@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
 
   ribbonText: {
     fontSize: 11,
-    fontWeight: '800',
+    fontFamily: 'InterBold',
     color: '#0A3B24',
     letterSpacing: 0.5,
   },
@@ -177,18 +177,20 @@ const styles = StyleSheet.create({
 
   headline: {
     fontSize: 21,
-    fontWeight: '800',
+    fontFamily: 'InterBold',
     color: '#FFFFFF',
     lineHeight: 27,
   },
 
   headlineAccent: {
+    fontFamily: 'InterBold',
     color: '#E8F5EC',
   },
 
   subtext: {
     marginTop: 8,
     fontSize: 12,
+    fontFamily: 'InterRegular',
     color: '#E3EFE8',
   },
 
@@ -203,7 +205,7 @@ const styles = StyleSheet.create({
 
   discountText: {
     fontSize: 15,
-    fontWeight: '800',
+    fontFamily: 'InterBold',
     color: '#E8B84B',
   },
 
@@ -220,8 +222,8 @@ const styles = StyleSheet.create({
 
   ctaText: {
     fontSize: 14,
-    fontWeight: '700',
-    color: '#222',
+    fontFamily: 'InterBold',
+    color: '#222222',
     marginRight: 6,
   },
 

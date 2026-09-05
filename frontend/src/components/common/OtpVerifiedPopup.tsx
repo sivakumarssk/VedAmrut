@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  Image,
-  Modal,
-  StyleSheet,
-  Text,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native';
+import {Image,Modal,StyleSheet,Text,TouchableWithoutFeedback,View,} from 'react-native';
 
 type Props = {
   visible: boolean;
@@ -47,7 +40,6 @@ export default function OtpVerifiedPopup({
 }
 
 const styles = StyleSheet.create({
-
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.35)',
@@ -73,9 +65,8 @@ const styles = StyleSheet.create({
     marginTop: 30,
     textAlign: 'center',
     fontSize: 24,
-    fontWeight: '700',
+    fontFamily: 'InterBold',
     color: '#11884A',
     lineHeight: 34,
   },
-
 });

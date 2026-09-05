@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   tagline: {
     marginTop: 24,
     fontSize: 18,
-    fontWeight: '600',
+   fontFamily: 'InterSemiBold',
     color: '#FFFFFF',
     textAlign: 'center',
   },

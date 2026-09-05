@@ -434,10 +434,45 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
+  // =========================
+  // HEADER
+  // =========================
+
+  header: {
+    height: 58,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    backgroundColor: '#F5F5F5',
+  },
+
+  headerBackButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  headerTitle: {
+    fontSize: 20,
+    fontFamily: 'InterBold',
+    color: '#222222',
+    marginLeft: 8,
+  },
+
+  // =========================
+  // SCROLL
+  // =========================
+
   scrollContent: {
     paddingHorizontal: 20,
     paddingBottom: 40,
   },
+
+  // =========================
+  // AVATAR
+  // =========================
 
   avatarWrapper: {
     alignItems: 'center',
@@ -468,28 +503,41 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
 
+  // =========================
+  // TITLE
+  // =========================
+
   updateTitle: {
     textAlign: 'center',
     fontSize: 19,
-    fontWeight: '700',
-    color: '#222',
+    fontFamily: 'InterBold',
+    color: '#222222',
     marginTop: 16,
   },
 
   updateSubtitle: {
     textAlign: 'center',
     fontSize: 13,
-    color: '#777',
+    fontFamily: 'InterRegular',
+    color: '#777777',
     marginTop: 4,
     marginBottom: 24,
   },
 
+  // =========================
+  // SECTION
+  // =========================
+
   sectionLabel: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#222',
+    fontFamily: 'InterBold',
+    color: '#222222',
     marginBottom: 10,
   },
+
+  // =========================
+  // CARD
+  // =========================
 
   card: {
     backgroundColor: '#FFFFFF',
@@ -498,15 +546,25 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
 
+  // =========================
+  // LABELS
+  // =========================
+
   label: {
     fontSize: 15,
-    color: '#222',
+    fontFamily: 'InterMedium',
+    color: '#222222',
     marginBottom: 8,
   },
 
   required: {
     color: '#E53935',
+    fontFamily: 'InterMedium',
   },
+
+  // =========================
+  // INPUT
+  // =========================
 
   input: {
     height: 52,
@@ -515,7 +573,8 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     paddingHorizontal: 18,
     fontSize: 15,
-    color: '#222',
+    fontFamily: 'InterRegular',
+    color: '#222222',
     marginBottom: 18,
   },
 
@@ -524,6 +583,10 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     borderRadius: 20,
   },
+
+  // =========================
+  // SAVE BUTTON
+  // =========================
 
   saveButton: {
     height: 56,
@@ -534,31 +597,7 @@ const styles = StyleSheet.create({
 
   saveButtonText: {
     fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'InterSemiBold',
     color: '#FFFFFF',
   },
-  
-header: {
-  height: 58,
-  flexDirection: 'row',
-  alignItems: 'center',
-  paddingHorizontal: 20,
-  backgroundColor: '#F5F5F5',
-},
-
-headerBackButton: {
-  width: 40,
-  height: 40,
-  borderRadius: 20,
-  justifyContent: 'center',
-  alignItems: 'center',
-},
-
-headerTitle: {
-  fontSize: 20,
-  fontWeight: '700',
-  color: '#222222',
-  marginLeft: 8,
-},
-
 });

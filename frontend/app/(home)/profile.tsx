@@ -653,7 +653,6 @@ function MenuRow({
 // =====================================================
 // STYLES
 // =====================================================
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -675,8 +674,8 @@ const styles = StyleSheet.create({
   },
 
   avatarContainer: {
-    width: 64,
-    height: 64,
+    width: 70,
+    height: 70,
     borderRadius: 16,
     borderWidth: 1.5,
     borderColor: '#1C9C57',
@@ -712,8 +711,8 @@ const styles = StyleSheet.create({
   name: {
     flex: 1,
     fontSize: 22,
-    fontWeight: '700',
-    color: '#222',
+    fontFamily: 'InterBold',
+    color: '#222222',
     marginRight: 10,
   },
 
@@ -730,7 +729,7 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     color: '#FFFFFF',
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'InterSemiBold',
   },
 
   phoneRow: {
@@ -742,21 +741,24 @@ const styles = StyleSheet.create({
   phone: {
     marginLeft: 6,
     fontSize: 14,
-    color: '#666',
+    fontFamily: 'InterRegular',
+    color: '#666666',
     flexShrink: 1,
   },
-  addressRow: {
-  flexDirection: 'row',
-  alignItems: 'flex-start',
-  marginTop: 6,
-},
 
-address: {
-  marginLeft: 6,
-  fontSize: 14,
-  color: '#666',
-  flex: 1,
-},
+  addressRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginTop: 6,
+  },
+
+  address: {
+    marginLeft: 6,
+    fontSize: 14,
+    fontFamily: 'InterRegular',
+    color: '#666666',
+    flex: 1,
+  },
 
   sectionCard: {
     backgroundColor: '#FFFFFF',
@@ -767,16 +769,16 @@ address: {
   },
 
   sectionHeading: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#222',
+    fontSize: 20,
+    fontFamily: 'InterBold',
+    color: '#222222',
     marginBottom: 12,
   },
 
   followHeading: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#222',
+    fontFamily: 'InterSemiBold',
+    color: '#222222',
     marginBottom: 8,
   },
 
@@ -805,15 +807,17 @@ address: {
   },
 
   menuTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#222',
+    fontSize: 16,
+    fontFamily: 'InterSemiBold',
+    color: '#222222',
   },
 
   menuSubtitle: {
     marginTop: 4,
-    fontSize: 14,
-    color: '#777',
+    fontSize: 13,
+    fontFamily: 'InterRegular',
+    color: '#777777',
     lineHeight: 19,
   },
 });
+

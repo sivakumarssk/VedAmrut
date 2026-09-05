@@ -16,16 +16,20 @@
 // } from "react-native";
 
 // import { Ionicons } from "@expo/vector-icons";
+
 // import {
 //   router,
 //   useLocalSearchParams,
 // } from "expo-router";
+
 // import { SafeAreaView } from "react-native-safe-area-context";
 
 // import ScreenHeader from "@/components/common/ScreenHeader";
+
 // import {
 //   API_BASE_URL,
 // } from "@/constants/api";
+
 // import {
 //   getToken,
 // } from "@/utils/storage";
@@ -34,13 +38,17 @@
 // // TYPES
 // // =====================================================
 
+// type PaymentMethod =
+//   | "wallet"
+//   | "upi"
+//   | "card"
+//   | "cod";
+
 // type PaymentResponse = {
 //   success: boolean;
 //   message?: string;
 
 //   data?: {
-//     success?: boolean;
-
 //     transaction?: {
 //       id?: number;
 //       amount?: string | number;
@@ -66,11 +74,13 @@
 //       id?: number;
 //       amount?: string | number;
 //       status?: string;
+//       payment_method?: string;
 //     };
 
 //     order?: {
 //       id?: number;
 //       status?: string;
+//       payment_method?: string;
 //     };
 
 //     qr?: {
@@ -212,16 +222,6 @@
 //       getParam(params.reward)
 //     );
 
-//   /*
-//    * IMPORTANT:
-//    *
-//    * When the user comes here from
-//    * "CONTINUE TO QR PAYMENT",
-//    *
-//    * rewardClaimed = false
-//    *
-//    * We DO NOT call the claim API.
-//    */
 //   const rewardClaimed =
 //     getParam(
 //       params.rewardClaimed
@@ -232,8 +232,18 @@
 //   // ===================================================
 
 //   const [
+//     paymentMethod,
+//     setPaymentMethod,
+//   ] = useState<PaymentMethod>("wallet");
+
+//   const [
 //     paymentLoading,
 //     setPaymentLoading,
+//   ] = useState(false);
+
+//   const [
+//     rewardLoading,
+//     setRewardLoading,
 //   ] = useState(false);
 
 //   const [
@@ -250,6 +260,13 @@
 //     imageError,
 //     setImageError,
 //   ] = useState(false);
+
+//   const [
+//     rewardAdded,
+//     setRewardAdded,
+//   ] = useState(
+//     rewardClaimed
+//   );
 
 //   // ===================================================
 //   // IMAGE
@@ -272,54 +289,302 @@
 //     loadWallet();
 //   }, []);
 
-//   const loadWallet = async () => {
-//     try {
+//   const loadWallet =
+//     async () => {
+//       try {
+//         const token =
+//           await getToken();
+
+//         if (!token) {
+//           setWalletLoading(false);
+//           return;
+//         }
+
+//         console.log(
+//           "================================"
+//         );
+
+//         console.log(
+//           "LOADING WALLET"
+//         );
+
+//         console.log(
+//           "================================"
+//         );
+
+//         const response =
+//           await fetch(
+//             `${API_BASE_URL}/api/wallet`,
+//             {
+//               method: "GET",
+
+//               headers: {
+//                 Authorization:
+//                   `Bearer ${token}`,
+
+//                 "Content-Type":
+//                   "application/json",
+//               },
+//             }
+//           );
+
+//         const result =
+//           await response.json();
+
+//         console.log(
+//           "WALLET STATUS:",
+//           response.status
+//         );
+
+//         console.log(
+//           "WALLET RESPONSE:",
+//           JSON.stringify(
+//             result,
+//             null,
+//             2
+//           )
+//         );
+
+//         if (!response.ok) {
+//           throw new Error(
+//             result?.message ||
+//               "Unable to load wallet."
+//           );
+//         }
+
+//         const balance =
+//           toNumber(
+//             result?.data?.balance ??
+//               result?.data?.wallet?.balance ??
+//               result?.balance ??
+//               result?.wallet?.balance ??
+//               0
+//           );
+
+//         setWalletBalance(
+//           balance
+//         );
+//       } catch (error) {
+//         console.error(
+//           "WALLET LOAD ERROR:",
+//           error
+//         );
+//       } finally {
+//         setWalletLoading(false);
+//       }
+//     };
+
+//   // ===================================================
+//   // ADD REWARD TO WALLET
+//   // ===================================================
+
+//   const handleAddRewardToWallet =
+//     async () => {
+//       if (
+//         rewardLoading ||
+//         rewardAdded ||
+//         reward <= 0
+//       ) {
+//         return;
+//       }
+
 //       const token =
 //         await getToken();
 
 //       if (!token) {
-//         setWalletLoading(false);
+//         Alert.alert(
+//           "Login Required",
+//           "Please login to add your reward to wallet."
+//         );
+
 //         return;
 //       }
 
-//       console.log(
-//         "================================"
-//       );
-//       console.log(
-//         "LOADING WALLET FOR QR PAYMENT"
-//       );
+//       try {
+//         setRewardLoading(true);
+
+//         console.log(
+//           "================================"
+//         );
+
+//         console.log(
+//           "ADDING QR REWARD TO WALLET"
+//         );
+
+//         console.log(
+//           "QR CODE:",
+//           qrCode
+//         );
+
+//         console.log(
+//           "REWARD:",
+//           reward
+//         );
+
+//         console.log(
+//           "================================"
+//         );
+
+//         /*
+//          * IMPORTANT:
+//          *
+//          * This endpoint should be your existing
+//          * QR reward claim endpoint.
+//          *
+//          * We are intentionally NOT using it
+//          * when the user simply continues to payment.
+//          *
+//          * It is only called when the user explicitly
+//          * chooses ADD REWARD TO WALLET.
+//          */
+
+//         const response =
+//           await fetch(
+//             `${API_BASE_URL}/api/product-qr/claim`,
+//             {
+//               method: "POST",
+
+//               headers: {
+//                 Authorization:
+//                   `Bearer ${token}`,
+
+//                 "Content-Type":
+//                   "application/json",
+//               },
+
+//               body: JSON.stringify({
+//                 qrCode,
+//               }),
+//             }
+//           );
+
+//         const result =
+//           await response.json();
+
+//         console.log(
+//           "REWARD RESPONSE:",
+//           JSON.stringify(
+//             result,
+//             null,
+//             2
+//           )
+//         );
+
+//         if (
+//           !response.ok ||
+//           !result?.success
+//         ) {
+//           throw new Error(
+//             result?.message ||
+//               "Unable to claim reward."
+//           );
+//         }
+
+//         setRewardAdded(
+//           true
+//         );
+
+//         Alert.alert(
+//           "Reward Added 🎉",
+//           `${formatMoney(
+//             reward
+//           )} has been added to your VedAmrut wallet.`,
+//           [
+//             {
+//               text: "OK",
+//               onPress:
+//                 loadWallet,
+//             },
+//           ]
+//         );
+//       } catch (error: any) {
+//         console.error(
+//           "REWARD ERROR:",
+//           error
+//         );
+
+//         Alert.alert(
+//           "Reward Failed",
+//           error?.message ||
+//             "Unable to add reward to wallet."
+//         );
+//       } finally {
+//         setRewardLoading(
+//           false
+//         );
+//       }
+//     };
+
+//   // ===================================================
+//   // WALLET PAYMENT
+//   // ===================================================
+
+//   const payUsingWallet =
+//     async (
+//       token: string
+//     ) => {
 //       console.log(
 //         "================================"
 //       );
 
-//       /*
-//        * Existing VedAmrut wallet endpoint.
-//        */
+//       console.log(
+//         "WALLET QR PAYMENT"
+//       );
+
+//       console.log(
+//         "AMOUNT:",
+//         productPrice
+//       );
+
+//       console.log(
+//         "================================"
+//       );
+
+//       const paymentUrl =
+//         `${API_BASE_URL}/api/wallet/pay-qr`;
+
 //       const response =
 //         await fetch(
-//           `${API_BASE_URL}/api/wallet`,
+//           paymentUrl,
 //           {
-//             method: "GET",
+//             method: "POST",
 
 //             headers: {
-//               Authorization:
-//                 `Bearer ${token}`,
 //               "Content-Type":
 //                 "application/json",
+
+//               Authorization:
+//                 `Bearer ${token}`,
 //             },
+
+//             body: JSON.stringify({
+//               productId:
+//                 Number(productId),
+
+//               qrCode,
+
+//               amount:
+//                 productPrice,
+
+//               productName,
+
+//               description:
+//                 `QR payment - ${productName}`,
+
+//               rewardClaimed:
+//                 false,
+
+//               paymentMethod:
+//                 "WALLET",
+//             }),
 //           }
 //         );
 
 //       const result =
-//         await response.json();
+//         (await response.json()) as PaymentResponse;
 
 //       console.log(
-//         "WALLET STATUS:",
-//         response.status
-//       );
-
-//       console.log(
-//         "WALLET RESPONSE:",
+//         "WALLET PAYMENT RESPONSE:",
 //         JSON.stringify(
 //           result,
 //           null,
@@ -327,32 +592,68 @@
 //         )
 //       );
 
-//       if (!response.ok) {
+//       if (
+//         !response.ok ||
+//         !result?.success
+//       ) {
 //         throw new Error(
 //           result?.message ||
-//             "Unable to load wallet."
+//             "Wallet payment failed."
 //         );
 //       }
 
-//       const balance =
-//         toNumber(
-//           result?.data?.balance ??
-//             result?.data?.wallet?.balance ??
-//             result?.balance ??
-//             result?.wallet?.balance ??
-//             0
+//       return result;
+//     };
+
+//   // ===================================================
+//   // OTHER PAYMENT METHODS
+//   // ===================================================
+
+//   const handleExternalPayment =
+//     async (
+//       method: PaymentMethod,
+//       token: string
+//     ) => {
+//       /*
+//        * IMPORTANT:
+//        *
+//        * Wallet is already connected to your backend.
+//        *
+//        * UPI / CARD need payment gateway integration.
+//        * COD needs order creation with payment_method=COD.
+//        *
+//        * Do not fake successful payment here.
+//        */
+
+//       if (method === "upi") {
+//         Alert.alert(
+//           "UPI Payment",
+//           "UPI payment gateway needs to be connected to the backend."
 //         );
 
-//       setWalletBalance(balance);
-//     } catch (error) {
-//       console.error(
-//         "WALLET LOAD ERROR:",
-//         error
-//       );
-//     } finally {
-//       setWalletLoading(false);
-//     }
-//   };
+//         return null;
+//       }
+
+//       if (method === "card") {
+//         Alert.alert(
+//           "Card Payment",
+//           "Credit/Debit Card gateway needs to be connected to the backend."
+//         );
+
+//         return null;
+//       }
+
+//       if (method === "cod") {
+//         Alert.alert(
+//           "Cash on Delivery",
+//           "COD order creation needs to be connected to the order backend."
+//         );
+
+//         return null;
+//       }
+
+//       return null;
+//     };
 
 //   // ===================================================
 //   // PAYMENT
@@ -425,23 +726,40 @@
 //       }
 
 //       // -----------------------------------------------
-//       // CHECK WALLET BALANCE
+//       // WALLET BALANCE
 //       // -----------------------------------------------
 
 //       if (
+//         paymentMethod ===
+//           "wallet" &&
 //         walletBalance !== null &&
-//         walletBalance < productPrice
+//         walletBalance <
+//           productPrice
 //       ) {
 //         Alert.alert(
 //           "Insufficient Wallet Balance",
 //           `Your wallet balance is ${formatMoney(
 //             walletBalance
 //           )}.\n\nYou need ${formatMoney(
-//             productPrice
-//           )} to complete this payment.`,
+//             productPrice -
+//               walletBalance
+//           )} more.`,
 //           [
 //             {
-//               text: "OK",
+//               text: "Add Money",
+//               onPress: () => {
+//                 /*
+//                  * Change this route to your actual
+//                  * Add Money screen when available.
+//                  */
+//                 router.push(
+//                   "/(home)/wallet"
+//                 );
+//               },
+//             },
+//             {
+//               text: "Cancel",
+//               style: "cancel",
 //             },
 //           ]
 //         );
@@ -450,127 +768,83 @@
 //       }
 
 //       try {
-//         setPaymentLoading(true);
+//         setPaymentLoading(
+//           true
+//         );
 
 //         console.log(
 //           "================================"
 //         );
+
 //         console.log(
 //           "QR PAYMENT STARTED"
 //         );
+
 //         console.log(
-//           "PRODUCT ID:",
-//           productId
+//           "PAYMENT METHOD:",
+//           paymentMethod
 //         );
+
 //         console.log(
 //           "PRODUCT:",
 //           productName
 //         );
+
 //         console.log(
-//           "QR CODE:",
-//           qrCode
-//         );
-//         console.log(
-//           "PRODUCT PRICE:",
+//           "AMOUNT:",
 //           productPrice
 //         );
+
 //         console.log(
 //           "REWARD:",
 //           reward
 //         );
-//         console.log(
-//           "REWARD CLAIMED:",
-//           rewardClaimed
-//         );
-//         console.log(
-//           "PAYMENT AMOUNT:",
-//           productPrice
-//         );
-//         console.log(
-//           "================================"
-//         );
-
-//         /*
-//          * IMPORTANT:
-//          *
-//          * The user selected:
-//          *
-//          * CONTINUE TO QR PAYMENT
-//          *
-//          * Therefore we DO NOT call:
-//          *
-//          * /api/product-qr/claim
-//          *
-//          * The reward remains unclaimed.
-//          *
-//          * We debit only the product price.
-//          */
-
-//         const paymentUrl =
-//           `${API_BASE_URL}/api/wallet/pay/pay-qr`;
-
-//         const response =
-//           await fetch(
-//             paymentUrl,
-//             {
-//               method: "POST",
-
-//               headers: {
-//                 "Content-Type":
-//                   "application/json",
-
-//                 Authorization:
-//                   `Bearer ${token}`,
-//               },
-
-//               body: JSON.stringify({
-//                 productId:
-//                   Number(productId),
-
-//                 qrCode,
-
-//                 amount:
-//                   productPrice,
-
-//                 productName,
-
-//                 description:
-//                   `QR payment - ${productName}`,
-
-//                 rewardClaimed:
-//                   false,
-//               }),
-//             }
-//           );
-
-//         const result =
-//           (await response.json()) as PaymentResponse;
 
 //         console.log(
 //           "================================"
 //         );
-//         console.log(
-//           "QR PAYMENT RESPONSE"
-//         );
-//         console.log(
-//           "STATUS:",
-//           response.status
-//         );
-//         console.log(
-//           JSON.stringify(
-//             result,
-//             null,
-//             2
-//           )
-//         );
-//         console.log(
-//           "================================"
-//         );
+
+//         let result:
+//           | PaymentResponse
+//           | null = null;
+
+//         // ---------------------------------------------
+//         // WALLET
+//         // ---------------------------------------------
 
 //         if (
-//           !response.ok ||
-//           !result?.success
+//           paymentMethod ===
+//           "wallet"
 //         ) {
+//           result =
+//             await payUsingWallet(
+//               token
+//             );
+//         }
+
+//         // ---------------------------------------------
+//         // UPI / CARD / COD
+//         // ---------------------------------------------
+
+//         else {
+//           result =
+//             await handleExternalPayment(
+//               paymentMethod,
+//               token
+//             );
+
+//           /*
+//            * At this stage there is no real payment
+//            * result for external methods.
+//            *
+//            * Therefore don't navigate to success.
+//            */
+//           if (!result) {
+//             return;
+//           }
+//         }
+
+//         if (!result?.success) {
 //           throw new Error(
 //             result?.message ||
 //               "Payment failed."
@@ -578,7 +852,7 @@
 //         }
 
 //         // ---------------------------------------------
-//         // GET NEW BALANCE
+//         // BALANCE
 //         // ---------------------------------------------
 
 //         const paymentData =
@@ -592,35 +866,38 @@
 //               paymentData?.balance ??
 //               paymentData?.transaction
 //                 ?.balance_after ??
+//               walletBalance ??
 //               0
 //           );
 
 //         console.log(
 //           "================================"
 //         );
+
 //         console.log(
 //           "QR PAYMENT SUCCESS"
 //         );
+
 //         console.log(
-//           "PRODUCT:",
-//           productName
+//           "PAYMENT METHOD:",
+//           paymentMethod
 //         );
+
 //         console.log(
 //           "AMOUNT:",
 //           productPrice
 //         );
+
 //         console.log(
 //           "REWARD CLAIMED:",
-//           false
+//           rewardAdded
 //         );
-//         console.log(
-//           "REWARD REMAINS:",
-//           reward
-//         );
+
 //         console.log(
 //           "REMAINING BALANCE:",
 //           remainingBalance
 //         );
+
 //         console.log(
 //           "================================"
 //         );
@@ -649,21 +926,23 @@
 //             reward:
 //               String(reward),
 
-//             /*
-//              * VERY IMPORTANT
-//              *
-//              * User skipped reward.
-//              */
 //             rewardClaimed:
-//               "false",
+//               String(
+//                 rewardAdded
+//               ),
 
 //             remainingBalance:
 //               String(
 //                 remainingBalance
 //               ),
 
+//             paymentMethod:
+//               paymentMethod,
+
 //             categoryName:
-//               String(categoryName),
+//               String(
+//                 categoryName
+//               ),
 
 //             productImage:
 //               String(
@@ -678,12 +957,15 @@
 //         console.error(
 //           "================================"
 //         );
+
 //         console.error(
 //           "QR PAYMENT ERROR"
 //         );
+
 //         console.error(
 //           error
 //         );
+
 //         console.error(
 //           "================================"
 //         );
@@ -694,21 +976,55 @@
 //             "Unable to complete the payment. Please try again."
 //         );
 //       } finally {
-//         setPaymentLoading(false);
+//         setPaymentLoading(
+//           false
+//         );
 //       }
 //     };
 
 //   // ===================================================
-//   // ADD MONEY
+//   // PAYMENT METHOD DATA
 //   // ===================================================
 
-//   const handleAddMoney =
-//     () => {
-//       Alert.alert(
-//         "Add Money",
-//         "Please add money to your wallet before making this payment."
-//       );
-//     };
+//   const paymentMethods = [
+//     {
+//       id: "wallet" as PaymentMethod,
+//       title: "Wallet",
+//       subtitle:
+//         walletLoading
+//           ? "Checking balance..."
+//           : walletBalance !== null
+//           ? `Balance ${formatMoney(
+//               walletBalance
+//             )}`
+//           : "VedAmrut Wallet",
+//       icon: "wallet-outline" as const,
+//     },
+
+//     {
+//       id: "upi" as PaymentMethod,
+//       title: "UPI",
+//       subtitle:
+//         "Google Pay, PhonePe, Paytm",
+//       icon: "phone-portrait-outline" as const,
+//     },
+
+//     {
+//       id: "card" as PaymentMethod,
+//       title: "Credit / Debit Card",
+//       subtitle:
+//         "Visa, Mastercard & more",
+//       icon: "card-outline" as const,
+//     },
+
+//     {
+//       id: "cod" as PaymentMethod,
+//       title: "Cash on Delivery",
+//       subtitle:
+//         "Pay when your order arrives",
+//       icon: "cash-outline" as const,
+//     },
+//   ];
 
 //   // ===================================================
 //   // SCREEN
@@ -769,8 +1085,8 @@
 //               styles.paymentSubtitle
 //             }
 //           >
-//             Pay securely using your
-//             VedAmrut wallet
+//             Choose how you want to
+//             pay
 //           </Text>
 //         </View>
 
@@ -857,7 +1173,7 @@
 //               styles.amountLabel
 //             }
 //           >
-//             PAYMENT AMOUNT
+//             TOTAL PAYABLE
 //           </Text>
 
 //           <Text
@@ -915,11 +1231,19 @@
 
 //             <Text
 //               style={
-//                 styles.rewardNotUsed
+//                 rewardAdded
+//                   ? styles.rewardAdded
+//                   : styles.rewardNotUsed
 //               }
 //             >
 //               {reward > 0
-//                 ? "Not claimed"
+//                 ? rewardAdded
+//                   ? `+${formatMoney(
+//                       reward
+//                     )} to wallet`
+//                   : `${formatMoney(
+//                       reward
+//                     )} available`
 //                 : "₹0.00"}
 //             </Text>
 //           </View>
@@ -940,7 +1264,7 @@
 //                 styles.totalLabel
 //               }
 //             >
-//               Total Payable
+//               Amount to Pay
 //             </Text>
 
 //             <Text
@@ -956,208 +1280,429 @@
 //         </View>
 
 //         {/* =================================================
-//             REWARD INFORMATION
+//             REWARD CARD
 //         ================================================= */}
 
-//         {reward > 0 && (
-//           <View
-//             style={
-//               styles.rewardInfoCard
-//             }
-//           >
+//         {reward > 0 &&
+//           !rewardAdded && (
 //             <View
 //               style={
-//                 styles.rewardInfoIcon
+//                 styles.rewardCard
+//               }
+//             >
+//               <View
+//                 style={
+//                   styles.rewardIcon
+//                 }
+//               >
+//                 <Ionicons
+//                   name="gift"
+//                   size={25}
+//                   color="#9B4DFF"
+//                 />
+//               </View>
+
+//               <View
+//                 style={
+//                   styles.rewardContent
+//                 }
+//               >
+//                 <Text
+//                   style={
+//                     styles.rewardTitle
+//                   }
+//                 >
+//                   You earned a QR Reward!
+//                 </Text>
+
+//                 <Text
+//                   style={
+//                     styles.rewardText
+//                   }
+//                 >
+//                   Add{" "}
+//                   {formatMoney(
+//                     reward
+//                   )}{" "}
+//                   to your wallet.
+//                 </Text>
+
+//                 <TouchableOpacity
+//                   style={
+//                     styles.rewardButton
+//                   }
+//                   onPress={
+//                     handleAddRewardToWallet
+//                   }
+//                   disabled={
+//                     rewardLoading
+//                   }
+//                 >
+//                   {rewardLoading ? (
+//                     <ActivityIndicator
+//                       size="small"
+//                       color="#FFFFFF"
+//                     />
+//                   ) : (
+//                     <>
+//                       <Ionicons
+//                         name="wallet-outline"
+//                         size={16}
+//                         color="#FFFFFF"
+//                       />
+
+//                       <Text
+//                         style={
+//                           styles.rewardButtonText
+//                         }
+//                       >
+//                         ADD TO WALLET
+//                       </Text>
+//                     </>
+//                   )}
+//                 </TouchableOpacity>
+//               </View>
+//             </View>
+//           )}
+
+//         {/* =================================================
+//             REWARD ADDED
+//         ================================================= */}
+
+//         {rewardAdded &&
+//           reward > 0 && (
+//             <View
+//               style={
+//                 styles.rewardSuccessCard
 //               }
 //             >
 //               <Ionicons
-//                 name="gift-outline"
-//                 size={22}
-//                 color="#9B4DFF"
+//                 name="checkmark-circle"
+//                 size={25}
+//                 color="#27AE60"
 //               />
-//             </View>
-
-//             <View
-//               style={
-//                 styles.rewardInfoContent
-//               }
-//             >
-//               <Text
-//                 style={
-//                   styles.rewardInfoTitle
-//                 }
-//               >
-//                 Reward Not Used
-//               </Text>
-
-//               <Text
-//                 style={
-//                   styles.rewardInfoText
-//                 }
-//               >
-//                 Your{" "}
-//                 {formatMoney(reward)}
-//                 {" "}QR reward has not been
-//                 claimed and remains
-//                 available.
-//               </Text>
-//             </View>
-//           </View>
-//         )}
-
-//         {/* =================================================
-//             WALLET CARD
-//         ================================================= */}
-
-//         <View
-//           style={
-//             styles.walletCard
-//           }
-//         >
-//           <View
-//             style={
-//               styles.walletIcon
-//             }
-//           >
-//             <Ionicons
-//               name="wallet-outline"
-//               size={25}
-//               color="#9B4DFF"
-//             />
-//           </View>
-
-//           <View
-//             style={
-//               styles.walletInfo
-//             }
-//           >
-//             <Text
-//               style={
-//                 styles.walletLabel
-//               }
-//             >
-//               WALLET BALANCE
-//             </Text>
-
-//             {walletLoading ? (
-//               <View
-//                 style={
-//                   styles.walletLoading
-//                 }
-//               >
-//                 <ActivityIndicator
-//                   size="small"
-//                   color="#9B4DFF"
-//                 />
-
-//                 <Text
-//                   style={
-//                     styles.walletLoadingText
-//                   }
-//                 >
-//                   Checking balance...
-//                 </Text>
-//               </View>
-//             ) : (
-//               <Text
-//                 style={
-//                   styles.walletBalance
-//                 }
-//               >
-//                 {walletBalance !==
-//                 null
-//                   ? formatMoney(
-//                       walletBalance
-//                     )
-//                   : "₹0.00"}
-//               </Text>
-//             )}
-//           </View>
-
-//           {walletBalance !==
-//             null &&
-//             walletBalance >=
-//               productPrice && (
-//               <View
-//                 style={
-//                   styles.sufficientBadge
-//                 }
-//               >
-//                 <Ionicons
-//                   name="checkmark"
-//                   size={15}
-//                   color="#27AE60"
-//                 />
-
-//                 <Text
-//                   style={
-//                     styles.sufficientText
-//                   }
-//                 >
-//                   Available
-//                 </Text>
-//               </View>
-//             )}
-//         </View>
-
-//         {/* =================================================
-//             INSUFFICIENT BALANCE
-//         ================================================= */}
-
-//         {!walletLoading &&
-//           walletBalance !==
-//             null &&
-//           walletBalance <
-//             productPrice && (
-//             <View
-//               style={
-//                 styles.insufficientCard
-//               }
-//             >
-//               <View
-//                 style={
-//                   styles.insufficientIcon
-//                 }
-//               >
-//                 <Ionicons
-//                   name="alert-circle-outline"
-//                   size={23}
-//                   color="#E74C3C"
-//                 />
-//               </View>
 
 //               <View
 //                 style={
-//                   styles.insufficientInfo
+//                   styles.rewardSuccessInfo
 //                 }
 //               >
 //                 <Text
 //                   style={
-//                     styles.insufficientTitle
+//                     styles.rewardSuccessTitle
 //                   }
 //                 >
-//                   Insufficient Balance
+//                   Reward Added to Wallet
 //                 </Text>
 
 //                 <Text
 //                   style={
-//                     styles.insufficientText
+//                     styles.rewardSuccessText
 //                   }
 //                 >
-//                   You need{" "}
 //                   {formatMoney(
-//                     productPrice -
-//                       walletBalance
+//                     reward
 //                   )}{" "}
-//                   more to complete
-//                   this payment.
+//                   has been credited to
+//                   your wallet.
 //                 </Text>
 //               </View>
 //             </View>
 //           )}
 
 //         {/* =================================================
-//             PAYMENT SECURITY
+//             PAYMENT METHODS
+//         ================================================= */}
+
+//         <View
+//           style={
+//             styles.sectionHeader
+//           }
+//         >
+//           <Text
+//             style={
+//               styles.sectionTitle
+//             }
+//           >
+//             Choose Payment Method
+//           </Text>
+
+//           <Text
+//             style={
+//               styles.sectionSubtitle
+//             }
+//           >
+//             Select one option
+//           </Text>
+//         </View>
+
+//         <View
+//           style={
+//             styles.paymentMethodsCard
+//           }
+//         >
+//           {paymentMethods.map(
+//             (method, index) => {
+//               const selected =
+//                 paymentMethod ===
+//                 method.id;
+
+//               const isLast =
+//                 index ===
+//                 paymentMethods.length -
+//                   1;
+
+//               return (
+//                 <TouchableOpacity
+//                   key={method.id}
+//                   style={[
+//                     styles.paymentMethod,
+//                     selected &&
+//                       styles.paymentMethodSelected,
+//                     !isLast &&
+//                       styles.paymentMethodBorder,
+//                   ]}
+//                   onPress={() =>
+//                     setPaymentMethod(
+//                       method.id
+//                     )
+//                   }
+//                   activeOpacity={
+//                     0.8
+//                   }
+//                 >
+//                   <View
+//                     style={[
+//                       styles.methodIcon,
+//                       selected &&
+//                         styles.methodIconSelected,
+//                     ]}
+//                   >
+//                     <Ionicons
+//                       name={
+//                         method.icon
+//                       }
+//                       size={24}
+//                       color={
+//                         selected
+//                           ? "#FFFFFF"
+//                           : "#9B4DFF"
+//                       }
+//                     />
+//                   </View>
+
+//                   <View
+//                     style={
+//                       styles.methodInfo
+//                     }
+//                   >
+//                     <Text
+//                       style={
+//                         styles.methodTitle
+//                       }
+//                     >
+//                       {method.title}
+//                     </Text>
+
+//                     <Text
+//                       style={
+//                         styles.methodSubtitle
+//                       }
+//                     >
+//                       {
+//                         method.subtitle
+//                       }
+//                     </Text>
+//                   </View>
+
+//                   <View
+//                     style={[
+//                       styles.radioOuter,
+//                       selected &&
+//                         styles.radioOuterSelected,
+//                     ]}
+//                   >
+//                     {selected && (
+//                       <View
+//                         style={
+//                           styles.radioInner
+//                         }
+//                       />
+//                     )}
+//                   </View>
+//                 </TouchableOpacity>
+//               );
+//             }
+//           )}
+//         </View>
+
+//         {/* =================================================
+//             WALLET BALANCE
+//         ================================================= */}
+
+//         {paymentMethod ===
+//           "wallet" && (
+//           <>
+//             <View
+//               style={
+//                 styles.walletCard
+//               }
+//             >
+//               <View
+//                 style={
+//                   styles.walletIcon
+//                 }
+//               >
+//                 <Ionicons
+//                   name="wallet-outline"
+//                   size={25}
+//                   color="#9B4DFF"
+//                 />
+//               </View>
+
+//               <View
+//                 style={
+//                   styles.walletInfo
+//                 }
+//               >
+//                 <Text
+//                   style={
+//                     styles.walletLabel
+//                   }
+//                 >
+//                   WALLET BALANCE
+//                 </Text>
+
+//                 {walletLoading ? (
+//                   <View
+//                     style={
+//                       styles.walletLoading
+//                     }
+//                   >
+//                     <ActivityIndicator
+//                       size="small"
+//                       color="#9B4DFF"
+//                     />
+
+//                     <Text
+//                       style={
+//                         styles.walletLoadingText
+//                       }
+//                     >
+//                       Checking balance...
+//                     </Text>
+//                   </View>
+//                 ) : (
+//                   <Text
+//                     style={
+//                       styles.walletBalance
+//                     }
+//                   >
+//                     {walletBalance !==
+//                     null
+//                       ? formatMoney(
+//                           walletBalance
+//                         )
+//                       : "₹0.00"}
+//                   </Text>
+//                 )}
+//               </View>
+
+//               {!walletLoading &&
+//                 walletBalance !==
+//                   null &&
+//                 walletBalance >=
+//                   productPrice && (
+//                   <View
+//                     style={
+//                       styles.sufficientBadge
+//                     }
+//                   >
+//                     <Ionicons
+//                       name="checkmark"
+//                       size={15}
+//                       color="#27AE60"
+//                     />
+
+//                     <Text
+//                       style={
+//                         styles.sufficientText
+//                       }
+//                     >
+//                       Available
+//                     </Text>
+//                   </View>
+//                 )}
+//             </View>
+
+//             {!walletLoading &&
+//               walletBalance !==
+//                 null &&
+//               walletBalance <
+//                 productPrice && (
+//                 <View
+//                   style={
+//                     styles.insufficientCard
+//                   }
+//                 >
+//                   <Ionicons
+//                     name="alert-circle-outline"
+//                     size={23}
+//                     color="#E74C3C"
+//                   />
+
+//                   <View
+//                     style={
+//                       styles.insufficientInfo
+//                     }
+//                   >
+//                     <Text
+//                       style={
+//                         styles.insufficientTitle
+//                       }
+//                     >
+//                       Insufficient Balance
+//                     </Text>
+
+//                     <Text
+//                       style={
+//                         styles.insufficientText
+//                       }
+//                     >
+//                       You need{" "}
+//                       {formatMoney(
+//                         productPrice -
+//                           walletBalance
+//                       )}{" "}
+//                       more.
+//                     </Text>
+//                   </View>
+
+//                   <TouchableOpacity
+//                     style={
+//                       styles.addMoneySmallButton
+//                     }
+//                     onPress={() =>
+//                       router.push(
+//                         "/(home)/wallet"
+//                       )
+//                     }
+//                   >
+//                     <Text
+//                       style={
+//                         styles.addMoneySmallText
+//                       }
+//                     >
+//                       ADD
+//                     </Text>
+//                   </TouchableOpacity>
+//                 </View>
+//               )}
+//           </>
+//         )}
+
+//         {/* =================================================
+//             SECURITY
 //         ================================================= */}
 
 //         <View
@@ -1185,9 +1730,9 @@
 //             <Text
 //               style={
 //                 styles.securityTitle
-//               }
+//             }
 //             >
-//               Secure Wallet Payment
+//               Secure Payment
 //             </Text>
 
 //             <Text
@@ -1195,9 +1740,8 @@
 //                 styles.securityText
 //               }
 //             >
-//               Your payment will be
-//               securely deducted from
-//               your VedAmrut wallet.
+//               Your payment information
+//               is securely processed.
 //             </Text>
 //           </View>
 //         </View>
@@ -1211,6 +1755,14 @@
 //             styles.payButton,
 //             paymentLoading &&
 //               styles.payButtonDisabled,
+
+//             paymentMethod ===
+//               "wallet" &&
+//               walletBalance !==
+//                 null &&
+//               walletBalance <
+//                 productPrice &&
+//               styles.payButtonDisabled,
 //           ]}
 //           onPress={
 //             handlePayment
@@ -1218,8 +1770,10 @@
 //           disabled={
 //             paymentLoading ||
 //             walletLoading ||
-//             (walletBalance !==
-//               null &&
+//             (paymentMethod ===
+//               "wallet" &&
+//               walletBalance !==
+//                 null &&
 //               walletBalance <
 //                 productPrice)
 //           }
@@ -1237,13 +1791,24 @@
 //                   styles.payButtonText
 //                 }
 //               >
-//                 PROCESSING PAYMENT...
+//                 PROCESSING...
 //               </Text>
 //             </>
 //           ) : (
 //             <>
 //               <Ionicons
-//                 name="lock-closed-outline"
+//                 name={
+//                   paymentMethod ===
+//                   "wallet"
+//                     ? "wallet-outline"
+//                     : paymentMethod ===
+//                       "upi"
+//                     ? "phone-portrait-outline"
+//                     : paymentMethod ===
+//                       "card"
+//                     ? "card-outline"
+//                     : "cash-outline"
+//                 }
 //                 size={20}
 //                 color="#FFFFFF"
 //               />
@@ -1253,17 +1818,19 @@
 //                   styles.payButtonText
 //                 }
 //               >
-//                 PAY{" "}
-//                 {formatMoney(
-//                   productPrice
-//                 )}
+//                 {paymentMethod ===
+//                 "cod"
+//                   ? `PLACE COD ORDER`
+//                   : `PAY ${formatMoney(
+//                       productPrice
+//                     )}`}
 //               </Text>
 //             </>
 //           )}
 //         </TouchableOpacity>
 
 //         {/* =================================================
-//             CANCEL
+//             BACK
 //         ================================================= */}
 
 //         <TouchableOpacity
@@ -1347,533 +1914,639 @@
 // // STYLES
 // // =====================================================
 
-// const styles =
-//   StyleSheet.create({
-//     safeArea: {
-//       flex: 1,
-//       backgroundColor:
-//         "#F7F7F7",
-//     },
-
-//     headerTitle: {
-//       flex: 1,
-//       color: "#FFFFFF",
-//       fontSize: 20,
-//       fontWeight: "800",
-//       textAlign: "center",
-//       marginRight: 40,
-//     },
-
-//     scrollView: {
-//       flex: 1,
-//     },
-
-//     scrollContent: {
-//       paddingHorizontal: 20,
-//       paddingTop: 18,
-//       paddingBottom: 40,
-//     },
-
-//     // =================================================
-//     // PAYMENT HEADER
-//     // =================================================
-
-//     paymentHeader: {
-//       alignItems: "center",
-//       marginBottom: 18,
-//     },
-
-//     paymentIconCircle: {
-//       width: 72,
-//       height: 72,
-//       borderRadius: 36,
-//       backgroundColor:
-//         "#EFE3FF",
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//     },
-
-//     paymentTitle: {
-//       marginTop: 13,
-//       color: "#222222",
-//       fontSize: 22,
-//       fontWeight: "900",
-//     },
-
-//     paymentSubtitle: {
-//       marginTop: 5,
-//       color: "#888888",
-//       fontSize: 13,
-//       textAlign: "center",
-//     },
-
-//     // =================================================
-//     // PRODUCT
-//     // =================================================
-
-//     productCard: {
-//       backgroundColor:
-//         "#FFFFFF",
-//       borderRadius: 20,
-//       padding: 14,
-//       flexDirection: "row",
-//       alignItems: "center",
-//       elevation: 2,
-//     },
-
-//     productImageBox: {
-//       width: 82,
-//       height: 82,
-//       borderRadius: 16,
-//       backgroundColor:
-//         "#F5F1FA",
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//       overflow: "hidden",
-//     },
-
-//     productImage: {
-//       width: "100%",
-//       height: "100%",
-//     },
-
-//     productInfo: {
-//       flex: 1,
-//       marginLeft: 14,
-//     },
-
-//     productCategory: {
-//       color: "#9B4DFF",
-//       fontSize: 10,
-//       fontWeight: "800",
-//       textTransform:
-//         "uppercase",
-//       letterSpacing: 0.7,
-//     },
-
-//     productName: {
-//       marginTop: 4,
-//       color: "#222222",
-//       fontSize: 18,
-//       fontWeight: "900",
-//     },
-
-//     productUnit: {
-//       marginTop: 5,
-//       color: "#888888",
-//       fontSize: 12,
-//     },
-
-//     // =================================================
-//     // AMOUNT
-//     // =================================================
-
-//     amountCard: {
-//       marginTop: 14,
-//       backgroundColor:
-//         "#FFFFFF",
-//       borderRadius: 20,
-//       padding: 19,
-//       elevation: 2,
-//     },
-
-//     amountLabel: {
-//       color: "#999999",
-//       fontSize: 10,
-//       fontWeight: "800",
-//       letterSpacing: 1,
-//       textAlign: "center",
-//     },
-
-//     amount: {
-//       marginTop: 6,
-//       color: "#9B4DFF",
-//       fontSize: 34,
-//       fontWeight: "900",
-//       textAlign: "center",
-//     },
-
-//     amountDivider: {
-//       height: 1,
-//       backgroundColor:
-//         "#EEEEEE",
-//       marginVertical: 15,
-//     },
-
-//     amountRow: {
-//       flexDirection:
-//         "row",
-//       justifyContent:
-//         "space-between",
-//       alignItems:
-//         "center",
-//       marginVertical: 5,
-//     },
-
-//     amountRowLabel: {
-//       color: "#777777",
-//       fontSize: 13,
-//     },
-
-//     amountRowValue: {
-//       color: "#333333",
-//       fontSize: 14,
-//       fontWeight: "700",
-//     },
-
-//     rewardNotUsed: {
-//       color: "#9B4DFF",
-//       fontSize: 13,
-//       fontWeight: "800",
-//     },
-
-//     totalRow: {
-//       flexDirection:
-//         "row",
-//       justifyContent:
-//         "space-between",
-//       alignItems:
-//         "center",
-//     },
-
-//     totalLabel: {
-//       color: "#222222",
-//       fontSize: 16,
-//       fontWeight: "900",
-//     },
-
-//     totalAmount: {
-//       color: "#9B4DFF",
-//       fontSize: 20,
-//       fontWeight: "900",
-//     },
-
-//     // =================================================
-//     // REWARD INFO
-//     // =================================================
-
-//     rewardInfoCard: {
-//       marginTop: 14,
-//       backgroundColor:
-//         "#EFE3FF",
-//       borderRadius: 18,
-//       padding: 14,
-//       flexDirection:
-//         "row",
-//       alignItems:
-//         "center",
-//     },
-
-//     rewardInfoIcon: {
-//       width: 45,
-//       height: 45,
-//       borderRadius: 23,
-//       backgroundColor:
-//         "#FFFFFF",
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//     },
-
-//     rewardInfoContent: {
-//       flex: 1,
-//       marginLeft: 12,
-//     },
-
-//     rewardInfoTitle: {
-//       color: "#222222",
-//       fontSize: 14,
-//       fontWeight: "800",
-//     },
-
-//     rewardInfoText: {
-//       marginTop: 3,
-//       color: "#777777",
-//       fontSize: 11,
-//       lineHeight: 17,
-//     },
-
-//     // =================================================
-//     // WALLET
-//     // =================================================
-
-//     walletCard: {
-//       marginTop: 14,
-//       backgroundColor:
-//         "#FFFFFF",
-//       borderRadius: 20,
-//       padding: 16,
-//       flexDirection:
-//         "row",
-//       alignItems:
-//         "center",
-//       elevation: 2,
-//     },
-
-//     walletIcon: {
-//       width: 50,
-//       height: 50,
-//       borderRadius: 25,
-//       backgroundColor:
-//         "#EFE3FF",
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//     },
-
-//     walletInfo: {
-//       flex: 1,
-//       marginLeft: 12,
-//     },
-
-//     walletLabel: {
-//       color: "#999999",
-//       fontSize: 9,
-//       fontWeight: "800",
-//       letterSpacing: 0.8,
-//     },
-
-//     walletBalance: {
-//       marginTop: 3,
-//       color: "#222222",
-//       fontSize: 22,
-//       fontWeight: "900",
-//     },
-
-//     walletLoading: {
-//       flexDirection:
-//         "row",
-//       alignItems:
-//         "center",
-//       marginTop: 6,
-//     },
-
-//     walletLoadingText: {
-//       marginLeft: 7,
-//       color: "#888888",
-//       fontSize: 11,
-//     },
-
-//     sufficientBadge: {
-//       flexDirection:
-//         "row",
-//       alignItems:
-//         "center",
-//       backgroundColor:
-//         "#E8F8EE",
-//       paddingHorizontal: 9,
-//       paddingVertical: 6,
-//       borderRadius: 14,
-//     },
-
-//     sufficientText: {
-//       marginLeft: 3,
-//       color: "#27AE60",
-//       fontSize: 10,
-//       fontWeight: "800",
-//     },
-
-//     // =================================================
-//     // INSUFFICIENT
-//     // =================================================
-
-//     insufficientCard: {
-//       marginTop: 12,
-//       backgroundColor:
-//         "#FFF1F0",
-//       borderRadius: 18,
-//       padding: 14,
-//       flexDirection:
-//         "row",
-//       alignItems:
-//         "center",
-//     },
-
-//     insufficientIcon: {
-//       width: 44,
-//       height: 44,
-//       borderRadius: 22,
-//       backgroundColor:
-//         "#FFFFFF",
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//     },
-
-//     insufficientInfo: {
-//       flex: 1,
-//       marginLeft: 11,
-//     },
-
-//     insufficientTitle: {
-//       color: "#C0392B",
-//       fontSize: 14,
-//       fontWeight: "800",
-//     },
-
-//     insufficientText: {
-//       marginTop: 3,
-//       color: "#888888",
-//       fontSize: 11,
-//       lineHeight: 17,
-//     },
-
-//     // =================================================
-//     // SECURITY
-//     // =================================================
-
-//     securityCard: {
-//       marginTop: 14,
-//       backgroundColor:
-//         "#FFFFFF",
-//       borderRadius: 18,
-//       padding: 14,
-//       flexDirection:
-//         "row",
-//       alignItems:
-//         "center",
-//     },
-
-//     securityIcon: {
-//       width: 45,
-//       height: 45,
-//       borderRadius: 23,
-//       backgroundColor:
-//         "#E8F8EE",
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//     },
-
-//     securityInfo: {
-//       flex: 1,
-//       marginLeft: 11,
-//     },
-
-//     securityTitle: {
-//       color: "#222222",
-//       fontSize: 13,
-//       fontWeight: "800",
-//     },
-
-//     securityText: {
-//       marginTop: 3,
-//       color: "#888888",
-//       fontSize: 11,
-//       lineHeight: 16,
-//     },
-
-//     // =================================================
-//     // PAY BUTTON
-//     // =================================================
-
-//     payButton: {
-//       marginTop: 20,
-//       height: 58,
-//       borderRadius: 29,
-//       backgroundColor:
-//         "#9B4DFF",
-//       flexDirection:
-//         "row",
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//       elevation: 4,
-//     },
-
-//     payButtonDisabled: {
-//       opacity: 0.55,
-//     },
-
-//     payButtonText: {
-//       marginLeft: 9,
-//       color: "#FFFFFF",
-//       fontSize: 16,
-//       fontWeight: "900",
-//     },
-
-//     // =================================================
-//     // CANCEL
-//     // =================================================
-
-//     cancelButton: {
-//       marginTop: 12,
-//       height: 52,
-//       borderRadius: 26,
-//       borderWidth: 1.2,
-//       borderColor:
-//         "#DDDDDD",
-//       backgroundColor:
-//         "#FFFFFF",
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//     },
-
-//     cancelButtonText: {
-//       color: "#777777",
-//       fontSize: 13,
-//       fontWeight: "800",
-//     },
-
-//     // =================================================
-//     // QR
-//     // =================================================
-
-//     qrCard: {
-//       marginTop: 18,
-//       backgroundColor:
-//         "#FFFFFF",
-//       borderRadius: 18,
-//       padding: 15,
-//       flexDirection:
-//         "row",
-//       alignItems:
-//         "center",
-//     },
-
-//     qrInfo: {
-//       flex: 1,
-//       marginLeft: 11,
-//     },
-
-//     qrLabel: {
-//       color: "#999999",
-//       fontSize: 9,
-//       fontWeight: "800",
-//       letterSpacing: 1,
-//     },
-
-//     qrValue: {
-//       marginTop: 4,
-//       color: "#555555",
-//       fontSize: 11,
-//       lineHeight: 16,
-//     },
-
-//     // =================================================
-//     // FOOTER
-//     // =================================================
-
-//     footerText: {
-//       marginTop: 18,
-//       textAlign: "center",
-//       color: "#AAAAAA",
-//       fontSize: 12,
-//     },
-//   });
-
-
+// const styles = StyleSheet.create({
+//   safeArea: {
+//     flex: 1,
+//     backgroundColor: '#F7F7F7',
+//   },
+
+//   headerTitle: {
+//     flex: 1,
+//     color: '#FFFFFF',
+//     fontSize: 20,
+//     fontFamily: 'InterBold',
+//     textAlign: 'center',
+//     marginRight: 40,
+//   },
+
+//   scrollView: {
+//     flex: 1,
+//   },
+
+//   scrollContent: {
+//     paddingHorizontal: 20,
+//     paddingTop: 18,
+//     paddingBottom: 40,
+//   },
+
+//   // =================================================
+//   // HEADER
+//   // =================================================
+
+//   paymentHeader: {
+//     alignItems: 'center',
+//     marginBottom: 18,
+//   },
+
+//   paymentIconCircle: {
+//     width: 72,
+//     height: 72,
+//     borderRadius: 36,
+//     backgroundColor: '#EFE3FF',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+
+//   paymentTitle: {
+//     marginTop: 13,
+//     color: '#222222',
+//     fontSize: 22,
+//     fontFamily: 'InterBold',
+//   },
+
+//   paymentSubtitle: {
+//     marginTop: 5,
+//     color: '#888888',
+//     fontSize: 13,
+//     fontFamily: 'InterRegular',
+//     textAlign: 'center',
+//   },
+
+//   // =================================================
+//   // PRODUCT
+//   // =================================================
+
+//   productCard: {
+//     backgroundColor: '#FFFFFF',
+//     borderRadius: 20,
+//     padding: 14,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     elevation: 2,
+//   },
+
+//   productImageBox: {
+//     width: 82,
+//     height: 82,
+//     borderRadius: 16,
+//     backgroundColor: '#F5F1FA',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     overflow: 'hidden',
+//   },
+
+//   productImage: {
+//     width: '100%',
+//     height: '100%',
+//   },
+
+//   productInfo: {
+//     flex: 1,
+//     marginLeft: 14,
+//   },
+
+//   productCategory: {
+//     color: '#9B4DFF',
+//     fontSize: 10,
+//     fontFamily: 'InterBold',
+//     textTransform: 'uppercase',
+//     letterSpacing: 0.7,
+//   },
+
+//   productName: {
+//     marginTop: 4,
+//     color: '#222222',
+//     fontSize: 18,
+//     fontFamily: 'InterBold',
+//   },
+
+//   productUnit: {
+//     marginTop: 5,
+//     color: '#888888',
+//     fontSize: 12,
+//     fontFamily: 'InterRegular',
+//   },
+
+//   // =================================================
+//   // AMOUNT
+//   // =================================================
+
+//   amountCard: {
+//     marginTop: 14,
+//     backgroundColor: '#FFFFFF',
+//     borderRadius: 20,
+//     padding: 19,
+//     elevation: 2,
+//   },
+
+//   amountLabel: {
+//     color: '#999999',
+//     fontSize: 10,
+//     fontFamily: 'InterBold',
+//     letterSpacing: 1,
+//     textAlign: 'center',
+//   },
+
+//   amount: {
+//     marginTop: 6,
+//     color: '#9B4DFF',
+//     fontSize: 34,
+//     fontFamily: 'InterBold',
+//     textAlign: 'center',
+//   },
+
+//   amountDivider: {
+//     height: 1,
+//     backgroundColor: '#EEEEEE',
+//     marginVertical: 15,
+//   },
+
+//   amountRow: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     marginVertical: 5,
+//   },
+
+//   amountRowLabel: {
+//     color: '#777777',
+//     fontSize: 13,
+//     fontFamily: 'InterRegular',
+//   },
+
+//   amountRowValue: {
+//     color: '#333333',
+//     fontSize: 14,
+//     fontFamily: 'InterBold',
+//   },
+
+//   rewardNotUsed: {
+//     color: '#9B4DFF',
+//     fontSize: 13,
+//     fontFamily: 'InterBold',
+//   },
+
+//   rewardAdded: {
+//     color: '#27AE60',
+//     fontSize: 13,
+//     fontFamily: 'InterBold',
+//   },
+
+//   totalRow: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//   },
+
+//   totalLabel: {
+//     color: '#222222',
+//     fontSize: 16,
+//     fontFamily: 'InterBold',
+//   },
+
+//   totalAmount: {
+//     color: '#9B4DFF',
+//     fontSize: 20,
+//     fontFamily: 'InterBold',
+//   },
+
+//   // =================================================
+//   // REWARD
+//   // =================================================
+
+//   rewardCard: {
+//     marginTop: 14,
+//     backgroundColor: '#EFE3FF',
+//     borderRadius: 18,
+//     padding: 14,
+//     flexDirection: 'row',
+//     alignItems: 'flex-start',
+//   },
+
+//   rewardIcon: {
+//     width: 48,
+//     height: 48,
+//     borderRadius: 24,
+//     backgroundColor: '#FFFFFF',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+
+//   rewardContent: {
+//     flex: 1,
+//     marginLeft: 12,
+//   },
+
+//   rewardTitle: {
+//     color: '#222222',
+//     fontSize: 14,
+//     fontFamily: 'InterBold',
+//   },
+
+//   rewardText: {
+//     marginTop: 3,
+//     color: '#777777',
+//     fontSize: 11,
+//     fontFamily: 'InterRegular',
+//     lineHeight: 17,
+//   },
+
+//   rewardButton: {
+//     marginTop: 10,
+//     height: 38,
+//     borderRadius: 19,
+//     paddingHorizontal: 15,
+//     backgroundColor: '#9B4DFF',
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     alignSelf: 'flex-start',
+//   },
+
+//   rewardButtonText: {
+//     marginLeft: 6,
+//     color: '#FFFFFF',
+//     fontSize: 11,
+//     fontFamily: 'InterBold',
+//   },
+
+//   rewardSuccessCard: {
+//     marginTop: 14,
+//     backgroundColor: '#E8F8EE',
+//     borderRadius: 18,
+//     padding: 14,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//   },
+
+//   rewardSuccessInfo: {
+//     flex: 1,
+//     marginLeft: 10,
+//   },
+
+//   rewardSuccessTitle: {
+//     color: '#208C4A',
+//     fontSize: 14,
+//     fontFamily: 'InterBold',
+//   },
+
+//   rewardSuccessText: {
+//     marginTop: 3,
+//     color: '#6D8B77',
+//     fontSize: 11,
+//     fontFamily: 'InterRegular',
+//   },
+
+//   // =================================================
+//   // SECTION
+//   // =================================================
+
+//   sectionHeader: {
+//     marginTop: 20,
+//     marginBottom: 10,
+//   },
+
+//   sectionTitle: {
+//     color: '#222222',
+//     fontSize: 17,
+//     fontFamily: 'InterBold',
+//   },
+
+//   sectionSubtitle: {
+//     marginTop: 3,
+//     color: '#999999',
+//     fontSize: 11,
+//     fontFamily: 'InterRegular',
+//   },
+
+//   // =================================================
+//   // PAYMENT METHODS
+//   // =================================================
+
+//   paymentMethodsCard: {
+//     backgroundColor: '#FFFFFF',
+//     borderRadius: 20,
+//     paddingHorizontal: 15,
+//     elevation: 2,
+//   },
+
+//   paymentMethod: {
+//     minHeight: 76,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     borderRadius: 14,
+//   },
+
+//   paymentMethodSelected: {
+//     backgroundColor: '#FAF7FF',
+//   },
+
+//   paymentMethodBorder: {
+//     borderBottomWidth: 1,
+//     borderBottomColor: '#EEEEEE',
+//   },
+
+//   methodIcon: {
+//     width: 48,
+//     height: 48,
+//     borderRadius: 24,
+//     backgroundColor: '#EFE3FF',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+
+//   methodIconSelected: {
+//     backgroundColor: '#9B4DFF',
+//   },
+
+//   methodInfo: {
+//     flex: 1,
+//     marginLeft: 12,
+//   },
+
+//   methodTitle: {
+//     color: '#222222',
+//     fontSize: 14,
+//     fontFamily: 'InterSemiBold',
+//   },
+
+//   methodSubtitle: {
+//     marginTop: 3,
+//     color: '#999999',
+//     fontSize: 10,
+//     fontFamily: 'InterRegular',
+//   },
+
+//   radioOuter: {
+//     width: 22,
+//     height: 22,
+//     borderRadius: 11,
+//     borderWidth: 2,
+//     borderColor: '#CCCCCC',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     marginRight: 5,
+//   },
+
+//   radioOuterSelected: {
+//     borderColor: '#9B4DFF',
+//   },
+
+//   radioInner: {
+//     width: 11,
+//     height: 11,
+//     borderRadius: 6,
+//     backgroundColor: '#9B4DFF',
+//   },
+
+//   // =================================================
+//   // WALLET
+//   // =================================================
+
+//   walletCard: {
+//     marginTop: 14,
+//     backgroundColor: '#FFFFFF',
+//     borderRadius: 20,
+//     padding: 16,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     elevation: 2,
+//   },
+
+//   walletIcon: {
+//     width: 50,
+//     height: 50,
+//     borderRadius: 25,
+//     backgroundColor: '#EFE3FF',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+
+//   walletInfo: {
+//     flex: 1,
+//     marginLeft: 12,
+//   },
+
+//   walletLabel: {
+//     color: '#999999',
+//     fontSize: 9,
+//     fontFamily: 'InterBold',
+//     letterSpacing: 0.8,
+//   },
+
+//   walletBalance: {
+//     marginTop: 3,
+//     color: '#222222',
+//     fontSize: 22,
+//     fontFamily: 'InterBold',
+//   },
+
+//   walletLoading: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     marginTop: 6,
+//   },
+
+//   walletLoadingText: {
+//     marginLeft: 7,
+//     color: '#888888',
+//     fontSize: 11,
+//     fontFamily: 'InterRegular',
+//   },
+
+//   sufficientBadge: {
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//     backgroundColor: '#E8F8EE',
+//     paddingHorizontal: 9,
+//     paddingVertical: 6,
+//     borderRadius: 14,
+//   },
+
+//   sufficientText: {
+//     marginLeft: 3,
+//     color: '#27AE60',
+//     fontSize: 10,
+//     fontFamily: 'InterBold',
+//   },
+
+//   // =================================================
+//   // INSUFFICIENT
+//   // =================================================
+
+//   insufficientCard: {
+//     marginTop: 12,
+//     backgroundColor: '#FFF1F0',
+//     borderRadius: 18,
+//     padding: 14,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//   },
+
+//   insufficientInfo: {
+//     flex: 1,
+//     marginLeft: 11,
+//   },
+
+//   insufficientTitle: {
+//     color: '#C0392B',
+//     fontSize: 13,
+//     fontFamily: 'InterSemiBold',
+//   },
+
+//   insufficientText: {
+//     marginTop: 3,
+//     color: '#888888',
+//     fontSize: 11,
+//     fontFamily: 'InterRegular',
+//   },
+
+//   addMoneySmallButton: {
+//     paddingHorizontal: 12,
+//     paddingVertical: 8,
+//     backgroundColor: '#9B4DFF',
+//     borderRadius: 15,
+//   },
+
+//   addMoneySmallText: {
+//     color: '#FFFFFF',
+//     fontSize: 10,
+//     fontFamily: 'InterBold',
+//   },
+
+//   // =================================================
+//   // SECURITY
+//   // =================================================
+
+//   securityCard: {
+//     marginTop: 14,
+//     backgroundColor: '#FFFFFF',
+//     borderRadius: 18,
+//     padding: 14,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//   },
+
+//   securityIcon: {
+//     width: 45,
+//     height: 45,
+//     borderRadius: 23,
+//     backgroundColor: '#E8F8EE',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+
+//   securityInfo: {
+//     flex: 1,
+//     marginLeft: 11,
+//   },
+
+//   securityTitle: {
+//     color: '#222222',
+//     fontSize: 13,
+//     fontFamily: 'InterSemiBold',
+//   },
+
+//   securityText: {
+//     marginTop: 3,
+//     color: '#888888',
+//     fontSize: 11,
+//     fontFamily: 'InterRegular',
+//     lineHeight: 16,
+//   },
+
+//   // =================================================
+//   // PAY BUTTON
+//   // =================================================
+
+//   payButton: {
+//     marginTop: 20,
+//     height: 58,
+//     borderRadius: 29,
+//     backgroundColor: '#9B4DFF',
+//     flexDirection: 'row',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     elevation: 4,
+//   },
+
+//   payButtonDisabled: {
+//     opacity: 0.55,
+//   },
+
+//   payButtonText: {
+//     marginLeft: 9,
+//     color: '#FFFFFF',
+//     fontSize: 15,
+//     fontFamily: 'InterBold',
+//   },
+
+//   // =================================================
+//   // BACK
+//   // =================================================
+
+//   cancelButton: {
+//     marginTop: 12,
+//     height: 52,
+//     borderRadius: 26,
+//     borderWidth: 1.2,
+//     borderColor: '#DDDDDD',
+//     backgroundColor: '#FFFFFF',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+
+//   cancelButtonText: {
+//     color: '#777777',
+//     fontSize: 13,
+//     fontFamily: 'InterSemiBold',
+//   },
+
+//   // =================================================
+//   // QR
+//   // =================================================
+
+//   qrCard: {
+//     marginTop: 18,
+//     backgroundColor: '#FFFFFF',
+//     borderRadius: 18,
+//     padding: 15,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//   },
+
+//   qrInfo: {
+//     flex: 1,
+//     marginLeft: 11,
+//   },
+
+//   qrLabel: {
+//     color: '#999999',
+//     fontSize: 9,
+//     fontFamily: 'InterBold',
+//     letterSpacing: 1,
+//   },
+
+//   qrValue: {
+//     marginTop: 4,
+//     color: '#555555',
+//     fontSize: 11,
+//     fontFamily: 'InterRegular',
+//     lineHeight: 16,
+//   },
+
+//   // =================================================
+//   // FOOTER
+//   // =================================================
+
+//   footerText: {
+//     marginTop: 18,
+//     textAlign: 'center',
+//     color: '#AAAAAA',
+//     fontSize: 12,
+//     fontFamily: 'InterRegular',
+//   },
+// });
 import React, {
   useEffect,
   useMemo,
@@ -1887,6 +2560,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -1920,6 +2594,11 @@ type PaymentMethod =
   | "card"
   | "cod";
 
+type BackendPaymentMethod =
+  | "WALLET"
+  | "UPI"
+  | "SPLIT";
+
 type PaymentResponse = {
   success: boolean;
   message?: string;
@@ -1946,11 +2625,22 @@ type PaymentResponse = {
 
     balance?: string | number;
 
+    total_paid?: string | number;
+
+    wallet_paid?: string | number;
+
+    upi_paid?: string | number;
+
     payment?: {
       id?: number;
       amount?: string | number;
       status?: string;
       payment_method?: string;
+      product_amount?: string | number;
+      wallet_amount?: string | number;
+      upi_amount?: string | number;
+      payment_status?: string;
+      gateway_payment_id?: string | null;
     };
 
     order?: {
@@ -1964,6 +2654,12 @@ type PaymentResponse = {
       qr_code?: string;
       is_claimed?: boolean;
       reward_amount?: string | number;
+    };
+
+    product?: {
+      id?: number;
+      name?: string;
+      price?: string | number;
     };
   };
 };
@@ -1991,7 +2687,10 @@ const toNumber = (
 ): number => {
   const numberValue = Number(value);
 
-  if (Number.isNaN(numberValue)) {
+  if (
+    Number.isNaN(numberValue) ||
+    !Number.isFinite(numberValue)
+  ) {
     return 0;
   }
 
@@ -2133,6 +2832,11 @@ export default function QRPaymentScreen() {
   ] = useState(true);
 
   const [
+    walletAmount,
+    setWalletAmount,
+  ] = useState(0);
+
+  const [
     imageError,
     setImageError,
   ] = useState(false);
@@ -2143,6 +2847,32 @@ export default function QRPaymentScreen() {
   ] = useState(
     rewardClaimed
   );
+
+  // ===================================================
+  // SPLIT PAYMENT CALCULATIONS
+  // ===================================================
+
+  const maxWalletAmount =
+    Math.min(
+      walletBalance ?? 0,
+      productPrice
+    );
+
+  const safeWalletAmount =
+    Math.min(
+      Math.max(
+        walletAmount,
+        0
+      ),
+      maxWalletAmount
+    );
+
+  const remainingAmount =
+    Math.max(
+      productPrice -
+        safeWalletAmount,
+      0
+    );
 
   // ===================================================
   // IMAGE
@@ -2165,14 +2895,47 @@ export default function QRPaymentScreen() {
     loadWallet();
   }, []);
 
+  // ===================================================
+  // KEEP WALLET AMOUNT VALID
+  // ===================================================
+
+  useEffect(() => {
+    if (walletBalance === null) {
+      return;
+    }
+
+    setWalletAmount(
+      (current) =>
+        Math.min(
+          Math.max(
+            current,
+            0
+          ),
+          Math.min(
+            walletBalance,
+            productPrice
+          )
+        )
+    );
+  }, [
+    walletBalance,
+    productPrice,
+  ]);
+
+  // ===================================================
+  // LOAD WALLET FUNCTION
+  // ===================================================
+
   const loadWallet =
     async () => {
       try {
+        setWalletLoading(true);
+
         const token =
           await getToken();
 
         if (!token) {
-          setWalletLoading(false);
+          setWalletBalance(0);
           return;
         }
 
@@ -2231,9 +2994,11 @@ export default function QRPaymentScreen() {
         const balance =
           toNumber(
             result?.data?.balance ??
-              result?.data?.wallet?.balance ??
+              result?.data?.wallet
+                ?.balance ??
               result?.balance ??
-              result?.wallet?.balance ??
+              result?.wallet
+                ?.balance ??
               0
           );
 
@@ -2245,6 +3010,8 @@ export default function QRPaymentScreen() {
           "WALLET LOAD ERROR:",
           error
         );
+
+        setWalletBalance(0);
       } finally {
         setWalletLoading(false);
       }
@@ -2301,19 +3068,6 @@ export default function QRPaymentScreen() {
           "================================"
         );
 
-        /*
-         * IMPORTANT:
-         *
-         * This endpoint should be your existing
-         * QR reward claim endpoint.
-         *
-         * We are intentionally NOT using it
-         * when the user simply continues to payment.
-         *
-         * It is only called when the user explicitly
-         * chooses ADD REWARD TO WALLET.
-         */
-
         const response =
           await fetch(
             `${API_BASE_URL}/api/product-qr/claim`,
@@ -2356,9 +3110,7 @@ export default function QRPaymentScreen() {
           );
         }
 
-        setRewardAdded(
-          true
-        );
+        setRewardAdded(true);
 
         Alert.alert(
           "Reward Added 🎉",
@@ -2385,31 +3137,68 @@ export default function QRPaymentScreen() {
             "Unable to add reward to wallet."
         );
       } finally {
-        setRewardLoading(
-          false
-        );
+        setRewardLoading(false);
       }
     };
 
   // ===================================================
-  // WALLET PAYMENT
+  // WALLET / SPLIT / MOCK UPI PAYMENT
   // ===================================================
 
   const payUsingWallet =
     async (
       token: string
     ) => {
+      let finalPaymentMethod:
+        BackendPaymentMethod;
+
+      if (
+        safeWalletAmount >=
+        productPrice
+      ) {
+        finalPaymentMethod =
+          "WALLET";
+      } else if (
+        safeWalletAmount > 0
+      ) {
+        finalPaymentMethod =
+          "SPLIT";
+      } else {
+        finalPaymentMethod =
+          "UPI";
+      }
+
       console.log(
         "================================"
       );
 
       console.log(
-        "WALLET QR PAYMENT"
+        "QR PAYMENT"
       );
 
       console.log(
-        "AMOUNT:",
+        "PRODUCT:",
+        productName
+      );
+
+      console.log(
+        "PRODUCT AMOUNT:",
         productPrice
+      );
+
+      console.log(
+        "WALLET AMOUNT:",
+        safeWalletAmount
+      );
+
+      console.log(
+        "UPI AMOUNT:",
+        remainingAmount
+      );
+
+      console.log(
+        "PAYMENT METHOD:",
+        finalPaymentMethod
       );
 
       console.log(
@@ -2417,7 +3206,7 @@ export default function QRPaymentScreen() {
       );
 
       const paymentUrl =
-        `${API_BASE_URL}/api/wallet/pay-qr`;
+        `${API_BASE_URL}/api/wallet/pay-qr-split`;
 
       const response =
         await fetch(
@@ -2439,19 +3228,14 @@ export default function QRPaymentScreen() {
 
               qrCode,
 
-              amount:
-                productPrice,
-
-              productName,
-
-              description:
-                `QR payment - ${productName}`,
-
-              rewardClaimed:
-                false,
+              walletAmount:
+                safeWalletAmount,
 
               paymentMethod:
-                "WALLET",
+                finalPaymentMethod,
+
+              description:
+                `QR ${finalPaymentMethod.toLowerCase()} payment - ${productName}`,
             }),
           }
         );
@@ -2460,7 +3244,7 @@ export default function QRPaymentScreen() {
         (await response.json()) as PaymentResponse;
 
       console.log(
-        "WALLET PAYMENT RESPONSE:",
+        "PAYMENT RESPONSE:",
         JSON.stringify(
           result,
           null,
@@ -2474,7 +3258,7 @@ export default function QRPaymentScreen() {
       ) {
         throw new Error(
           result?.message ||
-            "Wallet payment failed."
+            "Payment failed."
         );
       }
 
@@ -2482,38 +3266,137 @@ export default function QRPaymentScreen() {
     };
 
   // ===================================================
-  // OTHER PAYMENT METHODS
+  // MOCK UPI PAYMENT
+  // ===================================================
+
+  const payUsingMockUPI =
+    async (
+      token: string,
+      walletPart: number
+    ) => {
+      const upiPart =
+        Math.max(
+          productPrice -
+            walletPart,
+          0
+        );
+
+      console.log(
+        "================================"
+      );
+
+      console.log(
+        "PRACTICE UPI PAYMENT"
+      );
+
+      console.log(
+        "PRODUCT AMOUNT:",
+        productPrice
+      );
+
+      console.log(
+        "WALLET AMOUNT:",
+        walletPart
+      );
+
+      console.log(
+        "MOCK UPI AMOUNT:",
+        upiPart
+      );
+
+      console.log(
+        "================================"
+      );
+
+      const paymentUrl =
+        `${API_BASE_URL}/api/wallet/pay-qr-split`;
+
+      const response =
+        await fetch(
+          paymentUrl,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Authorization:
+                `Bearer ${token}`,
+            },
+
+            body: JSON.stringify({
+              productId:
+                Number(productId),
+
+              qrCode,
+
+              walletAmount:
+                walletPart,
+
+              paymentMethod:
+                walletPart > 0
+                  ? "SPLIT"
+                  : "UPI",
+
+              description:
+                walletPart > 0
+                  ? `QR split payment - ${productName}`
+                  : `QR mock UPI payment - ${productName}`,
+            }),
+          }
+        );
+
+      const result =
+        (await response.json()) as PaymentResponse;
+
+      console.log(
+        "MOCK UPI RESPONSE:",
+        JSON.stringify(
+          result,
+          null,
+          2
+        )
+      );
+
+      if (
+        !response.ok ||
+        !result?.success
+      ) {
+        throw new Error(
+          result?.message ||
+            "Mock UPI payment failed."
+        );
+      }
+
+      return result;
+    };
+
+  // ===================================================
+  // CARD / COD
   // ===================================================
 
   const handleExternalPayment =
     async (
       method: PaymentMethod,
-      token: string
+      amount: number
     ) => {
-      /*
-       * IMPORTANT:
-       *
-       * Wallet is already connected to your backend.
-       *
-       * UPI / CARD need payment gateway integration.
-       * COD needs order creation with payment_method=COD.
-       *
-       * Do not fake successful payment here.
-       */
+      console.log(
+        "EXTERNAL PAYMENT:",
+        method
+      );
 
-      if (method === "upi") {
-        Alert.alert(
-          "UPI Payment",
-          "UPI payment gateway needs to be connected to the backend."
-        );
-
-        return null;
-      }
+      console.log(
+        "EXTERNAL AMOUNT:",
+        amount
+      );
 
       if (method === "card") {
         Alert.alert(
           "Card Payment",
-          "Credit/Debit Card gateway needs to be connected to the backend."
+          `Card payment of ${formatMoney(
+            amount
+          )} will be available after payment gateway integration.`
         );
 
         return null;
@@ -2582,66 +3465,253 @@ export default function QRPaymentScreen() {
       if (!token) {
         Alert.alert(
           "Login Required",
-          "Please login to make the payment.",
-          [
-            {
-              text: "Login",
-              onPress: () =>
-                router.replace(
-                  "/login"
-                ),
-            },
-            {
-              text: "Cancel",
-              style: "cancel",
-            },
-          ]
+          "Please login to make the payment."
         );
 
         return;
       }
 
       // -----------------------------------------------
-      // WALLET BALANCE
+      // WALLET PAYMENT
       // -----------------------------------------------
 
       if (
         paymentMethod ===
-          "wallet" &&
-        walletBalance !== null &&
-        walletBalance <
-          productPrice
+        "wallet"
       ) {
-        Alert.alert(
-          "Insufficient Wallet Balance",
-          `Your wallet balance is ${formatMoney(
-            walletBalance
-          )}.\n\nYou need ${formatMoney(
-            productPrice -
-              walletBalance
-          )} more.`,
-          [
-            {
-              text: "Add Money",
-              onPress: () => {
-                /*
-                 * Change this route to your actual
-                 * Add Money screen when available.
-                 */
-                router.push(
-                  "/(home)/wallet"
-                );
-              },
+        if (
+          walletBalance ===
+          null
+        ) {
+          Alert.alert(
+            "Wallet",
+            "Unable to check wallet balance."
+          );
+
+          return;
+        }
+
+        if (
+          safeWalletAmount < 0
+        ) {
+          Alert.alert(
+            "Invalid Amount",
+            "Wallet amount cannot be negative."
+          );
+
+          return;
+        }
+
+        if (
+          safeWalletAmount >
+          walletBalance
+        ) {
+          Alert.alert(
+            "Invalid Amount",
+            "Wallet amount cannot exceed your wallet balance."
+          );
+
+          return;
+        }
+
+        if (
+          safeWalletAmount >
+          productPrice
+        ) {
+          Alert.alert(
+            "Invalid Amount",
+            "Wallet amount cannot exceed the product price."
+          );
+
+          return;
+        }
+
+        if (
+          safeWalletAmount === 0
+        ) {
+          Alert.alert(
+            "Wallet Amount",
+            "Please enter an amount to use from your wallet."
+          );
+
+          return;
+        }
+      }
+
+      // -----------------------------------------------
+      // UPI ONLY
+      // -----------------------------------------------
+
+      if (
+        paymentMethod ===
+        "upi"
+      ) {
+        try {
+          setPaymentLoading(true);
+
+          console.log(
+            "================================"
+          );
+
+          console.log(
+            "MOCK UPI ONLY PAYMENT"
+          );
+
+          console.log(
+            "PRODUCT AMOUNT:",
+            productPrice
+          );
+
+          console.log(
+            "UPI AMOUNT:",
+            productPrice
+          );
+
+          console.log(
+            "================================"
+          );
+
+          const result =
+            await payUsingMockUPI(
+              token,
+              0
+            );
+
+          if (
+            !result?.success
+          ) {
+            throw new Error(
+              result?.message ||
+                "UPI payment failed."
+            );
+          }
+
+          const paymentData =
+            result?.data;
+
+          const remainingBalance =
+            toNumber(
+              paymentData
+                ?.remaining_balance ??
+                paymentData
+                  ?.wallet
+                  ?.balance ??
+                paymentData
+                  ?.balance ??
+                walletBalance ??
+                0
+            );
+
+          router.replace({
+            pathname:
+              "/(home)/qr-payment-success",
+
+            params: {
+              productId:
+                String(productId),
+
+              qrCode:
+                String(qrCode),
+
+              productName:
+                String(productName),
+
+              productPrice:
+                String(productPrice),
+
+              reward:
+                String(reward),
+
+              rewardClaimed:
+                String(
+                  rewardAdded
+                ),
+
+              remainingBalance:
+                String(
+                  remainingBalance
+                ),
+
+              paymentMethod:
+                "upi",
+
+              walletUsed:
+                "0",
+
+              upiPaid:
+                String(
+                  productPrice
+                ),
+
+              categoryName:
+                String(
+                  categoryName
+                ),
+
+              productImage:
+                String(
+                  productImage ||
+                    ""
+                ),
+
+              unitNumber:
+                String(
+                  unitNumber
+                ),
             },
-            {
-              text: "Cancel",
-              style: "cancel",
-            },
-          ]
-        );
+          });
+
+          return;
+        } catch (error: any) {
+          console.error(
+            "UPI PAYMENT ERROR:",
+            error
+          );
+
+          Alert.alert(
+            "Payment Failed",
+            error?.message ||
+              "Unable to complete UPI payment."
+          );
+
+          return;
+        } finally {
+          setPaymentLoading(false);
+        }
+      }
+
+      // -----------------------------------------------
+      // CARD / COD
+      // -----------------------------------------------
+
+      if (
+        paymentMethod ===
+          "card" ||
+        paymentMethod ===
+          "cod"
+      ) {
+        try {
+          setPaymentLoading(true);
+
+          const result =
+            await handleExternalPayment(
+              paymentMethod,
+              productPrice
+            );
+
+          if (!result) {
+            return;
+          }
+        } finally {
+          setPaymentLoading(false);
+        }
 
         return;
       }
+
+      // -----------------------------------------------
+      // WALLET / SPLIT
+      // -----------------------------------------------
 
       try {
         setPaymentLoading(
@@ -2667,8 +3737,18 @@ export default function QRPaymentScreen() {
         );
 
         console.log(
-          "AMOUNT:",
+          "PRODUCT PRICE:",
           productPrice
+        );
+
+        console.log(
+          "WALLET AMOUNT:",
+          safeWalletAmount
+        );
+
+        console.log(
+          "REMAINING UPI:",
+          remainingAmount
         );
 
         console.log(
@@ -2680,47 +3760,14 @@ export default function QRPaymentScreen() {
           "================================"
         );
 
-        let result:
-          | PaymentResponse
-          | null = null;
-
-        // ---------------------------------------------
-        // WALLET
-        // ---------------------------------------------
+        const result =
+          await payUsingWallet(
+            token
+          );
 
         if (
-          paymentMethod ===
-          "wallet"
+          !result?.success
         ) {
-          result =
-            await payUsingWallet(
-              token
-            );
-        }
-
-        // ---------------------------------------------
-        // UPI / CARD / COD
-        // ---------------------------------------------
-
-        else {
-          result =
-            await handleExternalPayment(
-              paymentMethod,
-              token
-            );
-
-          /*
-           * At this stage there is no real payment
-           * result for external methods.
-           *
-           * Therefore don't navigate to success.
-           */
-          if (!result) {
-            return;
-          }
-        }
-
-        if (!result?.success) {
           throw new Error(
             result?.message ||
               "Payment failed."
@@ -2728,23 +3775,56 @@ export default function QRPaymentScreen() {
         }
 
         // ---------------------------------------------
-        // BALANCE
+        // PAYMENT DATA
         // ---------------------------------------------
 
         const paymentData =
           result?.data;
 
-        const remainingBalance =
+        const actualWalletPaid =
           toNumber(
-            paymentData?.remaining_balance ??
-              paymentData?.wallet
+            paymentData
+              ?.wallet_paid ??
+              paymentData
+                ?.payment
+                ?.wallet_amount ??
+              safeWalletAmount
+          );
+
+        const actualUpiPaid =
+          toNumber(
+            paymentData
+              ?.upi_paid ??
+              paymentData
+                ?.payment
+                ?.upi_amount ??
+              Math.max(
+                productPrice -
+                  actualWalletPaid,
+                0
+              )
+          );
+
+        const actualRemainingBalance =
+          toNumber(
+            paymentData
+              ?.remaining_balance ??
+              paymentData
+                ?.wallet
                 ?.balance ??
-              paymentData?.balance ??
-              paymentData?.transaction
+              paymentData
+                ?.balance ??
+              paymentData
+                ?.transaction
                 ?.balance_after ??
               walletBalance ??
               0
           );
+
+        const backendPaymentMethod =
+          paymentData
+            ?.payment
+            ?.payment_method;
 
         console.log(
           "================================"
@@ -2756,12 +3836,23 @@ export default function QRPaymentScreen() {
 
         console.log(
           "PAYMENT METHOD:",
-          paymentMethod
+          backendPaymentMethod ||
+            paymentMethod
         );
 
         console.log(
-          "AMOUNT:",
+          "PRODUCT AMOUNT:",
           productPrice
+        );
+
+        console.log(
+          "WALLET USED:",
+          actualWalletPaid
+        );
+
+        console.log(
+          "UPI PAID:",
+          actualUpiPaid
         );
 
         console.log(
@@ -2770,8 +3861,8 @@ export default function QRPaymentScreen() {
         );
 
         console.log(
-          "REMAINING BALANCE:",
-          remainingBalance
+          "REMAINING WALLET BALANCE:",
+          actualRemainingBalance
         );
 
         console.log(
@@ -2809,11 +3900,24 @@ export default function QRPaymentScreen() {
 
             remainingBalance:
               String(
-                remainingBalance
+                actualRemainingBalance
               ),
 
             paymentMethod:
-              paymentMethod,
+              actualWalletPaid >=
+              productPrice
+                ? "wallet"
+                : "split",
+
+            walletUsed:
+              String(
+                actualWalletPaid
+              ),
+
+            upiPaid:
+              String(
+                actualUpiPaid
+              ),
 
             categoryName:
               String(
@@ -2822,11 +3926,14 @@ export default function QRPaymentScreen() {
 
             productImage:
               String(
-                productImage || ""
+                productImage ||
+                  ""
               ),
 
             unitNumber:
-              String(unitNumber),
+              String(
+                unitNumber
+              ),
           },
         });
       } catch (error: any) {
@@ -2869,36 +3976,43 @@ export default function QRPaymentScreen() {
       subtitle:
         walletLoading
           ? "Checking balance..."
-          : walletBalance !== null
+          : walletBalance !==
+            null
           ? `Balance ${formatMoney(
               walletBalance
             )}`
           : "VedAmrut Wallet",
-      icon: "wallet-outline" as const,
+      icon:
+        "wallet-outline" as const,
     },
 
     {
       id: "upi" as PaymentMethod,
       title: "UPI",
       subtitle:
-        "Google Pay, PhonePe, Paytm",
-      icon: "phone-portrait-outline" as const,
+        "Practice UPI • Mock Payment",
+      icon:
+        "phone-portrait-outline" as const,
     },
 
     {
       id: "card" as PaymentMethod,
-      title: "Credit / Debit Card",
+      title:
+        "Credit / Debit Card",
       subtitle:
-        "Visa, Mastercard & more",
-      icon: "card-outline" as const,
+        "Gateway integration pending",
+      icon:
+        "card-outline" as const,
     },
 
     {
       id: "cod" as PaymentMethod,
-      title: "Cash on Delivery",
+      title:
+        "Cash on Delivery",
       subtitle:
-        "Pay when your order arrives",
-      icon: "cash-outline" as const,
+        "Order backend integration pending",
+      icon:
+        "cash-outline" as const,
     },
   ];
 
@@ -2991,7 +4105,9 @@ export default function QRPaymentScreen() {
                 }
                 resizeMode="contain"
                 onError={() => {
-                  setImageError(true);
+                  setImageError(
+                    true
+                  );
                 }}
               />
             ) : (
@@ -3140,7 +4256,13 @@ export default function QRPaymentScreen() {
                 styles.totalLabel
               }
             >
-              Amount to Pay
+              {paymentMethod ===
+              "wallet"
+                ? remainingAmount >
+                  0
+                  ? "Remaining to Pay"
+                  : "Paid from Wallet"
+                : "Amount to Pay"}
             </Text>
 
             <Text
@@ -3149,10 +4271,40 @@ export default function QRPaymentScreen() {
               }
             >
               {formatMoney(
-                productPrice
+                paymentMethod ===
+                  "wallet"
+                  ? remainingAmount
+                  : productPrice
               )}
             </Text>
           </View>
+
+          {/* PRACTICE PAYMENT NOTICE */}
+
+          {paymentMethod ===
+            "upi" && (
+            <View
+              style={
+                styles.practiceNotice
+              }
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={17}
+                color="#9B4DFF"
+              />
+
+              <Text
+                style={
+                  styles.practiceNoticeText
+                }
+              >
+                Practice mode: UPI payment
+                is simulated. No real money
+                will be charged.
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* =================================================
@@ -3413,12 +4565,14 @@ export default function QRPaymentScreen() {
         </View>
 
         {/* =================================================
-            WALLET BALANCE
+            WALLET
         ================================================= */}
 
         {paymentMethod ===
           "wallet" && (
           <>
+            {/* WALLET BALANCE */}
+
             <View
               style={
                 styles.walletCard
@@ -3486,23 +4640,21 @@ export default function QRPaymentScreen() {
 
               {!walletLoading &&
                 walletBalance !==
-                  null &&
-                walletBalance >=
-                  productPrice && (
+                  null && (
                   <View
                     style={
-                      styles.sufficientBadge
+                      styles.availableBadge
                     }
                   >
                     <Ionicons
                       name="checkmark"
-                      size={15}
+                      size={14}
                       color="#27AE60"
                     />
 
                     <Text
                       style={
-                        styles.sufficientText
+                        styles.availableText
                       }
                     >
                       Available
@@ -3511,70 +4663,312 @@ export default function QRPaymentScreen() {
                 )}
             </View>
 
+            {/* WALLET PAYMENT INPUT */}
+
             {!walletLoading &&
               walletBalance !==
-                null &&
-              walletBalance <
-                productPrice && (
+                null && (
                 <View
                   style={
-                    styles.insufficientCard
+                    styles.walletPaymentCard
                   }
                 >
-                  <Ionicons
-                    name="alert-circle-outline"
-                    size={23}
-                    color="#E74C3C"
-                  />
+                  <Text
+                    style={
+                      styles.walletPaymentTitle
+                    }
+                  >
+                    Use Wallet Balance
+                  </Text>
+
+                  <Text
+                    style={
+                      styles.walletPaymentSubtitle
+                    }
+                  >
+                    Enter how much you want
+                    to pay from your wallet.
+                  </Text>
 
                   <View
                     style={
-                      styles.insufficientInfo
+                      styles.walletInputRow
                     }
                   >
                     <Text
                       style={
-                        styles.insufficientTitle
+                        styles.rupeeSymbol
                       }
                     >
-                      Insufficient Balance
+                      ₹
                     </Text>
 
-                    <Text
+                    <TextInput
+                      value={
+                        walletAmount ===
+                        0
+                          ? ""
+                          : String(
+                              walletAmount
+                            )
+                      }
+                      onChangeText={(
+                        text
+                      ) => {
+                        if (!text) {
+                          setWalletAmount(
+                            0
+                          );
+
+                          return;
+                        }
+
+                        const cleanedText =
+                          text.replace(
+                            /[^0-9.]/g,
+                            ""
+                          );
+
+                        const numericValue =
+                          Number(
+                            cleanedText
+                          );
+
+                        if (
+                          Number.isNaN(
+                            numericValue
+                          )
+                        ) {
+                          return;
+                        }
+
+                        setWalletAmount(
+                          Math.min(
+                            numericValue,
+                            maxWalletAmount
+                          )
+                        );
+                      }}
+                      keyboardType="decimal-pad"
+                      placeholder="0.00"
+                      placeholderTextColor="#AAAAAA"
                       style={
-                        styles.insufficientText
+                        styles.walletInput
+                      }
+                    />
+
+                    <TouchableOpacity
+                      style={
+                        styles.useMaxButton
+                      }
+                      onPress={() =>
+                        setWalletAmount(
+                          maxWalletAmount
+                        )
+                      }
+                      activeOpacity={
+                        0.8
                       }
                     >
-                      You need{" "}
-                      {formatMoney(
-                        productPrice -
-                          walletBalance
-                      )}{" "}
-                      more.
-                    </Text>
+                      <Text
+                        style={
+                          styles.useMaxText
+                        }
+                      >
+                        USE MAX
+                      </Text>
+                    </TouchableOpacity>
                   </View>
 
-                  <TouchableOpacity
+                  {/* PAYMENT BREAKDOWN */}
+
+                  <View
                     style={
-                      styles.addMoneySmallButton
-                    }
-                    onPress={() =>
-                      router.push(
-                        "/(home)/wallet"
-                      )
+                      styles.paymentBreakdown
                     }
                   >
-                    <Text
+                    <View
                       style={
-                        styles.addMoneySmallText
+                        styles.breakdownRow
                       }
                     >
-                      ADD
-                    </Text>
-                  </TouchableOpacity>
+                      <Text
+                        style={
+                          styles.breakdownLabel
+                        }
+                      >
+                        Product Amount
+                      </Text>
+
+                      <Text
+                        style={
+                          styles.breakdownValue
+                        }
+                      >
+                        {formatMoney(
+                          productPrice
+                        )}
+                      </Text>
+                    </View>
+
+                    <View
+                      style={
+                        styles.breakdownRow
+                      }
+                    >
+                      <Text
+                        style={
+                          styles.breakdownLabel
+                        }
+                      >
+                        Wallet Used
+                      </Text>
+
+                      <Text
+                        style={
+                          styles.walletUsedValue
+                        }
+                      >
+                        -
+                        {formatMoney(
+                          safeWalletAmount
+                        )}
+                      </Text>
+                    </View>
+
+                    <View
+                      style={
+                        styles.breakdownDivider
+                      }
+                    />
+
+                    <View
+                      style={
+                        styles.breakdownRow
+                      }
+                    >
+                      <Text
+                        style={
+                          styles.remainingLabel
+                        }
+                      >
+                        Remaining to Pay
+                      </Text>
+
+                      <Text
+                        style={
+                          styles.remainingValue
+                        }
+                      >
+                        {formatMoney(
+                          remainingAmount
+                        )}
+                      </Text>
+                    </View>
+
+                    {remainingAmount >
+                      0 && (
+                      <View
+                        style={
+                          styles.upiHint
+                        }
+                      >
+                        <Ionicons
+                          name="phone-portrait-outline"
+                          size={16}
+                          color="#9B4DFF"
+                        />
+
+                        <Text
+                          style={
+                            styles.upiHintText
+                          }
+                        >
+                          Remaining amount will
+                          be paid using Practice
+                          UPI.
+                        </Text>
+                      </View>
+                    )}
+
+                    {remainingAmount ===
+                      0 &&
+                      safeWalletAmount >
+                        0 && (
+                        <View
+                          style={
+                            styles.walletFullHint
+                          }
+                        >
+                          <Ionicons
+                            name="checkmark-circle-outline"
+                            size={16}
+                            color="#27AE60"
+                          />
+
+                          <Text
+                            style={
+                              styles.walletFullHintText
+                            }
+                          >
+                            Full product amount will
+                            be paid from your wallet.
+                          </Text>
+                        </View>
+                      )}
+                  </View>
                 </View>
               )}
           </>
+        )}
+
+        {/* =================================================
+            UPI PRACTICE INFORMATION
+        ================================================= */}
+
+        {paymentMethod ===
+          "upi" && (
+          <View
+            style={
+              styles.practiceCard
+            }
+          >
+            <View
+              style={
+                styles.practiceIcon
+              }
+            >
+              <Ionicons
+                name="phone-portrait-outline"
+                size={23}
+                color="#9B4DFF"
+              />
+            </View>
+
+            <View
+              style={
+                styles.practiceInfo
+              }
+            >
+              <Text
+                style={
+                  styles.practiceTitle
+                }
+              >
+                Practice UPI Payment
+              </Text>
+
+              <Text
+                style={
+                  styles.practiceText
+                }
+              >
+                This is a mock payment for
+                testing. No real UPI transaction
+                will be made.
+              </Text>
+            </View>
+          </View>
         )}
 
         {/* =================================================
@@ -3606,7 +5000,7 @@ export default function QRPaymentScreen() {
             <Text
               style={
                 styles.securityTitle
-            }
+              }
             >
               Secure Payment
             </Text>
@@ -3631,13 +5025,9 @@ export default function QRPaymentScreen() {
             styles.payButton,
             paymentLoading &&
               styles.payButtonDisabled,
-
             paymentMethod ===
               "wallet" &&
-              walletBalance !==
-                null &&
-              walletBalance <
-                productPrice &&
+              walletAmount === 0 &&
               styles.payButtonDisabled,
           ]}
           onPress={
@@ -3648,10 +5038,7 @@ export default function QRPaymentScreen() {
             walletLoading ||
             (paymentMethod ===
               "wallet" &&
-              walletBalance !==
-                null &&
-              walletBalance <
-                productPrice)
+              walletAmount === 0)
           }
           activeOpacity={0.85}
         >
@@ -3676,7 +5063,10 @@ export default function QRPaymentScreen() {
                 name={
                   paymentMethod ===
                   "wallet"
-                    ? "wallet-outline"
+                    ? remainingAmount >
+                      0
+                      ? "phone-portrait-outline"
+                      : "wallet-outline"
                     : paymentMethod ===
                       "upi"
                     ? "phone-portrait-outline"
@@ -3696,7 +5086,22 @@ export default function QRPaymentScreen() {
               >
                 {paymentMethod ===
                 "cod"
-                  ? `PLACE COD ORDER`
+                  ? "PLACE COD ORDER"
+                  : paymentMethod ===
+                    "wallet"
+                  ? remainingAmount >
+                    0
+                    ? `PAY ${formatMoney(
+                        remainingAmount
+                      )} WITH UPI`
+                    : `PAY ${formatMoney(
+                        safeWalletAmount
+                      )} WITH WALLET`
+                  : paymentMethod ===
+                    "upi"
+                  ? `PAY ${formatMoney(
+                      productPrice
+                    )} WITH UPI`
                   : `PAY ${formatMoney(
                       productPrice
                     )}`}
@@ -3790,625 +5195,805 @@ export default function QRPaymentScreen() {
 // STYLES
 // =====================================================
 
-const styles =
-  StyleSheet.create({
-    safeArea: {
-      flex: 1,
-      backgroundColor: "#F7F7F7",
-    },
-
-    headerTitle: {
-      flex: 1,
-      color: "#FFFFFF",
-      fontSize: 20,
-      fontWeight: "800",
-      textAlign: "center",
-      marginRight: 40,
-    },
-
-    scrollView: {
-      flex: 1,
-    },
-
-    scrollContent: {
-      paddingHorizontal: 20,
-      paddingTop: 18,
-      paddingBottom: 40,
-    },
-
-    // =================================================
-    // HEADER
-    // =================================================
-
-    paymentHeader: {
-      alignItems: "center",
-      marginBottom: 18,
-    },
-
-    paymentIconCircle: {
-      width: 72,
-      height: 72,
-      borderRadius: 36,
-      backgroundColor: "#EFE3FF",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-
-    paymentTitle: {
-      marginTop: 13,
-      color: "#222222",
-      fontSize: 22,
-      fontWeight: "900",
-    },
-
-    paymentSubtitle: {
-      marginTop: 5,
-      color: "#888888",
-      fontSize: 13,
-      textAlign: "center",
-    },
-
-    // =================================================
-    // PRODUCT
-    // =================================================
-
-    productCard: {
-      backgroundColor: "#FFFFFF",
-      borderRadius: 20,
-      padding: 14,
-      flexDirection: "row",
-      alignItems: "center",
-      elevation: 2,
-    },
-
-    productImageBox: {
-      width: 82,
-      height: 82,
-      borderRadius: 16,
-      backgroundColor: "#F5F1FA",
-      justifyContent: "center",
-      alignItems: "center",
-      overflow: "hidden",
-    },
-
-    productImage: {
-      width: "100%",
-      height: "100%",
-    },
-
-    productInfo: {
-      flex: 1,
-      marginLeft: 14,
-    },
-
-    productCategory: {
-      color: "#9B4DFF",
-      fontSize: 10,
-      fontWeight: "800",
-      textTransform: "uppercase",
-      letterSpacing: 0.7,
-    },
-
-    productName: {
-      marginTop: 4,
-      color: "#222222",
-      fontSize: 18,
-      fontWeight: "900",
-    },
-
-    productUnit: {
-      marginTop: 5,
-      color: "#888888",
-      fontSize: 12,
-    },
-
-    // =================================================
-    // AMOUNT
-    // =================================================
-
-    amountCard: {
-      marginTop: 14,
-      backgroundColor: "#FFFFFF",
-      borderRadius: 20,
-      padding: 19,
-      elevation: 2,
-    },
-
-    amountLabel: {
-      color: "#999999",
-      fontSize: 10,
-      fontWeight: "800",
-      letterSpacing: 1,
-      textAlign: "center",
-    },
-
-    amount: {
-      marginTop: 6,
-      color: "#9B4DFF",
-      fontSize: 34,
-      fontWeight: "900",
-      textAlign: "center",
-    },
-
-    amountDivider: {
-      height: 1,
-      backgroundColor: "#EEEEEE",
-      marginVertical: 15,
-    },
-
-    amountRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginVertical: 5,
-    },
-
-    amountRowLabel: {
-      color: "#777777",
-      fontSize: 13,
-    },
-
-    amountRowValue: {
-      color: "#333333",
-      fontSize: 14,
-      fontWeight: "700",
-    },
-
-    rewardNotUsed: {
-      color: "#9B4DFF",
-      fontSize: 13,
-      fontWeight: "800",
-    },
-
-    rewardAdded: {
-      color: "#27AE60",
-      fontSize: 13,
-      fontWeight: "800",
-    },
-
-    totalRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-    },
-
-    totalLabel: {
-      color: "#222222",
-      fontSize: 16,
-      fontWeight: "900",
-    },
-
-    totalAmount: {
-      color: "#9B4DFF",
-      fontSize: 20,
-      fontWeight: "900",
-    },
-
-    // =================================================
-    // REWARD
-    // =================================================
-
-    rewardCard: {
-      marginTop: 14,
-      backgroundColor: "#EFE3FF",
-      borderRadius: 18,
-      padding: 14,
-      flexDirection: "row",
-      alignItems: "flex-start",
-    },
-
-    rewardIcon: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      backgroundColor: "#FFFFFF",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-
-    rewardContent: {
-      flex: 1,
-      marginLeft: 12,
-    },
-
-    rewardTitle: {
-      color: "#222222",
-      fontSize: 14,
-      fontWeight: "900",
-    },
-
-    rewardText: {
-      marginTop: 3,
-      color: "#777777",
-      fontSize: 11,
-      lineHeight: 17,
-    },
-
-    rewardButton: {
-      marginTop: 10,
-      height: 38,
-      borderRadius: 19,
-      paddingHorizontal: 15,
-      backgroundColor: "#9B4DFF",
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      alignSelf: "flex-start",
-    },
-
-    rewardButtonText: {
-      marginLeft: 6,
-      color: "#FFFFFF",
-      fontSize: 11,
-      fontWeight: "900",
-    },
-
-    rewardSuccessCard: {
-      marginTop: 14,
-      backgroundColor: "#E8F8EE",
-      borderRadius: 18,
-      padding: 14,
-      flexDirection: "row",
-      alignItems: "center",
-    },
-
-    rewardSuccessInfo: {
-      flex: 1,
-      marginLeft: 10,
-    },
-
-    rewardSuccessTitle: {
-      color: "#208C4A",
-      fontSize: 14,
-      fontWeight: "900",
-    },
-
-    rewardSuccessText: {
-      marginTop: 3,
-      color: "#6D8B77",
-      fontSize: 11,
-    },
-
-    // =================================================
-    // SECTION
-    // =================================================
-
-    sectionHeader: {
-      marginTop: 20,
-      marginBottom: 10,
-    },
-
-    sectionTitle: {
-      color: "#222222",
-      fontSize: 17,
-      fontWeight: "900",
-    },
-
-    sectionSubtitle: {
-      marginTop: 3,
-      color: "#999999",
-      fontSize: 11,
-    },
-
-    // =================================================
-    // PAYMENT METHODS
-    // =================================================
-
-    paymentMethodsCard: {
-      backgroundColor: "#FFFFFF",
-      borderRadius: 20,
-      paddingHorizontal: 15,
-      elevation: 2,
-    },
-
-    paymentMethod: {
-      minHeight: 76,
-      flexDirection: "row",
-      alignItems: "center",
-      borderRadius: 14,
-    },
-
-    paymentMethodSelected: {
-      backgroundColor: "#FAF7FF",
-    },
-
-    paymentMethodBorder: {
-      borderBottomWidth: 1,
-      borderBottomColor: "#EEEEEE",
-    },
-
-    methodIcon: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      backgroundColor: "#EFE3FF",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-
-    methodIconSelected: {
-      backgroundColor: "#9B4DFF",
-    },
-
-    methodInfo: {
-      flex: 1,
-      marginLeft: 12,
-    },
-
-    methodTitle: {
-      color: "#222222",
-      fontSize: 14,
-      fontWeight: "800",
-    },
-
-    methodSubtitle: {
-      marginTop: 3,
-      color: "#999999",
-      fontSize: 10,
-    },
-
-    radioOuter: {
-      width: 22,
-      height: 22,
-      borderRadius: 11,
-      borderWidth: 2,
-      borderColor: "#CCCCCC",
-      justifyContent: "center",
-      alignItems: "center",
-      marginRight: 5,
-    },
-
-    radioOuterSelected: {
-      borderColor: "#9B4DFF",
-    },
-
-    radioInner: {
-      width: 11,
-      height: 11,
-      borderRadius: 6,
-      backgroundColor: "#9B4DFF",
-    },
-
-    // =================================================
-    // WALLET
-    // =================================================
-
-    walletCard: {
-      marginTop: 14,
-      backgroundColor: "#FFFFFF",
-      borderRadius: 20,
-      padding: 16,
-      flexDirection: "row",
-      alignItems: "center",
-      elevation: 2,
-    },
-
-    walletIcon: {
-      width: 50,
-      height: 50,
-      borderRadius: 25,
-      backgroundColor: "#EFE3FF",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-
-    walletInfo: {
-      flex: 1,
-      marginLeft: 12,
-    },
-
-    walletLabel: {
-      color: "#999999",
-      fontSize: 9,
-      fontWeight: "800",
-      letterSpacing: 0.8,
-    },
-
-    walletBalance: {
-      marginTop: 3,
-      color: "#222222",
-      fontSize: 22,
-      fontWeight: "900",
-    },
-
-    walletLoading: {
-      flexDirection: "row",
-      alignItems: "center",
-      marginTop: 6,
-    },
-
-    walletLoadingText: {
-      marginLeft: 7,
-      color: "#888888",
-      fontSize: 11,
-    },
-
-    sufficientBadge: {
-      flexDirection: "row",
-      alignItems: "center",
-      backgroundColor: "#E8F8EE",
-      paddingHorizontal: 9,
-      paddingVertical: 6,
-      borderRadius: 14,
-    },
-
-    sufficientText: {
-      marginLeft: 3,
-      color: "#27AE60",
-      fontSize: 10,
-      fontWeight: "800",
-    },
-
-    // =================================================
-    // INSUFFICIENT
-    // =================================================
-
-    insufficientCard: {
-      marginTop: 12,
-      backgroundColor: "#FFF1F0",
-      borderRadius: 18,
-      padding: 14,
-      flexDirection: "row",
-      alignItems: "center",
-    },
-
-    insufficientInfo: {
-      flex: 1,
-      marginLeft: 11,
-    },
-
-    insufficientTitle: {
-      color: "#C0392B",
-      fontSize: 13,
-      fontWeight: "800",
-    },
-
-    insufficientText: {
-      marginTop: 3,
-      color: "#888888",
-      fontSize: 11,
-    },
-
-    addMoneySmallButton: {
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      backgroundColor: "#9B4DFF",
-      borderRadius: 15,
-    },
-
-    addMoneySmallText: {
-      color: "#FFFFFF",
-      fontSize: 10,
-      fontWeight: "900",
-    },
-
-    // =================================================
-    // SECURITY
-    // =================================================
-
-    securityCard: {
-      marginTop: 14,
-      backgroundColor: "#FFFFFF",
-      borderRadius: 18,
-      padding: 14,
-      flexDirection: "row",
-      alignItems: "center",
-    },
-
-    securityIcon: {
-      width: 45,
-      height: 45,
-      borderRadius: 23,
-      backgroundColor: "#E8F8EE",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-
-    securityInfo: {
-      flex: 1,
-      marginLeft: 11,
-    },
-
-    securityTitle: {
-      color: "#222222",
-      fontSize: 13,
-      fontWeight: "800",
-    },
-
-    securityText: {
-      marginTop: 3,
-      color: "#888888",
-      fontSize: 11,
-      lineHeight: 16,
-    },
-
-    // =================================================
-    // PAY BUTTON
-    // =================================================
-
-    payButton: {
-      marginTop: 20,
-      height: 58,
-      borderRadius: 29,
-      backgroundColor: "#9B4DFF",
-      flexDirection: "row",
-      justifyContent: "center",
-      alignItems: "center",
-      elevation: 4,
-    },
-
-    payButtonDisabled: {
-      opacity: 0.55,
-    },
-
-    payButtonText: {
-      marginLeft: 9,
-      color: "#FFFFFF",
-      fontSize: 15,
-      fontWeight: "900",
-    },
-
-    // =================================================
-    // BACK
-    // =================================================
-
-    cancelButton: {
-      marginTop: 12,
-      height: 52,
-      borderRadius: 26,
-      borderWidth: 1.2,
-      borderColor: "#DDDDDD",
-      backgroundColor: "#FFFFFF",
-      justifyContent: "center",
-      alignItems: "center",
-    },
-
-    cancelButtonText: {
-      color: "#777777",
-      fontSize: 13,
-      fontWeight: "800",
-    },
-
-    // =================================================
-    // QR
-    // =================================================
-
-    qrCard: {
-      marginTop: 18,
-      backgroundColor: "#FFFFFF",
-      borderRadius: 18,
-      padding: 15,
-      flexDirection: "row",
-      alignItems: "center",
-    },
-
-    qrInfo: {
-      flex: 1,
-      marginLeft: 11,
-    },
-
-    qrLabel: {
-      color: "#999999",
-      fontSize: 9,
-      fontWeight: "800",
-      letterSpacing: 1,
-    },
-
-    qrValue: {
-      marginTop: 4,
-      color: "#555555",
-      fontSize: 11,
-      lineHeight: 16,
-    },
-
-    // =================================================
-    // FOOTER
-    // =================================================
-
-    footerText: {
-      marginTop: 18,
-      textAlign: "center",
-      color: "#AAAAAA",
-      fontSize: 12,
-    },
-  });
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#F7F7F7",
+  },
+
+  headerTitle: {
+    flex: 1,
+    color: "#FFFFFF",
+    fontSize: 20,
+    fontFamily: "InterBold",
+    textAlign: "center",
+    marginRight: 40,
+  },
+
+  scrollView: {
+    flex: 1,
+  },
+
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 40,
+  },
+
+  // =================================================
+  // HEADER
+  // =================================================
+
+  paymentHeader: {
+    alignItems: "center",
+    marginBottom: 18,
+  },
+
+  paymentIconCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: "#EFE3FF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  paymentTitle: {
+    marginTop: 13,
+    color: "#222222",
+    fontSize: 22,
+    fontFamily: "InterBold",
+  },
+
+  paymentSubtitle: {
+    marginTop: 5,
+    color: "#888888",
+    fontSize: 13,
+    fontFamily: "InterRegular",
+    textAlign: "center",
+  },
+
+  // =================================================
+  // PRODUCT
+  // =================================================
+
+  productCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    elevation: 2,
+  },
+
+  productImageBox: {
+    width: 82,
+    height: 82,
+    borderRadius: 16,
+    backgroundColor: "#F5F1FA",
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+  },
+
+  productImage: {
+    width: "100%",
+    height: "100%",
+  },
+
+  productInfo: {
+    flex: 1,
+    marginLeft: 14,
+  },
+
+  productCategory: {
+    color: "#9B4DFF",
+    fontSize: 10,
+    fontFamily: "InterBold",
+    textTransform: "uppercase",
+    letterSpacing: 0.7,
+  },
+
+  productName: {
+    marginTop: 4,
+    color: "#222222",
+    fontSize: 18,
+    fontFamily: "InterBold",
+  },
+
+  productUnit: {
+    marginTop: 5,
+    color: "#888888",
+    fontSize: 12,
+    fontFamily: "InterRegular",
+  },
+
+  // =================================================
+  // AMOUNT
+  // =================================================
+
+  amountCard: {
+    marginTop: 14,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    padding: 19,
+    elevation: 2,
+  },
+
+  amountLabel: {
+    color: "#999999",
+    fontSize: 10,
+    fontFamily: "InterBold",
+    letterSpacing: 1,
+    textAlign: "center",
+  },
+
+  amount: {
+    marginTop: 6,
+    color: "#9B4DFF",
+    fontSize: 34,
+    fontFamily: "InterBold",
+    textAlign: "center",
+  },
+
+  amountDivider: {
+    height: 1,
+    backgroundColor: "#EEEEEE",
+    marginVertical: 15,
+  },
+
+  amountRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 5,
+  },
+
+  amountRowLabel: {
+    color: "#777777",
+    fontSize: 13,
+    fontFamily: "InterRegular",
+  },
+
+  amountRowValue: {
+    color: "#333333",
+    fontSize: 14,
+    fontFamily: "InterBold",
+  },
+
+  rewardNotUsed: {
+    color: "#9B4DFF",
+    fontSize: 13,
+    fontFamily: "InterBold",
+  },
+
+  rewardAdded: {
+    color: "#27AE60",
+    fontSize: 13,
+    fontFamily: "InterBold",
+  },
+
+  totalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  totalLabel: {
+    color: "#222222",
+    fontSize: 16,
+    fontFamily: "InterBold",
+  },
+
+  totalAmount: {
+    color: "#9B4DFF",
+    fontSize: 20,
+    fontFamily: "InterBold",
+  },
+
+  practiceNotice: {
+    marginTop: 14,
+    backgroundColor: "#F7F0FF",
+    borderRadius: 12,
+    paddingHorizontal: 11,
+    paddingVertical: 10,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  practiceNoticeText: {
+    flex: 1,
+    marginLeft: 7,
+    color: "#7650A5",
+    fontSize: 10,
+    fontFamily: "InterRegular",
+    lineHeight: 15,
+  },
+
+  // =================================================
+  // REWARD
+  // =================================================
+
+  rewardCard: {
+    marginTop: 14,
+    backgroundColor: "#EFE3FF",
+    borderRadius: 18,
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+
+  rewardIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  rewardContent: {
+    flex: 1,
+    marginLeft: 12,
+  },
+
+  rewardTitle: {
+    color: "#222222",
+    fontSize: 14,
+    fontFamily: "InterBold",
+  },
+
+  rewardText: {
+    marginTop: 3,
+    color: "#777777",
+    fontSize: 11,
+    fontFamily: "InterRegular",
+    lineHeight: 17,
+  },
+
+  rewardButton: {
+    marginTop: 10,
+    height: 38,
+    borderRadius: 19,
+    paddingHorizontal: 15,
+    backgroundColor: "#9B4DFF",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "flex-start",
+  },
+
+  rewardButtonText: {
+    marginLeft: 6,
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontFamily: "InterBold",
+  },
+
+  rewardSuccessCard: {
+    marginTop: 14,
+    backgroundColor: "#E8F8EE",
+    borderRadius: 18,
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  rewardSuccessInfo: {
+    flex: 1,
+    marginLeft: 10,
+  },
+
+  rewardSuccessTitle: {
+    color: "#208C4A",
+    fontSize: 14,
+    fontFamily: "InterBold",
+  },
+
+  rewardSuccessText: {
+    marginTop: 3,
+    color: "#6D8B77",
+    fontSize: 11,
+    fontFamily: "InterRegular",
+  },
+
+  // =================================================
+  // SECTION
+  // =================================================
+
+  sectionHeader: {
+    marginTop: 20,
+    marginBottom: 10,
+  },
+
+  sectionTitle: {
+    color: "#222222",
+    fontSize: 17,
+    fontFamily: "InterBold",
+  },
+
+  sectionSubtitle: {
+    marginTop: 3,
+    color: "#999999",
+    fontSize: 11,
+    fontFamily: "InterRegular",
+  },
+
+  // =================================================
+  // PAYMENT METHODS
+  // =================================================
+
+  paymentMethodsCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    elevation: 2,
+  },
+
+  paymentMethod: {
+    minHeight: 76,
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 14,
+  },
+
+  paymentMethodSelected: {
+    backgroundColor: "#FAF7FF",
+  },
+
+  paymentMethodBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#EEEEEE",
+  },
+
+  methodIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#EFE3FF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  methodIconSelected: {
+    backgroundColor: "#9B4DFF",
+  },
+
+  methodInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+
+  methodTitle: {
+    color: "#222222",
+    fontSize: 14,
+    fontFamily: "InterSemiBold",
+  },
+
+  methodSubtitle: {
+    marginTop: 3,
+    color: "#999999",
+    fontSize: 10,
+    fontFamily: "InterRegular",
+  },
+
+  radioOuter: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: "#CCCCCC",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 5,
+  },
+
+  radioOuterSelected: {
+    borderColor: "#9B4DFF",
+  },
+
+  radioInner: {
+    width: 11,
+    height: 11,
+    borderRadius: 6,
+    backgroundColor: "#9B4DFF",
+  },
+
+  // =================================================
+  // WALLET
+  // =================================================
+
+  walletCard: {
+    marginTop: 14,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    padding: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    elevation: 2,
+  },
+
+  walletIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#EFE3FF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  walletInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+
+  walletLabel: {
+    color: "#999999",
+    fontSize: 9,
+    fontFamily: "InterBold",
+    letterSpacing: 0.8,
+  },
+
+  walletBalance: {
+    marginTop: 3,
+    color: "#222222",
+    fontSize: 22,
+    fontFamily: "InterBold",
+  },
+
+  walletLoading: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 6,
+  },
+
+  walletLoadingText: {
+    marginLeft: 7,
+    color: "#888888",
+    fontSize: 11,
+    fontFamily: "InterRegular",
+  },
+
+  availableBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E8F8EE",
+    paddingHorizontal: 9,
+    paddingVertical: 6,
+    borderRadius: 14,
+  },
+
+  availableText: {
+    marginLeft: 3,
+    color: "#27AE60",
+    fontSize: 10,
+    fontFamily: "InterBold",
+  },
+
+  // =================================================
+  // WALLET PAYMENT
+  // =================================================
+
+  walletPaymentCard: {
+    marginTop: 12,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    padding: 16,
+    elevation: 2,
+  },
+
+  walletPaymentTitle: {
+    color: "#222222",
+    fontSize: 15,
+    fontFamily: "InterBold",
+  },
+
+  walletPaymentSubtitle: {
+    marginTop: 4,
+    color: "#888888",
+    fontSize: 11,
+    fontFamily: "InterRegular",
+    lineHeight: 16,
+  },
+
+  walletInputRow: {
+    marginTop: 14,
+    height: 52,
+    borderWidth: 1,
+    borderColor: "#DCC8F5",
+    borderRadius: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+  },
+
+  rupeeSymbol: {
+    color: "#9B4DFF",
+    fontSize: 20,
+    fontFamily: "InterBold",
+  },
+
+  walletInput: {
+    flex: 1,
+    marginLeft: 6,
+    color: "#222222",
+    fontSize: 18,
+    fontFamily: "InterSemiBold",
+    paddingVertical: 0,
+  },
+
+  useMaxButton: {
+    backgroundColor: "#EFE3FF",
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+
+  useMaxText: {
+    color: "#9B4DFF",
+    fontSize: 9,
+    fontFamily: "InterBold",
+  },
+
+  paymentBreakdown: {
+    marginTop: 14,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#EEEEEE",
+  },
+
+  breakdownRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 5,
+  },
+
+  breakdownLabel: {
+    color: "#777777",
+    fontSize: 12,
+    fontFamily: "InterRegular",
+  },
+
+  breakdownValue: {
+    color: "#333333",
+    fontSize: 13,
+    fontFamily: "InterSemiBold",
+  },
+
+  walletUsedValue: {
+    color: "#9B4DFF",
+    fontSize: 13,
+    fontFamily: "InterBold",
+  },
+
+  breakdownDivider: {
+    height: 1,
+    backgroundColor: "#EEEEEE",
+    marginVertical: 8,
+  },
+
+  remainingLabel: {
+    color: "#222222",
+    fontSize: 14,
+    fontFamily: "InterBold",
+  },
+
+  remainingValue: {
+    color: "#9B4DFF",
+    fontSize: 17,
+    fontFamily: "InterBold",
+  },
+
+  upiHint: {
+    marginTop: 10,
+    backgroundColor: "#F7F0FF",
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 9,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  upiHintText: {
+    flex: 1,
+    marginLeft: 7,
+    color: "#7650A5",
+    fontSize: 10,
+    fontFamily: "InterRegular",
+    lineHeight: 15,
+  },
+
+  walletFullHint: {
+    marginTop: 10,
+    backgroundColor: "#E8F8EE",
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 9,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  walletFullHintText: {
+    flex: 1,
+    marginLeft: 7,
+    color: "#39734F",
+    fontSize: 10,
+    fontFamily: "InterRegular",
+    lineHeight: 15,
+  },
+
+  // =================================================
+  // PRACTICE UPI
+  // =================================================
+
+  practiceCard: {
+    marginTop: 14,
+    backgroundColor: "#F7F0FF",
+    borderRadius: 18,
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  practiceIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  practiceInfo: {
+    flex: 1,
+    marginLeft: 11,
+  },
+
+  practiceTitle: {
+    color: "#222222",
+    fontSize: 13,
+    fontFamily: "InterBold",
+  },
+
+  practiceText: {
+    marginTop: 4,
+    color: "#7650A5",
+    fontSize: 10,
+    fontFamily: "InterRegular",
+    lineHeight: 15,
+  },
+
+  // =================================================
+  // SECURITY
+  // =================================================
+
+  securityCard: {
+    marginTop: 14,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  securityIcon: {
+    width: 45,
+    height: 45,
+    borderRadius: 23,
+    backgroundColor: "#E8F8EE",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  securityInfo: {
+    flex: 1,
+    marginLeft: 11,
+  },
+
+  securityTitle: {
+    color: "#222222",
+    fontSize: 13,
+    fontFamily: "InterSemiBold",
+  },
+
+  securityText: {
+    marginTop: 3,
+    color: "#888888",
+    fontSize: 11,
+    fontFamily: "InterRegular",
+    lineHeight: 16,
+  },
+
+  // =================================================
+  // PAY BUTTON
+  // =================================================
+
+  payButton: {
+    marginTop: 20,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: "#9B4DFF",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 4,
+  },
+
+  payButtonDisabled: {
+    opacity: 0.55,
+  },
+
+  payButtonText: {
+    marginLeft: 9,
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontFamily: "InterBold",
+  },
+
+  // =================================================
+  // BACK
+  // =================================================
+
+  cancelButton: {
+    marginTop: 12,
+    height: 52,
+    borderRadius: 26,
+    borderWidth: 1.2,
+    borderColor: "#DDDDDD",
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  cancelButtonText: {
+    color: "#777777",
+    fontSize: 13,
+    fontFamily: "InterSemiBold",
+  },
+
+  // =================================================
+  // QR
+  // =================================================
+
+  qrCard: {
+    marginTop: 18,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    padding: 15,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  qrInfo: {
+    flex: 1,
+    marginLeft: 11,
+  },
+
+  qrLabel: {
+    color: "#999999",
+    fontSize: 9,
+    fontFamily: "InterBold",
+    letterSpacing: 1,
+  },
+
+  qrValue: {
+    marginTop: 4,
+    color: "#555555",
+    fontSize: 11,
+    fontFamily: "InterRegular",
+    lineHeight: 16,
+  },
+
+  // =================================================
+  // FOOTER
+  // =================================================
+
+  footerText: {
+    marginTop: 18,
+    textAlign: "center",
+    color: "#AAAAAA",
+    fontSize: 12,
+    fontFamily: "InterRegular",
+  },
+});

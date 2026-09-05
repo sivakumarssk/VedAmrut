@@ -599,6 +599,10 @@ const handleBack = () => {
 // =====================================================
 
 const styles = StyleSheet.create({
+  // =====================================================
+  // MAIN CONTAINER
+  // =====================================================
+
   safeArea: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -607,6 +611,10 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
+
+  // =====================================================
+  // HEADER
+  // =====================================================
 
   header: {
     height: 56,
@@ -630,7 +638,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     fontSize: 19,
-    fontWeight: '600',
+    fontFamily: 'InterSemiBold',
     color: '#222222',
   },
 
@@ -638,18 +646,31 @@ const styles = StyleSheet.create({
     width: 40,
   },
 
+  // =====================================================
+  // SCROLL CONTENT
+  // =====================================================
+
   scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 4,
+    paddingBottom: 24,
   },
+
+  // =====================================================
+  // LABEL
+  // =====================================================
 
   label: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: 'InterMedium',
     color: '#222222',
     marginTop: 18,
     marginBottom: 8,
   },
+
+  // =====================================================
+  // INPUT
+  // =====================================================
 
   input: {
     height: 52,
@@ -658,21 +679,32 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingHorizontal: 16,
     fontSize: 15,
+    fontFamily: 'InterRegular',
     color: '#222222',
     backgroundColor: '#FFFFFF',
   },
 
+  // =====================================================
+  // PINCODE + CITY ROW
+  // =====================================================
+
   row: {
     flexDirection: 'row',
+    width: '100%',
   },
 
   halfField: {
     flex: 1,
+    minWidth: 0,
   },
 
   halfFieldRight: {
     marginLeft: 12,
   },
+
+  // =====================================================
+  // SAVE AS LABEL CHIPS
+  // =====================================================
 
   labelRow: {
     flexDirection: 'row',
@@ -681,12 +713,15 @@ const styles = StyleSheet.create({
   },
 
   labelChip: {
+    minHeight: 42,
     borderWidth: 1,
     borderColor: '#D9D9D9',
-    borderRadius: 20,
+    borderRadius: 21,
     paddingHorizontal: 18,
     paddingVertical: 10,
     marginRight: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#FFFFFF',
   },
 
@@ -698,17 +733,23 @@ const styles = StyleSheet.create({
   labelChipText: {
     color: '#444444',
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'InterSemiBold',
   },
 
   labelChipTextActive: {
     color: '#FFFFFF',
+    fontFamily: 'InterSemiBold',
   },
 
+  // =====================================================
+  // SAVE BUTTON
+  // =====================================================
+
   saveButton: {
-    marginTop: 32,
+    width: '100%',
     height: 56,
     borderRadius: 28,
+    marginTop: 32,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -716,6 +757,6 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: '#FFFFFF',
     fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'InterSemiBold',
   },
 });

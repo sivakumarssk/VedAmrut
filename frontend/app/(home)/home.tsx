@@ -63,7 +63,7 @@ export default function HomeScreen() {
     backgroundColor: '#FFFFFF',
   }}
         contentContainerStyle={{
-          paddingBottom: tabBarClearance + 16,
+          paddingBottom: tabBarClearance + 60,
           backgroundColor: '#FFFFFF',
         }}
         showsVerticalScrollIndicator={false}

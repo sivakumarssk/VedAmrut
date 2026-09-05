@@ -1,15 +1,20 @@
+
+
 // const express = require("express");
 
-// const router = express.Router();
+// const router =
+//   express.Router();
 
 // const {
 //   getMyWallet,
 //   addMoney,
 //   getMyTransactions,
 //   payWithWallet,
+//   payForQRProductController,
 // } = require("../controllers/walletController");
 
-// const authMiddleware = require("../middleware/authMiddleware");
+// const authMiddleware =
+//   require("../middleware/authMiddleware");
 
 // // =====================================================
 // // GET MY WALLET
@@ -43,7 +48,7 @@
 // );
 
 // // =====================================================
-// // PAY USING WALLET
+// // GENERIC WALLET PAYMENT
 // // =====================================================
 
 // router.post(
@@ -52,12 +57,20 @@
 //   payWithWallet
 // );
 
-// module.exports = router;
+// // =====================================================
+// // QR PRODUCT PAYMENT
+// // =====================================================
 
+// router.post(
+//   "/pay-qr",
+//   authMiddleware,
+//   payForQRProductController
+// );
+
+// module.exports = router;
 const express = require("express");
 
-const router =
-  express.Router();
+const router = express.Router();
 
 const {
   getMyWallet,
@@ -65,6 +78,7 @@ const {
   getMyTransactions,
   payWithWallet,
   payForQRProductController,
+  payForQRProductSplitController,
 } = require("../controllers/walletController");
 
 const authMiddleware =
@@ -112,13 +126,23 @@ router.post(
 );
 
 // =====================================================
-// QR PRODUCT PAYMENT
+// QR PRODUCT PAYMENT - WALLET ONLY
 // =====================================================
 
 router.post(
   "/pay-qr",
   authMiddleware,
   payForQRProductController
+);
+
+// =====================================================
+// QR PRODUCT PAYMENT - PRACTICE SPLIT PAYMENT
+// =====================================================
+
+router.post(
+  "/pay-qr-split",
+  authMiddleware,
+  payForQRProductSplitController
 );
 
 module.exports = router;

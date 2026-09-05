@@ -1,218 +1,3 @@
-// import React from 'react';
-// import {
-//   StyleSheet,
-//   Text,
-//   TouchableOpacity,
-//   View,
-// } from 'react-native';
-// import { Ionicons } from '@expo/vector-icons';
-// import { router, useLocalSearchParams } from 'expo-router';
-
-// export default function CartSuccessScreen() {
-//   const { productName } = useLocalSearchParams<{
-//     productName?: string;
-//   }>();
-
-//   // =====================================================
-//   // GO TO CART
-//   // =====================================================
-
-//   const handleGoToCart = () => {
-//     console.log('CART SUCCESS → GO TO CART');
-
-//     router.push({
-//       pathname: '/(home)/cart',
-//       params: {
-//         from: 'cart-success',
-//         productName: productName || '',
-//       },
-//     });
-//   };
-
-//   // =====================================================
-//   // CONTINUE SHOPPING
-//   // =====================================================
-
-//   const handleContinueShopping = () => {
-//     console.log('CART SUCCESS → CONTINUE SHOPPING');
-
-//     if (router.canGoBack()) {
-//       router.back();
-//     } else {
-//       router.replace('/');
-//     }
-//   };
-
-//   // =====================================================
-//   // SCREEN
-//   // =====================================================
-
-//   return (
-//     <View style={styles.container}>
-
-//       {/* =================================================
-//           SUCCESS ICON
-//       ================================================= */}
-
-//       <View style={styles.successCircle}>
-//         <Ionicons
-//           name="checkmark"
-//           size={55}
-//           color="#FFFFFF"
-//         />
-//       </View>
-
-//       {/* =================================================
-//           TITLE
-//       ================================================= */}
-
-//       <Text style={styles.title}>
-//         Product Added to Cart
-//       </Text>
-
-//       {/* =================================================
-//           MESSAGE
-//       ================================================= */}
-
-//       <Text style={styles.message}>
-//         {productName
-//           ? `${productName} has been successfully added to your cart.`
-//           : 'The product has been successfully added to your cart.'}
-//       </Text>
-
-//       {/* =================================================
-//           GO TO CART
-//       ================================================= */}
-
-//       <TouchableOpacity
-//         style={styles.goToCartButton}
-//         activeOpacity={0.8}
-//         onPress={handleGoToCart}
-//       >
-//         <Ionicons
-//           name="cart-outline"
-//           size={22}
-//           color="#FFFFFF"
-//         />
-
-//         <Text style={styles.goToCartText}>
-//           Go to Cart
-//         </Text>
-//       </TouchableOpacity>
-
-//       {/* =================================================
-//           CONTINUE SHOPPING
-//       ================================================= */}
-
-//       <TouchableOpacity
-//         style={styles.continueButton}
-//         activeOpacity={0.8}
-//         onPress={handleContinueShopping}
-//       >
-//         <Text style={styles.continueText}>
-//           Continue Shopping
-//         </Text>
-//       </TouchableOpacity>
-
-//     </View>
-//   );
-// }
-
-// // =====================================================
-// // STYLES
-// // =====================================================
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#FFFFFF',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     paddingHorizontal: 25,
-//   },
-
-//   // ===================================================
-//   // SUCCESS ICON
-//   // ===================================================
-
-//   successCircle: {
-//     width: 100,
-//     height: 100,
-//     borderRadius: 50,
-//     backgroundColor: '#1C9C57',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     marginBottom: 25,
-//   },
-
-//   // ===================================================
-//   // TITLE
-//   // ===================================================
-
-//   title: {
-//     fontSize: 25,
-//     fontWeight: '800',
-//     color: '#222222',
-//     textAlign: 'center',
-//   },
-
-//   // ===================================================
-//   // MESSAGE
-//   // ===================================================
-
-//   message: {
-//     marginTop: 12,
-//     fontSize: 15,
-//     lineHeight: 22,
-//     color: '#777777',
-//     textAlign: 'center',
-//     maxWidth: 330,
-//   },
-
-//   // ===================================================
-//   // GO TO CART BUTTON
-//   // ===================================================
-
-//   goToCartButton: {
-//     width: '100%',
-//     height: 54,
-//     borderRadius: 27,
-//     backgroundColor: '#1C9C57',
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     marginTop: 35,
-//   },
-
-//   goToCartText: {
-//     marginLeft: 9,
-//     color: '#FFFFFF',
-//     fontSize: 16,
-//     fontWeight: '700',
-//   },
-
-//   // ===================================================
-//   // CONTINUE SHOPPING BUTTON
-//   // ===================================================
-
-//   continueButton: {
-//     width: '100%',
-//     height: 54,
-//     borderRadius: 27,
-//     borderWidth: 1.5,
-//     borderColor: '#1C9C57',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     marginTop: 14,
-//   },
-
-//   continueText: {
-//     color: '#1C9C57',
-//     fontSize: 16,
-//     fontWeight: '700',
-//   },
-// });
-
 import React from 'react';
 import {
   StyleSheet,
@@ -405,14 +190,18 @@ export default function CartSuccessScreen() {
 // =====================================================
 
 const styles = StyleSheet.create({
+  // =====================================================
+  // CONTAINER
+  // =====================================================
+
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
 
-  // ===================================================
+  // =====================================================
   // HEADER
-  // ===================================================
+  // =====================================================
 
   header: {
     width: '100%',
@@ -432,9 +221,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  // ===================================================
+  // =====================================================
   // CONTENT
-  // ===================================================
+  // =====================================================
 
   content: {
     flex: 1,
@@ -444,9 +233,9 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
 
-  // ===================================================
+  // =====================================================
   // SUCCESS ICON
-  // ===================================================
+  // =====================================================
 
   successCircle: {
     width: 100,
@@ -458,33 +247,34 @@ const styles = StyleSheet.create({
     marginBottom: 25,
   },
 
-  // ===================================================
+  // =====================================================
   // TITLE
-  // ===================================================
+  // =====================================================
 
   title: {
     fontSize: 25,
-    fontWeight: '800',
+    fontFamily: 'InterBold',
     color: '#222222',
     textAlign: 'center',
   },
 
-  // ===================================================
+  // =====================================================
   // MESSAGE
-  // ===================================================
+  // =====================================================
 
   message: {
     marginTop: 12,
     fontSize: 15,
     lineHeight: 22,
+    fontFamily: 'InterRegular',
     color: '#777777',
     textAlign: 'center',
     maxWidth: 330,
   },
 
-  // ===================================================
-  // GO TO CART
-  // ===================================================
+  // =====================================================
+  // GO TO CART BUTTON
+  // =====================================================
 
   goToCartButton: {
     width: '90%',
@@ -501,12 +291,12 @@ const styles = StyleSheet.create({
     marginLeft: 9,
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'InterBold',
   },
 
-  // ===================================================
+  // =====================================================
   // CONTINUE SHOPPING
-  // ===================================================
+  // =====================================================
 
   continueButton: {
     width: '90%',
@@ -522,8 +312,7 @@ const styles = StyleSheet.create({
   continueText: {
     color: '#1C9C57',
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'InterBold',
   },
 });
-
 

@@ -63,21 +63,7 @@ renderItem={({ item }) => {
   );
 
   return (
-    // <CategoryCard title={item.name}
-    //   image={{
-    //     uri: `${API_BASE_URL}/uploads/categories/${item.image}`,
-    //   }}
-    //   color="#FFFFFF"
-    //   onPress={() => {
-    //     router.push({
-    //       pathname: '/(home)/products',
-    //       params: {
-    //         categoryId: String(item.id),
-    //         categoryName: item.name,
-    //       },
-    //     });
-    //   }}
-    // />
+   
     <CategoryCard
   title={item.name}
   image={{
@@ -114,8 +100,8 @@ const styles = StyleSheet.create({
 
   heading: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#222',
+    fontFamily: 'InterBold',
+    color: '#222222',
     marginBottom: 14,
   },
 

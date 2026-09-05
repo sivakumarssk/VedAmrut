@@ -1,1768 +1,4 @@
-// import React, {
-//   useCallback,
-//   useState,
-// } from "react";
 
-// import {
-//   ActivityIndicator,
-//   Alert,
-//   Image,
-//   ScrollView,
-//   StyleSheet,
-//   Text,
-//   TouchableOpacity,
-//   View,
-// } from "react-native";
-
-// import { SafeAreaView } from "react-native-safe-area-context";
-
-// import { Ionicons } from "@expo/vector-icons";
-
-// import {
-//   router,
-//   useFocusEffect,
-//   useLocalSearchParams,
-// } from "expo-router";
-
-// import { API_BASE_URL } from "@/constants/api";
-// import { getToken } from "@/utils/storage";
-
-// // =====================================================
-// // TYPES
-// // =====================================================
-
-// type QRData = {
-//   id?: number;
-//   product_id?: number;
-
-//   qr_code?: string;
-
-//   unit_number?: number | string;
-
-//   is_claimed?: boolean;
-
-//   claimed_by?: number | null;
-//   claimed_at?: string | null;
-
-//   category_id?: number;
-//   category_name?: string;
-
-//   product_name?: string;
-//   product_description?: string;
-//   product_price?: string | number;
-//   product_image?: string | null;
-//   product_stock?: number | string;
-
-//   reward_amount?: string | number;
-
-//   product?: {
-//     id?: number;
-//     name?: string;
-//     description?: string;
-//     price?: string | number;
-//     image?: string | null;
-//     stock?: number | string;
-//     category_id?: number;
-//     category_name?: string;
-//   };
-
-//   reward?: {
-//     amount?: string | number;
-//   };
-// };
-
-// // =====================================================
-// // HELPER
-// // =====================================================
-
-// const getParam = (
-//   value?: string | string[]
-// ): string | undefined => {
-//   if (Array.isArray(value)) {
-//     return value[0];
-//   }
-
-//   return value;
-// };
-
-// // =====================================================
-// // SCREEN
-// // =====================================================
-
-// export default function QRProductDetailsScreen() {
-//   // =====================================================
-//   // ROUTE PARAMS
-//   // =====================================================
-
-//   const params =
-//     useLocalSearchParams<{
-//       qrCode?: string | string[];
-
-//       productId?: string | string[];
-//       productName?: string | string[];
-//       productDescription?: string | string[];
-//       productPrice?: string | string[];
-//       productImage?: string | string[];
-//       productStock?: string | string[];
-//       rewardAmount?: string | string[];
-//       unitNumber?: string | string[];
-//       categoryName?: string | string[];
-//       isClaimed?: string | string[];
-//     }>();
-
-//   const qrCode = getParam(
-//     params.qrCode
-//   );
-
-//   // =====================================================
-//   // STATES
-//   // =====================================================
-
-//   const [qrData, setQrData] =
-//     useState<QRData | null>(null);
-
-//   const [loading, setLoading] =
-//     useState(true);
-
-//   const [claiming, setClaiming] =
-//     useState(false);
-
-//   // =====================================================
-//   // FETCH QR DETAILS
-//   // =====================================================
-
-//   const fetchQRDetails =
-//     useCallback(async () => {
-//       if (!qrCode) {
-//         setLoading(false);
-
-//         Alert.alert(
-//           "Invalid QR",
-//           "QR code was not found.",
-//           [
-//             {
-//               text: "Scan Again",
-//               onPress: () =>
-//                 router.replace(
-//                   "/scanner"
-//                 ),
-//             },
-//           ]
-//         );
-
-//         return;
-//       }
-
-//       try {
-//         setLoading(true);
-
-//         console.log(
-//           "================================"
-//         );
-
-//         console.log(
-//           "QR PRODUCT DETAILS"
-//         );
-
-//         console.log(
-//           "QR CODE:",
-//           qrCode
-//         );
-
-//         console.log(
-//           "================================"
-//         );
-
-//         // =================================================
-//         // API URL
-//         // =================================================
-
-//         const url =
-//           `${API_BASE_URL}/api/product-qr/scan/` +
-//           encodeURIComponent(
-//             qrCode.trim()
-//           );
-
-//         console.log(
-//           "QR DETAILS URL:",
-//           url
-//         );
-
-//         // =================================================
-//         // FETCH
-//         // =================================================
-
-//         const response =
-//           await fetch(url);
-
-//         const result =
-//           await response.json();
-
-//         console.log(
-//           "QR DETAILS STATUS:",
-//           response.status
-//         );
-
-//         console.log(
-//           "QR DETAILS RESPONSE:",
-//           JSON.stringify(
-//             result,
-//             null,
-//             2
-//           )
-//         );
-
-//         // =================================================
-//         // VALIDATE
-//         // =================================================
-
-//         if (
-//           !response.ok ||
-//           !result?.success
-//         ) {
-//           throw new Error(
-//             result?.message ||
-//               "Unable to load QR product details."
-//           );
-//         }
-
-//         if (!result?.data) {
-//           throw new Error(
-//             "QR product details were not found."
-//           );
-//         }
-
-//         // =================================================
-//         // SAVE DATA
-//         // =================================================
-
-//         setQrData(
-//           result.data
-//         );
-
-//         console.log(
-//           "================================"
-//         );
-
-//         console.log(
-//           "QR DATA LOADED"
-//         );
-
-//         console.log(
-//           "PRODUCT ID:",
-//           result.data?.product_id
-//         );
-
-//         console.log(
-//           "PRODUCT NAME:",
-//           result.data?.product_name ||
-//             result.data?.product?.name
-//         );
-
-//         console.log(
-//           "REWARD:",
-//           result.data?.reward_amount ||
-//             result.data?.reward?.amount
-//         );
-
-//         console.log(
-//           "IS CLAIMED:",
-//           result.data?.is_claimed
-//         );
-
-//         console.log(
-//           "UNIT:",
-//           result.data?.unit_number
-//         );
-
-//         console.log(
-//           "================================"
-//         );
-//       } catch (error: any) {
-//         console.error(
-//           "QR PRODUCT DETAILS ERROR:",
-//           error
-//         );
-
-//         setQrData(null);
-
-//         Alert.alert(
-//           "Unable to Load QR",
-//           error?.message ||
-//             "Unable to load product QR details.",
-//           [
-//             {
-//               text: "Scan Again",
-//               onPress: () =>
-//                 router.replace(
-//                   "/scanner"
-//                 ),
-//             },
-//           ]
-//         );
-//       } finally {
-//         setLoading(false);
-//       }
-//     }, [qrCode]);
-
-//   // =====================================================
-//   // REFRESH WHEN SCREEN OPENS
-//   // =====================================================
-
-//   useFocusEffect(
-//     useCallback(() => {
-//       fetchQRDetails();
-//     }, [fetchQRDetails])
-//   );
-
-//   // =====================================================
-//   // PRODUCT DATA
-//   // =====================================================
-
-//   const productName =
-//     qrData?.product?.name ||
-//     qrData?.product_name ||
-//     getParam(
-//       params.productName
-//     ) ||
-//     "VedAmrut Product";
-
-//   const productDescription =
-//     qrData?.product?.description ||
-//     qrData?.product_description ||
-//     getParam(
-//       params.productDescription
-//     ) ||
-//     "";
-
-//   const productPrice =
-//     Number(
-//       qrData?.product?.price ??
-//         qrData?.product_price ??
-//         getParam(
-//           params.productPrice
-//         ) ??
-//         0
-//     ) || 0;
-
-//   const productStock =
-//     Number(
-//       qrData?.product?.stock ??
-//         qrData?.product_stock ??
-//         getParam(
-//           params.productStock
-//         ) ??
-//         0
-//     ) || 0;
-
-//   const productImage =
-//     qrData?.product?.image ||
-//     qrData?.product_image ||
-//     getParam(
-//       params.productImage
-//     ) ||
-//     "";
-
-//   const categoryName =
-//     qrData?.product?.category_name ||
-//     qrData?.category_name ||
-//     getParam(
-//       params.categoryName
-//     ) ||
-//     "";
-
-//   const unitNumber =
-//     qrData?.unit_number ??
-//     getParam(
-//       params.unitNumber
-//     ) ??
-//     "";
-
-//   // =====================================================
-//   // REWARD
-//   // =====================================================
-
-//   const rewardAmount =
-//     Number(
-//       qrData?.reward?.amount ??
-//         qrData?.reward_amount ??
-//         getParam(
-//           params.rewardAmount
-//         ) ??
-//         0
-//     ) || 0;
-
-//   // =====================================================
-//   // CLAIM STATUS
-//   //
-//   // IMPORTANT:
-//   // Prefer fresh backend value.
-//   // =====================================================
-
-//   const isClaimed =
-//     qrData?.is_claimed === true;
-
-//   // =====================================================
-//   // IMAGE URL
-//   // =====================================================
-
-//   const getImageUrl = (
-//     image: string
-//   ): string => {
-//     if (!image) {
-//       return "";
-//     }
-
-//     if (
-//       image.startsWith(
-//         "http://"
-//       ) ||
-//       image.startsWith(
-//         "https://"
-//       )
-//     ) {
-//       return image;
-//     }
-
-//     // Remove leading slash
-//     const cleanImage =
-//       image.replace(
-//         /^\/+/,
-//         ""
-//       );
-
-//     // If backend already returned uploads/...
-//     if (
-//       cleanImage.startsWith(
-//         "uploads/"
-//       )
-//     ) {
-//       return `${API_BASE_URL}/${cleanImage}`;
-//     }
-
-//     // Normal product image
-//     return `${API_BASE_URL}/uploads/${cleanImage}`;
-//   };
-
-//   // =====================================================
-//   // CLAIM REWARD
-//   // =====================================================
-
-//   const handleClaimReward =
-//     async () => {
-//       if (claiming) {
-//         return;
-//       }
-
-//       if (!qrCode) {
-//         Alert.alert(
-//           "Invalid QR",
-//           "QR code was not found."
-//         );
-
-//         return;
-//       }
-
-//       // =================================================
-//       // ALREADY CLAIMED
-//       // =================================================
-
-//       if (isClaimed) {
-//         Alert.alert(
-//           "Already Claimed",
-//           "This QR code has already been claimed."
-//         );
-
-//         return;
-//       }
-
-//       // =================================================
-//       // LOGIN
-//       // =================================================
-
-//       try {
-//         setClaiming(true);
-
-//         const token =
-//           await getToken();
-
-//         if (!token) {
-//           Alert.alert(
-//             "Login Required",
-//             "Please login to claim this reward.",
-//             [
-//               {
-//                 text: "Login",
-//                 onPress: () =>
-//                   router.replace(
-//                     "/login"
-//                   ),
-//               },
-//               {
-//                 text: "Cancel",
-//                 style: "cancel",
-//               },
-//             ]
-//           );
-
-//           return;
-//         }
-
-//         console.log(
-//           "================================"
-//         );
-
-//         console.log(
-//           "CLAIM PRODUCT QR"
-//         );
-
-//         console.log(
-//           "QR CODE:",
-//           qrCode
-//         );
-
-//         console.log(
-//           "REWARD:",
-//           rewardAmount
-//         );
-
-//         console.log(
-//           "PRODUCT:",
-//           productName
-//         );
-
-//         console.log(
-//           "================================"
-//         );
-
-//         // =================================================
-//         // CLAIM API
-//         // =================================================
-
-//         const response =
-//           await fetch(
-//             `${API_BASE_URL}/api/product-qr/claim`,
-//             {
-//               method: "POST",
-
-//               headers: {
-//                 "Content-Type":
-//                   "application/json",
-
-//                 Authorization:
-//                   `Bearer ${token}`,
-//               },
-
-//               body: JSON.stringify({
-//                 qrCode:
-//                   qrCode.trim(),
-//               }),
-//             }
-//           );
-
-//         const result =
-//           await response.json();
-
-//         console.log(
-//           "CLAIM STATUS:",
-//           response.status
-//         );
-
-//         console.log(
-//           "CLAIM RESPONSE:",
-//           JSON.stringify(
-//             result,
-//             null,
-//             2
-//           )
-//         );
-
-//         // =================================================
-//         // UNAUTHORIZED
-//         // =================================================
-
-//         if (
-//           response.status ===
-//           401
-//         ) {
-//           Alert.alert(
-//             "Login Required",
-//             "Please login again to claim this reward.",
-//             [
-//               {
-//                 text: "Login",
-//                 onPress: () =>
-//                   router.replace(
-//                     "/login"
-//                   ),
-//               },
-//             ]
-//           );
-
-//           return;
-//         }
-
-//         // =================================================
-//         // ALREADY CLAIMED
-//         // =================================================
-
-//         if (
-//           response.status ===
-//           409
-//         ) {
-//           Alert.alert(
-//             "QR Already Claimed",
-//             result?.message ||
-//               "This QR code has already been claimed.",
-//             [
-//               {
-//                 text: "OK",
-//                 onPress:
-//                   fetchQRDetails,
-//               },
-//             ]
-//           );
-
-//           return;
-//         }
-
-//         // =================================================
-//         // OTHER FAILURE
-//         // =================================================
-
-//         if (
-//           !response.ok ||
-//           !result?.success
-//         ) {
-//           throw new Error(
-//             result?.message ||
-//               "Unable to claim reward."
-//           );
-//         }
-
-//         // =================================================
-//         // SUCCESS DATA
-//         // =================================================
-
-//         const data =
-//           result?.data || {};
-
-//         const finalReward =
-//           Number(
-//             data?.reward ??
-//               data?.reward_amount ??
-//               data?.amount ??
-//               rewardAmount
-//           ) || 0;
-
-//         const finalBalance =
-//           Number(
-//             data?.wallet?.balance ??
-//               data?.wallet_balance ??
-//               data?.remaining_balance ??
-//               data?.balance ??
-//               0
-//           ) || 0;
-
-//         const finalProductName =
-//           data?.product?.name ||
-//           data?.product_name ||
-//           productName;
-
-//         console.log(
-//           "================================"
-//         );
-
-//         console.log(
-//           "QR CLAIM SUCCESS"
-//         );
-
-//         console.log(
-//           "PRODUCT:",
-//           finalProductName
-//         );
-
-//         console.log(
-//           "REWARD:",
-//           finalReward
-//         );
-
-//         console.log(
-//           "WALLET BALANCE:",
-//           finalBalance
-//         );
-
-//         console.log(
-//           "================================"
-//         );
-
-//         // =================================================
-//         // GO TO SUCCESS SCREEN
-//         // =================================================
-
-//         router.replace({
-//           pathname:
-//             "/(home)/qr-payment-success",
-
-//           params: {
-//             productName:
-//               String(
-//                 finalProductName
-//               ),
-
-//             reward:
-//               String(
-//                 finalReward
-//               ),
-
-//             remainingBalance:
-//               String(
-//                 finalBalance
-//               ),
-//           },
-//         });
-//       } catch (error: any) {
-//         console.error(
-//           "CLAIM REWARD ERROR:",
-//           error
-//         );
-
-//         Alert.alert(
-//           "Reward Failed",
-//           error?.message ||
-//             "Something went wrong while claiming this reward."
-//         );
-//       } finally {
-//         setClaiming(false);
-//       }
-//     };
-
-//   // =====================================================
-//   // LOADING
-//   // =====================================================
-
-//   if (loading) {
-//     return (
-//       <SafeAreaView
-//         style={styles.safeArea}
-//       >
-//         <Header />
-
-//         <View
-//           style={styles.center}
-//         >
-//           <ActivityIndicator
-//             size="large"
-//             color="#9B4DFF"
-//           />
-
-//           <Text
-//             style={
-//               styles.loadingText
-//             }
-//           >
-//             Loading product details...
-//           </Text>
-//         </View>
-//       </SafeAreaView>
-//     );
-//   }
-
-//   // =====================================================
-//   // NO DATA
-//   // =====================================================
-
-//   if (!qrData) {
-//     return (
-//       <SafeAreaView
-//         style={styles.safeArea}
-//       >
-//         <Header />
-
-//         <View
-//           style={styles.center}
-//         >
-//           <View
-//             style={
-//               styles.errorIcon
-//             }
-//           >
-//             <Ionicons
-//               name="alert-circle-outline"
-//               size={48}
-//               color="#E74C3C"
-//             />
-//           </View>
-
-//           <Text
-//             style={
-//               styles.errorTitle
-//             }
-//           >
-//             QR Details Not Found
-//           </Text>
-
-//           <Text
-//             style={
-//               styles.errorText
-//             }
-//           >
-//             We couldn't find the
-//             product associated with
-//             this QR code.
-//           </Text>
-
-//           <TouchableOpacity
-//             style={
-//               styles.goBackButton
-//             }
-//             onPress={() =>
-//               router.replace(
-//                 "/scanner"
-//               )
-//             }
-//           >
-//             <Text
-//               style={
-//                 styles.goBackText
-//               }
-//             >
-//               Scan Again
-//             </Text>
-//           </TouchableOpacity>
-//         </View>
-//       </SafeAreaView>
-//     );
-//   }
-
-//   // =====================================================
-//   // MAIN SCREEN
-//   // =====================================================
-
-//   return (
-//     <SafeAreaView
-//       style={styles.safeArea}
-//     >
-//       <Header />
-
-//       <ScrollView
-//         showsVerticalScrollIndicator={
-//           false
-//         }
-//         contentContainerStyle={
-//           styles.scrollContent
-//         }
-//       >
-//         {/* =================================================
-//             SCANNED BADGE
-//         ================================================= */}
-
-//         <View
-//           style={
-//             styles.scannedBadge
-//           }
-//         >
-//           <Ionicons
-//             name="checkmark-circle"
-//             size={18}
-//             color="#27AE60"
-//           />
-
-//           <Text
-//             style={
-//               styles.scannedText
-//             }
-//           >
-//             QR scanned successfully
-//           </Text>
-//         </View>
-
-//         {/* =================================================
-//             PRODUCT IMAGE
-//         ================================================= */}
-
-//         <View
-//           style={styles.imageCard}
-//         >
-//           {productImage ? (
-//             <Image
-//               source={{
-//                 uri: getImageUrl(
-//                   productImage
-//                 ),
-//               }}
-//               style={
-//                 styles.productImage
-//               }
-//               resizeMode="contain"
-//               onError={(
-//                 event
-//               ) => {
-//                 console.log(
-//                   "PRODUCT IMAGE ERROR:",
-//                   event.nativeEvent
-//                 );
-
-//                 console.log(
-//                   "IMAGE URL:",
-//                   getImageUrl(
-//                     productImage
-//                   )
-//                 );
-//               }}
-//             />
-//           ) : (
-//             <View
-//               style={styles.noImage}
-//             >
-//               <Ionicons
-//                 name="image-outline"
-//                 size={60}
-//                 color="#CCCCCC"
-//               />
-
-//               <Text
-//                 style={
-//                   styles.noImageText
-//                 }
-//               >
-//                 No product image
-//               </Text>
-//             </View>
-//           )}
-
-//           {categoryName ? (
-//             <View
-//               style={
-//                 styles.categoryBadge
-//               }
-//             >
-//               <Text
-//                 style={
-//                   styles.categoryText
-//                 }
-//               >
-//                 {categoryName}
-//               </Text>
-//             </View>
-//           ) : null}
-//         </View>
-
-//         {/* =================================================
-//             PRODUCT INFORMATION
-//         ================================================= */}
-
-//         <View
-//           style={styles.productCard}
-//         >
-//           <Text
-//             style={
-//               styles.productName
-//             }
-//           >
-//             {productName}
-//           </Text>
-
-//           {productDescription ? (
-//             <Text
-//               style={
-//                 styles.description
-//               }
-//             >
-//               {productDescription}
-//             </Text>
-//           ) : null}
-
-//           <View
-//             style={styles.divider}
-//           />
-
-//           <InfoRow
-//             label="Product Price"
-//             value={`₹${productPrice.toFixed(
-//               2
-//             )}`}
-//             valueStyle={
-//               styles.price
-//             }
-//           />
-
-//           <InfoRow
-//             label="Available Stock"
-//             value={String(
-//               productStock
-//             )}
-//           />
-
-//           <InfoRow
-//             label="Unit Number"
-//             value={
-//               unitNumber
-//                 ? String(
-//                     unitNumber
-//                   )
-//                 : "-"
-//             }
-//             last
-//           />
-//         </View>
-
-//         {/* =================================================
-//             QR CODE
-//         ================================================= */}
-
-//         <View
-//           style={styles.qrCard}
-//         >
-//           <View
-//             style={styles.qrIcon}
-//           >
-//             <Ionicons
-//               name="qr-code-outline"
-//               size={27}
-//               color="#9B4DFF"
-//             />
-//           </View>
-
-//           <View
-//             style={styles.qrContent}
-//           >
-//             <Text
-//               style={styles.qrLabel}
-//             >
-//               PRODUCT QR
-//             </Text>
-
-//             <Text
-//               style={styles.qrCode}
-//               numberOfLines={3}
-//             >
-//               {qrCode || "-"}
-//             </Text>
-//           </View>
-//         </View>
-
-//         {/* =================================================
-//             REWARD
-//         ================================================= */}
-
-//         <View
-//           style={styles.rewardCard}
-//         >
-//           <View
-//             style={styles.rewardIcon}
-//           >
-//             <Ionicons
-//               name="gift-outline"
-//               size={30}
-//               color="#9B4DFF"
-//             />
-//           </View>
-
-//           <View
-//             style={styles.rewardContent}
-//           >
-//             <Text
-//               style={
-//                 styles.rewardLabel
-//               }
-//             >
-//               YOUR WALLET REWARD
-//             </Text>
-
-//             <Text
-//               style={
-//                 styles.rewardAmount
-//               }
-//             >
-//               ₹
-//               {rewardAmount.toFixed(
-//                 2
-//               )}
-//             </Text>
-
-//             <Text
-//               style={
-//                 styles.rewardHint
-//               }
-//             >
-//               This amount will be
-//               credited to your
-//               VedAmrut wallet.
-//             </Text>
-//           </View>
-//         </View>
-
-//         {/* =================================================
-//             CLAIM STATUS
-//         ================================================= */}
-
-//         {isClaimed ? (
-//           <View
-//             style={
-//               styles.claimedCard
-//             }
-//           >
-//             <View
-//               style={
-//                 styles.claimedIcon
-//               }
-//             >
-//               <Ionicons
-//                 name="checkmark"
-//                 size={28}
-//                 color="#27AE60"
-//               />
-//             </View>
-
-//             <View
-//               style={
-//                 styles.claimedContent
-//               }
-//             >
-//               <Text
-//                 style={
-//                   styles.claimedTitle
-//                 }
-//               >
-//                 Already Claimed
-//               </Text>
-
-//               <Text
-//                 style={
-//                   styles.claimedText
-//                 }
-//               >
-//                 This product QR has
-//                 already been claimed.
-//               </Text>
-
-//               {qrData.claimed_at ? (
-//                 <Text
-//                   style={
-//                     styles.claimedDate
-//                   }
-//                 >
-//                   Claimed on{" "}
-//                   {new Date(
-//                     qrData.claimed_at
-//                   ).toLocaleDateString()}
-//                 </Text>
-//               ) : null}
-//             </View>
-//           </View>
-//         ) : (
-//           <>
-//             {/* =================================================
-//                 CLAIM BUTTON
-//             ================================================= */}
-
-//             <TouchableOpacity
-//               style={[
-//                 styles.claimButton,
-//                 claiming &&
-//                   styles.claimButtonDisabled,
-//               ]}
-//               onPress={
-//                 handleClaimReward
-//               }
-//               disabled={
-//                 claiming
-//               }
-//               activeOpacity={
-//                 0.85
-//               }
-//             >
-//               {claiming ? (
-//                 <>
-//                   <ActivityIndicator
-//                     size="small"
-//                     color="#FFFFFF"
-//                   />
-
-//                   <Text
-//                     style={
-//                       styles.claimButtonText
-//                     }
-//                   >
-//                     Claiming Reward...
-//                   </Text>
-//                 </>
-//               ) : (
-//                 <>
-//                   <Ionicons
-//                     name="wallet-outline"
-//                     size={22}
-//                     color="#FFFFFF"
-//                   />
-
-//                   <Text
-//                     style={
-//                       styles.claimButtonText
-//                     }
-//                   >
-//                     Claim ₹
-//                     {rewardAmount.toFixed(
-//                       2
-//                     )}{" "}
-//                     Reward
-//                   </Text>
-//                 </>
-//               )}
-//             </TouchableOpacity>
-
-//             <Text
-//               style={
-//                 styles.secureText
-//               }
-//             >
-//               Your reward will be
-//               securely credited to
-//               your wallet.
-//             </Text>
-//           </>
-//         )}
-
-//         {/* =================================================
-//             SCAN ANOTHER
-//         ================================================= */}
-
-//         <TouchableOpacity
-//           style={
-//             styles.scanAgainButton
-//           }
-//           onPress={() =>
-//             router.replace(
-//               "/scanner"
-//             )
-//           }
-//           activeOpacity={0.8}
-//         >
-//           <Ionicons
-//             name="qr-code-outline"
-//             size={20}
-//             color="#9B4DFF"
-//           />
-
-//           <Text
-//             style={
-//               styles.scanAgainText
-//             }
-//           >
-//             SCAN ANOTHER PRODUCT
-//           </Text>
-//         </TouchableOpacity>
-//       </ScrollView>
-//     </SafeAreaView>
-//   );
-// }
-
-// // =====================================================
-// // HEADER
-// // =====================================================
-
-// function Header() {
-//   return (
-//     <View style={styles.header}>
-//       <TouchableOpacity
-//         style={styles.backButton}
-//         onPress={() =>
-//           router.back()
-//         }
-//       >
-//         <Ionicons
-//           name="arrow-back"
-//           size={24}
-//           color="#FFFFFF"
-//         />
-//       </TouchableOpacity>
-
-//       <Text
-//         style={styles.headerTitle}
-//       >
-//         Product Details
-//       </Text>
-
-//       <View
-//         style={styles.headerRight}
-//       />
-//     </View>
-//   );
-// }
-
-// // =====================================================
-// // INFO ROW
-// // =====================================================
-
-// function InfoRow({
-//   label,
-//   value,
-//   valueStyle,
-//   last = false,
-// }: {
-//   label: string;
-//   value: string;
-//   valueStyle?: any;
-//   last?: boolean;
-// }) {
-//   return (
-//     <View
-//       style={[
-//         styles.infoRow,
-//         last &&
-//           styles.infoRowLast,
-//       ]}
-//     >
-//       <Text
-//         style={styles.infoLabel}
-//       >
-//         {label}
-//       </Text>
-
-//       <Text
-//         style={[
-//           styles.infoValue,
-//           valueStyle,
-//         ]}
-//       >
-//         {value}
-//       </Text>
-//     </View>
-//   );
-// }
-
-// // =====================================================
-// // STYLES
-// // =====================================================
-
-// const styles =
-//   StyleSheet.create({
-//     safeArea: {
-//       flex: 1,
-//       backgroundColor: "#F7F7F7",
-//     },
-
-//     header: {
-//       height: 60,
-//       backgroundColor: "#000000",
-//       flexDirection: "row",
-//       alignItems: "center",
-//       paddingHorizontal: 16,
-//     },
-
-//     backButton: {
-//       width: 40,
-//       height: 40,
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "flex-start",
-//     },
-
-//     headerTitle: {
-//       flex: 1,
-//       color: "#FFFFFF",
-//       fontSize: 20,
-//       fontWeight: "700",
-//       textAlign: "center",
-//     },
-
-//     headerRight: {
-//       width: 40,
-//     },
-
-//     scrollContent: {
-//       padding: 20,
-//       paddingBottom: 45,
-//     },
-
-//     center: {
-//       flex: 1,
-//       justifyContent:
-//         "center",
-//       alignItems: "center",
-//       padding: 25,
-//     },
-
-//     loadingText: {
-//       marginTop: 14,
-//       color: "#777777",
-//       fontSize: 14,
-//     },
-
-//     scannedBadge: {
-//       alignSelf: "center",
-//       flexDirection:
-//         "row",
-//       alignItems:
-//         "center",
-//       backgroundColor:
-//         "#E9F8EF",
-//       paddingHorizontal: 15,
-//       paddingVertical: 9,
-//       borderRadius: 22,
-//       marginBottom: 17,
-//     },
-
-//     scannedText: {
-//       marginLeft: 7,
-//       color: "#239B56",
-//       fontSize: 13,
-//       fontWeight: "600",
-//     },
-
-//     imageCard: {
-//       height: 270,
-//       backgroundColor:
-//         "#FFFFFF",
-//       borderRadius: 22,
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//       overflow: "hidden",
-//       elevation: 2,
-//       position:
-//         "relative",
-//     },
-
-//     productImage: {
-//       width: "88%",
-//       height: "88%",
-//     },
-
-//     noImage: {
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//     },
-
-//     noImageText: {
-//       marginTop: 8,
-//       color: "#AAAAAA",
-//       fontSize: 13,
-//     },
-
-//     categoryBadge: {
-//       position:
-//         "absolute",
-//       top: 14,
-//       right: 14,
-//       backgroundColor:
-//         "#EFE3FF",
-//       paddingHorizontal: 12,
-//       paddingVertical: 7,
-//       borderRadius: 16,
-//     },
-
-//     categoryText: {
-//       color: "#9B4DFF",
-//       fontSize: 11,
-//       fontWeight: "700",
-//     },
-
-//     productCard: {
-//       marginTop: 16,
-//       backgroundColor:
-//         "#FFFFFF",
-//       borderRadius: 20,
-//       padding: 20,
-//       elevation: 2,
-//     },
-
-//     productName: {
-//       color: "#171717",
-//       fontSize: 25,
-//       fontWeight: "800",
-//     },
-
-//     description: {
-//       marginTop: 9,
-//       color: "#777777",
-//       fontSize: 14,
-//       lineHeight: 21,
-//     },
-
-//     divider: {
-//       height: 1,
-//       backgroundColor:
-//         "#EEEEEE",
-//       marginVertical: 17,
-//     },
-
-//     infoRow: {
-//       flexDirection:
-//         "row",
-//       justifyContent:
-//         "space-between",
-//       alignItems:
-//         "center",
-//       marginBottom: 14,
-//     },
-
-//     infoRowLast: {
-//       marginBottom: 0,
-//     },
-
-//     infoLabel: {
-//       color: "#777777",
-//       fontSize: 14,
-//     },
-
-//     infoValue: {
-//       color: "#222222",
-//       fontSize: 15,
-//       fontWeight: "700",
-//     },
-
-//     price: {
-//       color: "#171717",
-//       fontSize: 19,
-//       fontWeight: "800",
-//     },
-
-//     qrCard: {
-//       marginTop: 16,
-//       backgroundColor:
-//         "#FFFFFF",
-//       borderRadius: 18,
-//       padding: 17,
-//       flexDirection:
-//         "row",
-//       alignItems:
-//         "center",
-//       elevation: 2,
-//     },
-
-//     qrIcon: {
-//       width: 52,
-//       height: 52,
-//       borderRadius: 26,
-//       backgroundColor:
-//         "#EFE3FF",
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//       marginRight: 14,
-//     },
-
-//     qrContent: {
-//       flex: 1,
-//     },
-
-//     qrLabel: {
-//       color: "#999999",
-//       fontSize: 10,
-//       fontWeight: "800",
-//       letterSpacing: 1,
-//     },
-
-//     qrCode: {
-//       marginTop: 5,
-//       color: "#333333",
-//       fontSize: 12,
-//       lineHeight: 17,
-//       fontWeight: "600",
-//     },
-
-//     rewardCard: {
-//       marginTop: 16,
-//       backgroundColor:
-//         "#EFE3FF",
-//       borderRadius: 20,
-//       padding: 20,
-//       flexDirection:
-//         "row",
-//       alignItems:
-//         "center",
-//     },
-
-//     rewardIcon: {
-//       width: 58,
-//       height: 58,
-//       borderRadius: 29,
-//       backgroundColor:
-//         "#FFFFFF",
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//       marginRight: 15,
-//     },
-
-//     rewardContent: {
-//       flex: 1,
-//     },
-
-//     rewardLabel: {
-//       color: "#777777",
-//       fontSize: 10,
-//       fontWeight: "800",
-//       letterSpacing: 1,
-//     },
-
-//     rewardAmount: {
-//       marginTop: 3,
-//       color: "#9B4DFF",
-//       fontSize: 30,
-//       fontWeight: "900",
-//     },
-
-//     rewardHint: {
-//       marginTop: 4,
-//       color: "#777777",
-//       fontSize: 12,
-//       lineHeight: 18,
-//     },
-
-//     claimedCard: {
-//       marginTop: 20,
-//       backgroundColor:
-//         "#E9F8EF",
-//       borderRadius: 18,
-//       padding: 18,
-//       flexDirection:
-//         "row",
-//       alignItems:
-//         "center",
-//     },
-
-//     claimedIcon: {
-//       width: 54,
-//       height: 54,
-//       borderRadius: 27,
-//       backgroundColor:
-//         "#FFFFFF",
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//       marginRight: 14,
-//     },
-
-//     claimedContent: {
-//       flex: 1,
-//     },
-
-//     claimedTitle: {
-//       color: "#239B56",
-//       fontSize: 17,
-//       fontWeight: "800",
-//     },
-
-//     claimedText: {
-//       marginTop: 4,
-//       color: "#555555",
-//       fontSize: 13,
-//       lineHeight: 19,
-//     },
-
-//     claimedDate: {
-//       marginTop: 5,
-//       color: "#777777",
-//       fontSize: 11,
-//     },
-
-//     claimButton: {
-//       marginTop: 24,
-//       height: 57,
-//       borderRadius: 29,
-//       backgroundColor:
-//         "#9B4DFF",
-//       flexDirection:
-//         "row",
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//       elevation: 3,
-//     },
-
-//     claimButtonDisabled: {
-//       opacity: 0.6,
-//     },
-
-//     claimButtonText: {
-//       marginLeft: 9,
-//       color: "#FFFFFF",
-//       fontSize: 16,
-//       fontWeight: "800",
-//     },
-
-//     secureText: {
-//       marginTop: 10,
-//       textAlign: "center",
-//       color: "#999999",
-//       fontSize: 12,
-//       lineHeight: 18,
-//     },
-
-//     scanAgainButton: {
-//       marginTop: 17,
-//       height: 54,
-//       borderRadius: 27,
-//       borderWidth: 1,
-//       borderColor:
-//         "#9B4DFF",
-//       flexDirection:
-//         "row",
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//     },
-
-//     scanAgainText: {
-//       marginLeft: 8,
-//       color: "#9B4DFF",
-//       fontSize: 14,
-//       fontWeight: "800",
-//     },
-
-//     errorIcon: {
-//       width: 80,
-//       height: 80,
-//       borderRadius: 40,
-//       backgroundColor:
-//         "#FDECEC",
-//       justifyContent:
-//         "center",
-//       alignItems:
-//         "center",
-//     },
-
-//     errorTitle: {
-//       marginTop: 15,
-//       color: "#222222",
-//       fontSize: 20,
-//       fontWeight: "800",
-//     },
-
-//     errorText: {
-//       marginTop: 7,
-//       color: "#777777",
-//       fontSize: 14,
-//       textAlign: "center",
-//       lineHeight: 20,
-//     },
-
-//     goBackButton: {
-//       marginTop: 22,
-//       backgroundColor:
-//         "#9B4DFF",
-//       paddingHorizontal: 32,
-//       paddingVertical: 13,
-//       borderRadius: 26,
-//     },
-
-//     goBackText: {
-//       color: "#FFFFFF",
-//       fontSize: 15,
-//       fontWeight: "700",
-//     },
-//   });
 import React, { useEffect, useMemo, useState } from "react";
 
 import {
@@ -3198,7 +1434,6 @@ function DetailRow({
 // =====================================================
 // STYLES
 // =====================================================
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -3209,7 +1444,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: "#FFFFFF",
     fontSize: 20,
-    fontWeight: "800",
+    fontFamily: "InterBold",
     textAlign: "center",
     marginRight: 40,
   },
@@ -3248,13 +1483,15 @@ const styles = StyleSheet.create({
     marginTop: 18,
     color: "#222222",
     fontSize: 19,
-    fontWeight: "800",
+    fontFamily: "InterBold",
+    textAlign: "center",
   },
 
   loadingText: {
     marginTop: 8,
     color: "#888888",
     fontSize: 13,
+    fontFamily: "InterRegular",
     textAlign: "center",
     lineHeight: 19,
   },
@@ -3288,6 +1525,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: "#999999",
     fontSize: 13,
+    fontFamily: "InterRegular",
   },
 
   categoryBadge: {
@@ -3306,7 +1544,7 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     color: "#9B4DFF",
     fontSize: 12,
-    fontWeight: "800",
+    fontFamily: "InterBold",
   },
 
   // ===================================================
@@ -3320,13 +1558,14 @@ const styles = StyleSheet.create({
   productName: {
     color: "#171717",
     fontSize: 26,
-    fontWeight: "900",
+    fontFamily: "InterBold",
   },
 
   productDescription: {
     marginTop: 7,
     color: "#777777",
     fontSize: 14,
+    fontFamily: "InterRegular",
     lineHeight: 21,
   },
 
@@ -3349,7 +1588,7 @@ const styles = StyleSheet.create({
   priceLabel: {
     color: "#999999",
     fontSize: 10,
-    fontWeight: "800",
+    fontFamily: "InterBold",
     letterSpacing: 1,
   },
 
@@ -3357,7 +1596,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     color: "#171717",
     fontSize: 28,
-    fontWeight: "900",
+    fontFamily: "InterBold",
   },
 
   unitBox: {
@@ -3371,14 +1610,14 @@ const styles = StyleSheet.create({
   unitLabel: {
     color: "#888888",
     fontSize: 9,
-    fontWeight: "800",
+    fontFamily: "InterBold",
   },
 
   unitValue: {
     marginTop: 2,
     color: "#9B4DFF",
     fontSize: 16,
-    fontWeight: "900",
+    fontFamily: "InterBold",
   },
 
   // ===================================================
@@ -3411,7 +1650,7 @@ const styles = StyleSheet.create({
   rewardLabel: {
     color: "#777777",
     fontSize: 10,
-    fontWeight: "800",
+    fontFamily: "InterBold",
     letterSpacing: 0.8,
   },
 
@@ -3419,7 +1658,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
     color: "#9B4DFF",
     fontSize: 24,
-    fontWeight: "900",
+    fontFamily: "InterBold",
   },
 
   // ===================================================
@@ -3438,7 +1677,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     color: "#222222",
     fontSize: 17,
-    fontWeight: "800",
+    fontFamily: "InterBold",
   },
 
   detailRow: {
@@ -3466,6 +1705,7 @@ const styles = StyleSheet.create({
   detailLabel: {
     color: "#777777",
     fontSize: 14,
+    fontFamily: "InterRegular",
   },
 
   detailValue: {
@@ -3473,13 +1713,13 @@ const styles = StyleSheet.create({
     textAlign: "right",
     color: "#222222",
     fontSize: 14,
-    fontWeight: "700",
+    fontFamily: "InterSemiBold",
   },
 
   rewardValue: {
     color: "#9B4DFF",
     fontSize: 16,
-    fontWeight: "800",
+    fontFamily: "InterBold",
   },
 
   divider: {
@@ -3519,13 +1759,14 @@ const styles = StyleSheet.create({
   statusTitle: {
     color: "#222222",
     fontSize: 15,
-    fontWeight: "800",
+    fontFamily: "InterBold",
   },
 
   statusText: {
     marginTop: 4,
     color: "#888888",
     fontSize: 12,
+    fontFamily: "InterRegular",
     lineHeight: 18,
   },
 
@@ -3552,7 +1793,7 @@ const styles = StyleSheet.create({
     marginLeft: 9,
     color: "#FFFFFF",
     fontSize: 15,
-    fontWeight: "900",
+    fontFamily: "InterBold",
   },
 
   // ===================================================
@@ -3579,7 +1820,7 @@ const styles = StyleSheet.create({
     marginLeft: 9,
     color: "#9B4DFF",
     fontSize: 14,
-    fontWeight: "900",
+    fontFamily: "InterBold",
   },
 
   skipRewardText: {
@@ -3588,6 +1829,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#999999",
     fontSize: 11,
+    fontFamily: "InterRegular",
     lineHeight: 16,
   },
 
@@ -3611,7 +1853,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     color: "#9B4DFF",
     fontSize: 14,
-    fontWeight: "800",
+    fontFamily: "InterBold",
   },
 
   // ===================================================
@@ -3635,7 +1877,7 @@ const styles = StyleSheet.create({
   qrInfoLabel: {
     color: "#999999",
     fontSize: 9,
-    fontWeight: "800",
+    fontFamily: "InterBold",
     letterSpacing: 1,
   },
 
@@ -3643,6 +1885,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     color: "#555555",
     fontSize: 11,
+    fontFamily: "InterRegular",
     lineHeight: 16,
   },
 
@@ -3651,5 +1894,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#AAAAAA",
     fontSize: 12,
+    fontFamily: "InterRegular",
   },
 });

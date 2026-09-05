@@ -65,7 +65,6 @@ export default function CountdownTimer({
 }
 
 const styles = StyleSheet.create({
-
   timerRow: {
     marginTop: 34,
     flexDirection: 'row',
@@ -75,13 +74,14 @@ const styles = StyleSheet.create({
 
   timerText: {
     fontSize: 15,
-    color: '#444',
+    fontFamily: 'InterRegular',
+    color: '#444444',
     marginRight: 8,
   },
 
   time: {
     fontSize: 15,
-    fontWeight: '700',
+    fontFamily: 'InterBold',
     color: '#1C9C57',
   },
 
@@ -89,8 +89,7 @@ const styles = StyleSheet.create({
     marginTop: 18,
     textAlign: 'center',
     color: '#1C9C57',
-    fontWeight: '700',
+    fontFamily: 'InterBold',
     fontSize: 15,
   },
-
 });

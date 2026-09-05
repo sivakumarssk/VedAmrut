@@ -79,59 +79,6 @@ export default function CategoryCard({
     </TouchableOpacity>
   );
 }
-
-// const styles = StyleSheet.create({
-
-//   container: {
-//     width: '23%',
-//     borderRadius: 14,
-//     paddingVertical: 10,
-//     paddingHorizontal: 5,
-//     alignItems: 'center',
-//   },
-
-//   imageContainer: {
-//     width: 65,
-//     height: 65,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-
-//   image: {
-//     width: 65,
-//     height: 65,
-//   },
-
-//   hiddenImage: {
-//     opacity: 0,
-//   },
-
-//   loader: {
-//     position: 'absolute',
-//   },
-
-//   imageError: {
-//     width: 65,
-//     height: 65,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   },
-
-//   imageErrorText: {
-//     fontSize: 9,
-//     color: '#999',
-//     textAlign: 'center',
-//   },
-
-//   title: {
-//     marginTop: 6,
-//     fontSize: 11,
-//     fontWeight: '600',
-//     color: '#222',
-//     textAlign: 'center',
-//   },
-// });
-
 const styles = StyleSheet.create({
   container: {
     width: '23%',
@@ -141,7 +88,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
 
-    // Box shadow
     shadowColor: '#000',
     shadowOpacity: 0.10,
     shadowRadius: 6,
@@ -150,9 +96,7 @@ const styles = StyleSheet.create({
       height: 3,
     },
 
-    // Android
     elevation: 4,
-
     marginBottom: 4,
   },
 
@@ -185,15 +129,16 @@ const styles = StyleSheet.create({
 
   imageErrorText: {
     fontSize: 9,
-    color: '#999',
+    fontFamily: 'InterRegular',
+    color: '#999999',
     textAlign: 'center',
   },
 
   title: {
     marginTop: 6,
     fontSize: 11,
-    fontWeight: '600',
-    color: '#222',
+    fontFamily: 'InterSemiBold',
+    color: '#222222',
     textAlign: 'center',
   },
 });

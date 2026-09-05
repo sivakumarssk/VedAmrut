@@ -219,23 +219,29 @@ const styles = StyleSheet.create({
     marginTop: 12,
     width: 40,
   },
+title: {
+  marginTop: 55,
+  textAlign: 'center',
+  fontSize: 32,
+  fontFamily: 'InterBold',
+  color: '#222',
+},
 
-  title: {
-    marginTop: 55,
-    textAlign: 'center',
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#222',
-  },
+subTitle: {
+  marginTop: 12,
+  textAlign: 'center',
+  fontSize: 14,
+  fontFamily: 'InterRegular',
+  color: '#6E6E6E',
+  lineHeight: 22,
+},
 
-  subTitle: {
-    marginTop: 12,
-    textAlign: 'center',
-    fontSize: 14,
-    color: '#6E6E6E',
-    lineHeight: 22,
-  },
-
+confirmText: {
+  fontSize: 17,
+  fontFamily: 'InterSemiBold',
+  color: '#FFFFFF',
+},
+ 
   confirmButton: {
     marginTop: 40,
     height: 56,
@@ -244,9 +250,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  confirmText: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
+
 });

@@ -41,6 +41,6 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontSize: 12,
     color: '#444',
-    fontWeight: '500',
+   fontFamily: 'InterMedium',
   },
 });

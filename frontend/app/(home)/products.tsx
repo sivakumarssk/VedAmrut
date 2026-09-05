@@ -404,7 +404,8 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 14,
-    color: '#888',
+    fontFamily: 'InterRegular',
+    color: '#777777',
   },
 
   emptyContainer: {
@@ -417,14 +418,15 @@ const styles = StyleSheet.create({
 
   emptyTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#222',
+    fontFamily: 'InterBold',
+    color: '#222222',
     marginBottom: 8,
   },
 
   emptyText: {
     fontSize: 14,
-    color: '#888',
+    fontFamily: 'InterRegular',
+    color: '#888888',
     textAlign: 'center',
     lineHeight: 21,
   },

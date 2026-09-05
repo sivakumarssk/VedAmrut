@@ -1396,376 +1396,507 @@ const handleDeliveryPress = () => {
 }
 
 // ============// STYLES// ============
-const styles =
-  StyleSheet.create({
-    safeArea: {
-      flex: 1,
-      backgroundColor: '#FFFFFF',
-    },
-    flex: {
-      flex: 1,
-    },
-    scrollContent: {
-      paddingBottom: 40,
-    },
-    topBar: {
-      flexDirection: 'row',
-      justifyContent:
-        'space-between',
-      paddingHorizontal: 20,
-      paddingTop: 8,
-    },
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
 
-    iconButton: {
-      width: 38,
-      height: 38,
-      borderRadius: 19,
-      borderWidth: 1,
-      borderColor: '#E5E5E5',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    productImage: {
-      width,
-      height: 260,
-    },
-    qrClaimBadge: {
-      marginHorizontal: 20,
-      marginTop: 8,
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: '#E9FBF0',
-      borderWidth: 1,
-      borderColor: '#B6EDCB',
-      borderRadius: 14,
-      paddingHorizontal: 14,
-      paddingVertical: 11,
-    },
-    qrClaimContent: {
-      marginLeft: 9,
-      flex: 1,
-    },
-    qrClaimTitle: {
-      fontSize: 14,
-      fontWeight: '700',
-      color: '#1C9C57',
-    },
-    qrClaimSubtitle: {
-      fontSize: 12,
-      color: '#555',
-      marginTop: 2,
-    },
-    body: {
-      paddingHorizontal: 20,
-      marginTop: 12,
-    },
-    selectedQuantityLabel: {
-      fontSize: 14,
-      color: '#666',
-    },
-    quantityBadge: {
-      alignSelf: 'flex-start',
-      backgroundColor: '#222',
-      borderRadius: 16,
-      paddingHorizontal: 16,
-      paddingVertical: 6,
-      marginTop: 8,
-    },
-    quantityBadgeText: {
-      color: '#FFFFFF',
-      fontWeight: '600',
-      fontSize: 13,
-    },
-    name: {
-      fontSize: 24,
-      fontWeight: '700',
-      color: '#222',
-      marginTop: 14,
-    },
-    priceRow: {
-      flexDirection: 'row',
-      alignItems: 'baseline',
-      marginTop: 8,
-    },
-    price: {
-      fontSize: 20,
-      fontWeight: '700',
-      color: '#1C9C57',
-      marginRight: 10,
-    },
-    oldPrice: {
-      fontSize: 15,
-      color: '#999',
-      textDecorationLine:
-        'line-through',
-    },
-    addToCartButton: {
-      marginTop: 20,
-      height: 54,
-      borderRadius: 27,
-      backgroundColor: '#1C9C57',
-      flexDirection: 'row',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    addToCartText: {
-      color: '#FFFFFF',
-      fontSize: 16,
-      fontWeight: '600',
-      marginLeft: 8,
-    },
-    buyNowButton: {
-      marginTop: 12,
-      height: 54,
-      borderRadius: 27,
-      borderWidth: 1.5,
-      borderColor: '#1C9C57',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    buyNowText: {
-      color: '#1C9C57',
-      fontSize: 16,
-      fontWeight: '600',
-    },
-    sectionHeading: {
-      fontSize: 17,
-      fontWeight: '700',
-      color: '#222',
-      marginTop: 26,
-      marginBottom: 12,
-    },
-    sectionHeaderRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginTop: 26,
-    },
-    deliveryRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    },
-    deliveryText: {
-      flex: 1,
-      fontSize: 13,
-      color: '#444',
-      marginRight: 8,
-    },
-    changeText: {
-      color: '#1C6FD9',
-      fontWeight: '600',
-      fontSize: 13,
-    },
-    addAddressButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderWidth: 1,
-      borderColor: '#1C6FD9',
-      borderRadius: 12,
-      paddingVertical: 12,
-      backgroundColor: '#E3F0FE',
-    },
-    addAddressText: {
-      marginLeft: 6,
-      color: '#1C6FD9',
-      fontWeight: '600',
-      fontSize: 14,
-    },
-    stockBadge: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      backgroundColor: '#E9FBF0',
-      borderColor: '#B6EDCB',
-      borderWidth: 1,
-      borderRadius: 12,
-      paddingVertical: 10,
-      paddingHorizontal: 14,
-      marginTop: 12,
-    },
-    stockText: {
-      marginLeft: 8,
-      color: '#1C9C57',
-      fontWeight: '600',
-      fontSize: 13,
-    },
-    description: {
-      fontSize: 14,
-      color: '#555',
-      lineHeight: 21,
-    },
-    reviewCard: {
-      width: 260,
-      backgroundColor: '#F5F5F5',
-      borderRadius: 16,
-      padding: 16,
-      marginRight: 12,
-    },
-    reviewHeaderRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    reviewRatingBadge: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    reviewRatingText: {
-      fontWeight: '700',
-      marginRight: 4,
-      color: '#222',
-    },
-    reviewDays: {
-      fontSize: 12,
-      color: '#888',
-    },
-    reviewTitle: {
-      fontWeight: '700',
-      fontSize: 15,
-      color: '#222',
-      marginTop: 8,
-    },
-    reviewComment: {
-      fontSize: 13,
-      color: '#555',
-      marginTop: 4,
-      lineHeight: 19,
-    },
-    reviewAuthor: {
-      fontSize: 12,
-      color: '#888',
-      marginTop: 10,
-    },
-    noReviewsText: {
-      fontSize: 13,
-      color: '#888',
-      marginTop: 4,
-    },
-    similarCard: {
-      width: 150,
-      backgroundColor: '#FFFFFF',
-      borderRadius: 18,
-      padding: 12,
-      marginRight: 14,
-      borderWidth: 1,
-      borderColor: '#F0F0F0',
-    },
-    similarImage: {
-      width: 80,
-      height: 80,
-      alignSelf: 'center',
-      marginVertical: 10,
-    },
-    similarName: {
-      fontSize: 13,
-      color: '#222',
-      lineHeight: 17,
-      minHeight: 34,
-    },
-    similarPrice: {
-      marginTop: 4,
-      fontSize: 15,
-      fontWeight: '700',
-      color: '#222',
-    },
-    loaderContainer: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
+  flex: {
+    flex: 1,
+  },
 
-    loadingText: {
-      marginTop: 10,
-      fontSize: 14,
-      color: '#777',
-    },
-    emptyContainer: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingHorizontal: 30,
-    },
-    emptyTitle: {
-      fontSize: 18,
-      fontWeight: '700',
-      color: '#222',
-      marginTop: 15,
-    },
-    emptyDescription: {
-      fontSize: 14,
-      color: '#777',
-      marginTop: 6,
-      marginBottom: 20,
-    },
-    backButton: {
-      backgroundColor: '#1C9C57',
-      paddingHorizontal: 30,
-      paddingVertical: 12,
-      borderRadius: 24,
-    },
-    backButtonText: {
-      color: '#FFFFFF',
-      fontWeight: '600',
-    },
-    modalOverlay: {
-      flex: 1,
-      backgroundColor:
-        'rgba(0,0,0,0.35)',
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingHorizontal: 24,
-    },
-    modalCard: {
-      width: '100%',
-      backgroundColor: '#FFFFFF',
-      borderRadius: 20,
-      padding: 22,
-    },
-    modalTitle: {
-      fontSize: 18,
-      fontWeight: '700',
-      color: '#222',
-      marginBottom: 16,
-      textAlign: 'center',
-    },
-    starsRow: {
-      flexDirection: 'row',
-      justifyContent: 'center',
-      marginBottom: 18,
-    },
-    starIcon: {
-      marginHorizontal: 4,
-    },
-    modalInput: {
-      height: 50,
-      borderWidth: 1,
-      borderColor: '#D9D9D9',
-      borderRadius: 12,
-      paddingHorizontal: 14,
-      fontSize: 14,
-      color: '#222',
-      marginBottom: 14,
-    },
-    modalTextArea: {
-      height: 90,
-      paddingTop: 12,
-      textAlignVertical: 'top',
-    },
-    modalSubmitButton: {
-      height: 52,
-      borderRadius: 26,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    modalSubmitText: {
-      color: '#FFFFFF',
-      fontSize: 16,
-      fontWeight: '600',
-    },
-    writeReviewText: {
-      color: '#1C9C57',
-      fontWeight: '700',
-      fontSize: 14,
-    },
-  });
+  scrollContent: {
+    paddingBottom: 40,
+  },
+
+  // ===================================================
+  // TOP BAR
+  // ===================================================
+
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 8,
+  },
+
+  iconButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  // ===================================================
+  // PRODUCT IMAGE
+  // ===================================================
+
+  productImage: {
+    width,
+    height: 260,
+  },
+
+  // ===================================================
+  // QR CLAIM
+  // ===================================================
+
+  qrClaimBadge: {
+    marginHorizontal: 20,
+    marginTop: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E9FBF0',
+    borderWidth: 1,
+    borderColor: '#B6EDCB',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 11,
+  },
+
+  qrClaimContent: {
+    marginLeft: 9,
+    flex: 1,
+  },
+
+  qrClaimTitle: {
+    fontSize: 14,
+    fontFamily: 'InterBold',
+    color: '#1C9C57',
+  },
+
+  qrClaimSubtitle: {
+    fontSize: 12,
+    fontFamily: 'InterRegular',
+    color: '#555555',
+    marginTop: 2,
+  },
+
+  // ===================================================
+  // BODY
+  // ===================================================
+
+  body: {
+    paddingHorizontal: 20,
+    marginTop: 12,
+  },
+
+  selectedQuantityLabel: {
+    fontSize: 14,
+    fontFamily: 'InterRegular',
+    color: '#666666',
+  },
+
+  quantityBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#222222',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    marginTop: 8,
+  },
+
+  quantityBadgeText: {
+    color: '#FFFFFF',
+    fontFamily: 'InterSemiBold',
+    fontSize: 13,
+  },
+
+  name: {
+    fontSize: 20,
+    fontFamily: 'InterBold',
+    color: '#222222',
+    marginTop: 14,
+    marginLeft:-10
+  },
+
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginTop: 8,
+  },
+
+  price: {
+    fontSize: 20,
+    fontFamily: 'InterBold',
+    color: '#1C9C57',
+    marginRight: 10,
+  },
+
+  oldPrice: {
+    fontSize: 15,
+    fontFamily: 'InterRegular',
+    color: '#999999',
+    textDecorationLine: 'line-through',
+  },
+
+  // ===================================================
+  // CART
+  // ===================================================
+
+  addToCartButton: {
+    marginTop: 20,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: '#1C9C57',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  addToCartText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'InterSemiBold',
+    marginLeft: 8,
+  },
+
+  // ===================================================
+  // BUY NOW
+  // ===================================================
+
+  buyNowButton: {
+    marginTop: 12,
+    height: 54,
+    borderRadius: 27,
+    borderWidth: 1.5,
+    borderColor: '#1C9C57',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  buyNowText: {
+    color: '#1C9C57',
+    fontSize: 16,
+    fontFamily: 'InterSemiBold',
+  },
+
+  // ===================================================
+  // SECTIONS
+  // ===================================================
+
+  sectionHeading: {
+    fontSize: 17,
+    fontFamily: 'InterBold',
+    color: '#222222',
+    marginTop: 26,
+    marginBottom: 12,
+  },
+
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 26,
+  },
+
+  // ===================================================
+  // DELIVERY
+  // ===================================================
+
+  deliveryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  deliveryText: {
+    flex: 1,
+    fontSize: 13,
+    fontFamily: 'InterRegular',
+    color: '#444444',
+    marginRight: 8,
+  },
+
+  changeText: {
+    color: '#1C6FD9',
+    fontFamily: 'InterSemiBold',
+    fontSize: 13,
+  },
+
+  addAddressButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#1C6FD9',
+    borderRadius: 12,
+    paddingVertical: 12,
+    backgroundColor: '#E3F0FE',
+  },
+
+  addAddressText: {
+    marginLeft: 6,
+    color: '#1C6FD9',
+    fontFamily: 'InterSemiBold',
+    fontSize: 14,
+  },
+
+  // ===================================================
+  // STOCK
+  // ===================================================
+
+  stockBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E9FBF0',
+    borderColor: '#B6EDCB',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginTop: 12,
+  },
+
+  stockText: {
+    marginLeft: 8,
+    color: '#1C9C57',
+    fontFamily: 'InterSemiBold',
+    fontSize: 13,
+  },
+
+  // ===================================================
+  // DESCRIPTION
+  // ===================================================
+
+  description: {
+    fontSize: 14,
+    fontFamily: 'InterRegular',
+    color: '#555555',
+    lineHeight: 21,
+  },
+
+  // ===================================================
+  // REVIEWS
+  // ===================================================
+
+  reviewCard: {
+    width: 260,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 16,
+    padding: 16,
+    marginRight: 12,
+  },
+
+  reviewHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  reviewRatingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  reviewRatingText: {
+    fontSize: 13,
+    fontFamily: 'InterBold',
+    marginRight: 4,
+    color: '#222222',
+  },
+
+  reviewDays: {
+    fontSize: 12,
+    fontFamily: 'InterRegular',
+    color: '#888888',
+  },
+
+  reviewTitle: {
+    fontFamily: 'InterBold',
+    fontSize: 15,
+    color: '#222222',
+    marginTop: 8,
+  },
+
+  reviewComment: {
+    fontSize: 13,
+    fontFamily: 'InterRegular',
+    color: '#555555',
+    marginTop: 4,
+    lineHeight: 19,
+  },
+
+  reviewAuthor: {
+    fontSize: 12,
+    fontFamily: 'InterRegular',
+    color: '#888888',
+    marginTop: 10,
+  },
+
+  noReviewsText: {
+    fontSize: 13,
+    fontFamily: 'InterRegular',
+    color: '#888888',
+    marginTop: 4,
+  },
+
+  writeReviewText: {
+    color: '#1C9C57',
+    fontFamily: 'InterBold',
+    fontSize: 14,
+  },
+
+  // ===================================================
+  // SIMILAR PRODUCTS
+  // ===================================================
+
+  similarCard: {
+    width: 150,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    padding: 12,
+    marginRight: 14,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+
+  similarImage: {
+    width: 80,
+    height: 80,
+    alignSelf: 'center',
+    marginVertical: 10,
+  },
+
+  similarName: {
+    fontSize: 13,
+    fontFamily: 'InterRegular',
+    color: '#222222',
+    lineHeight: 17,
+    minHeight: 34,
+  },
+
+  similarPrice: {
+    marginTop: 4,
+    fontSize: 15,
+    fontFamily: 'InterBold',
+    color: '#222222',
+  },
+
+  // ===================================================
+  // LOADING
+  // ===================================================
+
+  loaderContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  loadingText: {
+    marginTop: 10,
+    fontSize: 14,
+    fontFamily: 'InterRegular',
+    color: '#777777',
+  },
+
+  // ===================================================
+  // EMPTY
+  // ===================================================
+
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 30,
+  },
+
+  emptyTitle: {
+    fontSize: 18,
+    fontFamily: 'InterBold',
+    color: '#222222',
+    marginTop: 15,
+  },
+
+  emptyDescription: {
+    fontSize: 14,
+    fontFamily: 'InterRegular',
+    color: '#777777',
+    marginTop: 6,
+    marginBottom: 20,
+  },
+
+  backButton: {
+    backgroundColor: '#1C9C57',
+    paddingHorizontal: 30,
+    paddingVertical: 12,
+    borderRadius: 24,
+  },
+
+  backButtonText: {
+    color: '#FFFFFF',
+    fontFamily: 'InterSemiBold',
+    fontSize: 14,
+  },
+
+  // ===================================================
+  // REVIEW MODAL
+  // ===================================================
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+
+  modalCard: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 22,
+  },
+
+  modalTitle: {
+    fontSize: 18,
+    fontFamily: 'InterBold',
+    color: '#222222',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+
+  starsRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 18,
+  },
+
+  starIcon: {
+    marginHorizontal: 4,
+  },
+
+  modalInput: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#D9D9D9',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    fontSize: 14,
+    fontFamily: 'InterRegular',
+    color: '#222222',
+    marginBottom: 14,
+  },
+
+  modalTextArea: {
+    height: 90,
+    paddingTop: 12,
+    textAlignVertical: 'top',
+  },
+
+  modalSubmitButton: {
+    height: 52,
+    borderRadius: 26,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  modalSubmitText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: 'InterSemiBold',
+  },
+});

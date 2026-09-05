@@ -215,8 +215,8 @@ const styles = StyleSheet.create({
   title: {
     textAlign: 'center',
     fontSize: 22,
-    fontWeight: '700',
-    color: '#222',
+    fontFamily: 'InterBold',
+    color: '#222222',
     marginBottom: 25,
   },
 
@@ -227,13 +227,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 15,
     fontSize: 16,
-    color: '#222',
+    fontFamily: 'InterRegular',
+    color: '#222222',
   },
 
   errorText: {
     color: '#E53935',
     marginTop: 8,
     fontSize: 13,
+    fontFamily: 'InterRegular',
   },
 
   button: {
@@ -247,6 +249,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'InterBold',
   },
 });

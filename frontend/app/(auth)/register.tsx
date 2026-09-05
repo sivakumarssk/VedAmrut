@@ -1,36 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
-
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
+import { SafeAreaView, useSafeAreaInsets,} from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/useAuth';
-
 export default function RegisterScreen() {
   const { mobile } = useLocalSearchParams<{ mobile?: string }>();
   const { register } = useAuth();
   const insets = useSafeAreaInsets();
-
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState(mobile ?? '');
   const [address, setAddress] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -334,7 +317,7 @@ const styles = StyleSheet.create({
 
   scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingBottom: 20,
   },
 
   backButton: {
@@ -347,7 +330,7 @@ const styles = StyleSheet.create({
   title: {
     textAlign: 'center',
     fontSize: 28,
-    fontWeight: '700',
+    fontFamily: 'InterBold',
     color: '#222',
     marginTop: 8,
     marginBottom: 20,
@@ -361,7 +344,7 @@ const styles = StyleSheet.create({
 
   label: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: 'InterMedium',
     color: '#222',
     marginBottom: 8,
   },
@@ -373,6 +356,7 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     paddingHorizontal: 18,
     fontSize: 15,
+    fontFamily: 'InterRegular',
     color: '#222',
     marginBottom: 18,
     backgroundColor: '#FFFFFF',
@@ -402,6 +386,7 @@ const styles = StyleSheet.create({
 
   countryText: {
     fontSize: 14,
+    fontFamily: 'InterRegular',
     color: '#333',
     marginRight: 4,
   },
@@ -416,6 +401,7 @@ const styles = StyleSheet.create({
   phoneInput: {
     flex: 1,
     fontSize: 15,
+    fontFamily: 'InterRegular',
     color: '#222',
   },
 
@@ -434,12 +420,14 @@ const styles = StyleSheet.create({
   passwordInput: {
     flex: 1,
     fontSize: 15,
+    fontFamily: 'InterRegular',
     color: '#222',
   },
 
   errorText: {
     color: '#D32F2F',
     fontSize: 12,
+    fontFamily: 'InterRegular',
     marginTop: -10,
     marginBottom: 12,
     marginLeft: 4,
@@ -450,12 +438,12 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 20, // ✅ changed from 180
   },
 
   createButtonText: {
     color: '#FFFFFF',
     fontSize: 17,
-    fontWeight: '600',
+    fontFamily: 'InterSemiBold',
   },
 });

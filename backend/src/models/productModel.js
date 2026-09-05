@@ -52,21 +52,6 @@ VALUES
 // GET ALL PRODUCTS
 // ========================================
 
-// const getAllProducts = async () => {
-//   const result = await pool.query(
-//     `
-//     SELECT
-//       products.*,
-//       categories.name AS category_name
-//     FROM products
-//     LEFT JOIN categories
-//       ON products.category_id = categories.id
-//     ORDER BY products.id ASC
-//     `
-//   );
-
-//   return result.rows;
-// };
 const getAllProducts = async () => {
   const result = await pool.query(
     `
@@ -103,22 +88,7 @@ const getAllProducts = async () => {
 // GET PRODUCT BY ID
 // ========================================
 
-// const getProductById = async (id) => {
-//   const result = await pool.query(
-//     `
-//     SELECT
-//       products.*,
-//       categories.name AS category_name
-//     FROM products
-//     LEFT JOIN categories
-//       ON products.category_id = categories.id
-//     WHERE products.id = $1
-//     `,
-//     [id]
-//   );
 
-//   return result.rows[0];
-// };
 const getProductById = async (id) => {
   const result = await pool.query(
     `
@@ -220,26 +190,7 @@ const deleteProduct = async (id) => {
 // SEARCH PRODUCTS
 // ========================================
 
-// const searchProducts = async (query) => {
-//   const result = await pool.query(
-//     `
-//     SELECT
-//       products.*,
-//       categories.name AS category_name
-//     FROM products
-//     LEFT JOIN categories
-//       ON products.category_id = categories.id
-//     WHERE
-//       products.name ILIKE $1
-//       OR products.description ILIKE $1
-//       OR categories.name ILIKE $1
-//     ORDER BY products.id ASC
-//     `,
-//     [`%${query}%`]
-//   );
 
-//   return result.rows;
-// };
 const searchProducts = async (query) => {
   const result = await pool.query(
     `

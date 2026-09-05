@@ -148,37 +148,6 @@ export default function SavedAddressesScreen() {
     return navigationParams;
   };
 
-  // =====================================================
-  // RETURN TO PREVIOUS SCREEN
-  // =====================================================
-// const handleBack = () => {
-//   // If Saved Addresses was opened from Profile
-//   if (returnTo === 'profile') {
-//     router.replace('/(home)/profile');
-//     return;
-//   }
-
-//   // If opened from Checkout
-//   if (returnTo === 'checkout') {
-//     router.back();
-//     return;
-//   }
-
-//   // If opened from Cart
-//   if (returnTo === 'cart') {
-//     router.replace('/(home)/cart');
-//     return;
-//   }
-
-//   // If opened from Product Details
-//   if (returnTo === 'product-details') {
-//     router.back();
-//     return;
-//   }
-
-//   // Default
-//   router.back();
-// };
 
 // =====================================================
 // BACK BUTTON
@@ -550,12 +519,21 @@ const handleAddNew = () => {
                   </View>
                 </View>
 
-                <Text style={styles.addressLine}>
-                  {item.addressLine},{' '}
-                  {item.area},{' '}
-                  {item.city},{' '}
-                  {item.state} - {item.pincode}
-                </Text>
+               <Text style={styles.addressLine}>
+  {[
+    item.addressLine,
+    item.area,
+    item.city,
+    item.state,
+    item.pincode,
+  ]
+    .filter(
+      (value) =>
+        value &&
+        value.trim() !== ''
+    )
+    .join(', ')}
+</Text>
 
                 <View style={styles.phoneRow}>
                   <Ionicons
@@ -641,6 +619,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7F8FA',
   },
 
+  // ===================================================
+  // HEADER
+  // ===================================================
+
   header: {
     height: 56,
     flexDirection: 'row',
@@ -663,13 +645,17 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     fontSize: 19,
-    fontWeight: '600',
+    fontFamily: 'InterBold',
     color: '#222222',
   },
 
   headerRight: {
     width: 40,
   },
+
+  // ===================================================
+  // ADD NEW ADDRESS
+  // ===================================================
 
   addNewButton: {
     flexDirection: 'row',
@@ -691,18 +677,26 @@ const styles = StyleSheet.create({
   addNewText: {
     marginLeft: 8,
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'InterBold',
     color: '#1C6FD9',
   },
 
+  // ===================================================
+  // SECTION
+  // ===================================================
+
   sectionLabel: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontFamily: 'InterSemiBold',
+    color: '#333333',
     marginHorizontal: 20,
     marginTop: 24,
     marginBottom: 12,
   },
+
+  // ===================================================
+  // LIST
+  // ===================================================
 
   listContent: {
     paddingHorizontal: 20,
@@ -717,8 +711,13 @@ const styles = StyleSheet.create({
   emptyText: {
     marginTop: 12,
     fontSize: 15,
-    color: '#888',
+    fontFamily: 'InterRegular',
+    color: '#888888',
   },
+
+  // ===================================================
+  // ADDRESS CARD
+  // ===================================================
 
   addressCard: {
     flexDirection: 'row',
@@ -736,6 +735,10 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
   },
 
+  // ===================================================
+  // ADDRESS ICON
+  // ===================================================
+
   iconContainer: {
     width: 44,
     height: 44,
@@ -745,6 +748,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 14,
   },
+
+  // ===================================================
+  // ADDRESS DETAILS
+  // ===================================================
 
   addressInfo: {
     flex: 1,
@@ -758,8 +765,8 @@ const styles = StyleSheet.create({
 
   name: {
     fontSize: 17,
-    fontWeight: '700',
-    color: '#222',
+    fontFamily: 'InterBold',
+    color: '#222222',
   },
 
   labelBadge: {
@@ -772,16 +779,21 @@ const styles = StyleSheet.create({
 
   labelBadgeText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontFamily: 'InterSemiBold',
     color: '#1C9C57',
   },
 
   addressLine: {
     fontSize: 14,
-    color: '#555',
+    fontFamily: 'InterRegular',
+    color: '#555555',
     marginTop: 5,
     lineHeight: 20,
   },
+
+  // ===================================================
+  // PHONE
+  // ===================================================
 
   phoneRow: {
     flexDirection: 'row',
@@ -792,9 +804,13 @@ const styles = StyleSheet.create({
   phone: {
     marginLeft: 6,
     fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
+    fontFamily: 'InterSemiBold',
+    color: '#333333',
   },
+
+  // ===================================================
+  // ACTIONS
+  // ===================================================
 
   actionRow: {
     flexDirection: 'row',
@@ -814,7 +830,7 @@ const styles = StyleSheet.create({
   editButtonText: {
     marginLeft: 5,
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'InterSemiBold',
     color: '#1C6FD9',
   },
 
@@ -831,7 +847,7 @@ const styles = StyleSheet.create({
   deleteButtonText: {
     marginLeft: 5,
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'InterSemiBold',
     color: '#E53935',
   },
 });

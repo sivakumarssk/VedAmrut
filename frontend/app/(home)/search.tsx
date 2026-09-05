@@ -2,27 +2,10 @@
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
-
+import {ActivityIndicator, FlatList,Image, StyleSheet, Text, TextInput, TouchableOpacity,View,} from 'react-native';
+import {SafeAreaView,useSafeAreaInsets,} from 'react-native-safe-area-context';
 import { API_BASE_URL } from '@/constants/api';
-import {
-  getSearchHistory,
-  saveSearchHistory,
-} from '@/utils/storage';
+import { getSearchHistory, saveSearchHistory,} from '@/utils/storage';
 
 type Product = {
   id: number;
@@ -461,7 +444,8 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 8,
     fontSize: 15,
-    color: '#222',
+    fontFamily: 'InterRegular',
+    color: '#222222',
   },
 
   historySection: {
@@ -478,19 +462,20 @@ const styles = StyleSheet.create({
 
   historyHeading: {
     fontSize: 17,
-    fontWeight: '700',
-    color: '#222',
+    fontFamily: 'InterBold',
+    color: '#222222',
   },
 
   clearAllText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'InterSemiBold',
     color: '#E53935',
   },
 
   emptyHistoryText: {
     fontSize: 14,
-    color: '#888',
+    fontFamily: 'InterRegular',
+    color: '#888888',
     marginTop: 12,
   },
 
@@ -512,7 +497,8 @@ const styles = StyleSheet.create({
   historyText: {
     marginLeft: 12,
     fontSize: 15,
-    color: '#333',
+    fontFamily: 'InterRegular',
+    color: '#333333',
   },
 
   resultsContent: {
@@ -541,19 +527,20 @@ const styles = StyleSheet.create({
 
   resultName: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#222',
+    fontFamily: 'InterSemiBold',
+    color: '#222222',
   },
 
   categoryName: {
     fontSize: 12,
-    color: '#888',
+    fontFamily: 'InterRegular',
+    color: '#888888',
     marginTop: 3,
   },
 
   resultPrice: {
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: 'InterBold',
     color: '#1C9C57',
     marginTop: 4,
   },
@@ -566,6 +553,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 8,
     fontSize: 14,
-    color: '#777',
+    fontFamily: 'InterRegular',
+    color: '#777777',
   },
 });
