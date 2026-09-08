@@ -296,10 +296,11 @@ const styles = StyleSheet.create({
     flexGrow: 0,
   },
 
-  list: {
-    paddingLeft: 16,
-    paddingRight: 16,
-  },
+ list: {
+  paddingLeft: 16,
+  paddingRight: 16,
+  paddingBottom: 10,
+},
 
   cardContainer: {
     width: 150,

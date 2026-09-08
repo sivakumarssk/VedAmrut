@@ -14,17 +14,36 @@ export default function Header() {
   const { showLoginPopup } = useLoginPopup();
   const { selectedAddress } = useAddress();
 
-  const handleAddressPress = () => {
-    if (!isLoggedIn) {
-      showLoginPopup();
-      return;
-    }
-    if (!selectedAddress) {
-      router.push('/(home)/add-address');
-      return;
-    }
-    router.push('/(home)/saved-addresses');
-  };
+  // const handleAddressPress = () => {
+  //   if (!isLoggedIn) {
+  //     showLoginPopup();
+  //     return;
+  //   }
+  //   if (!selectedAddress) {
+  //     router.push('/(home)/add-address');
+  //     return;
+  //   }
+  //   router.push('/(home)/saved-addresses');
+  // };
+
+   const handleAddressPress = () => {
+  if (!isLoggedIn) {
+    showLoginPopup();
+    return;
+  }
+
+  if (!selectedAddress) {
+    router.push('/(home)/add-address');
+    return;
+  }
+
+  router.push({
+    pathname: '/(home)/saved-addresses',
+    params: {
+      returnTo: 'home',
+    },
+  });
+};
 
   return (
     <View style={styles.container}>

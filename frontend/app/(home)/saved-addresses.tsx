@@ -160,6 +160,11 @@ const handleBack = () => {
   console.log('MODE:', mode);
   console.log('================================');
 
+
+   if (returnTo === 'home') {
+    router.replace('/home');
+    return;
+  }
   // ============================================
   // FROM CHECKOUT
   // ============================================
