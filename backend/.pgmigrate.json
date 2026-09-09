@@ -1,0 +1,5 @@
+{
+  "database-url": "postgres://postgres@localhost:5432/vedamrut",
+  "dir": "migrations",
+  "migration-file-language": "sql"
+}

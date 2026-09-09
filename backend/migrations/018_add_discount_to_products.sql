@@ -1,0 +1,2 @@
+ALTER TABLE products
+ADD COLUMN discount NUMERIC(10,2);

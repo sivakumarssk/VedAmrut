@@ -1,0 +1,6 @@
+CREATE TABLE carts (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER,
+    created_at TIMESTAMP WITHOUT TIME ZONE,
+    updated_at TIMESTAMP WITHOUT TIME ZONE
+);

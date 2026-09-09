@@ -628,20 +628,6 @@ export default function GiftCardScreen() {
           );
 
         setClaimed(true);
-
-        // Alert.alert(
-        //   "🎁 Gift Added!",
-        //   `₹${reward.toFixed(
-        //     2
-        //   )} has been added to your wallet.`,
-        //   [
-        //     {
-        //       text: "OK",
-        //       onPress: () =>
-        //         router.back(),
-        //     },
-        //   ]
-        // );
       } catch (error: any) {
         console.error(
           "CLAIM REWARD ERROR:",
