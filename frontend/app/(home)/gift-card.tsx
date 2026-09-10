@@ -93,11 +93,24 @@ export default function GiftCardScreen() {
 
   useEffect(() => {
     loadGiftDetails();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [qrCode]);
 
   const loadGiftDetails =
     async () => {
       try {
+        // Reset all per-QR state up front so a new scan
+        // never renders the previous QR's result while
+        // this one is loading.
+        setLoading(true);
+        setProduct(null);
+        setGiftReward(0);
+        setClaimed(false);
+        setScratched(false);
+        setScratchPaths([]);
+        currentPathRef.current = null;
+        scratchedCellsRef.current = new Set();
+
         if (!qrCode) {
           Alert.alert(
             "Invalid QR",
