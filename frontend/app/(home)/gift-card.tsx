@@ -87,6 +87,8 @@ export default function GiftCardScreen() {
   const scratchedCellsRef =
     useRef<Set<string>>(new Set());
 
+    const claimMarkedRef = useRef(false);
+
   // =====================================================
   // LOAD GIFT DETAILS
   // =====================================================
@@ -110,6 +112,8 @@ export default function GiftCardScreen() {
         setScratchPaths([]);
         currentPathRef.current = null;
         scratchedCellsRef.current = new Set();
+        claimMarkedRef.current =
+  false;
 
         if (!qrCode) {
           Alert.alert(
@@ -317,6 +321,98 @@ export default function GiftCardScreen() {
     return path;
   };
 
+// =====================================================
+// MARK QR AS CLAIMED AFTER SCRATCHING
+// =====================================================
+
+const markQRAsClaimed =
+  async () => {
+    try {
+      if (!qrCode) {
+        return;
+      }
+
+      const token =
+        await getToken();
+
+      if (!token) {
+        console.log(
+          "User not logged in. QR cannot be marked claimed."
+        );
+
+        return;
+      }
+
+      console.log(
+        "MARKING QR AS CLAIMED:",
+        qrCode
+      );
+
+      const response =
+        await fetch(
+          `${API_BASE_URL}/api/product-qr/mark-claimed`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Authorization:
+                `Bearer ${token}`,
+            },
+
+            body: JSON.stringify({
+              qrCode,
+            }),
+          }
+        );
+
+      const result =
+        await response.json();
+
+      console.log(
+        "MARK CLAIMED RESPONSE:",
+        JSON.stringify(
+          result,
+          null,
+          2
+        )
+      );
+
+      if (
+        !response.ok ||
+        !result?.success
+      ) {
+        if (
+          result?.data?.reason ===
+          "ALREADY_CLAIMED"
+        ) {
+          setClaimed(true);
+          return;
+        }
+
+        throw new Error(
+          result?.message ||
+            "Failed to mark QR as claimed."
+        );
+      }
+
+      setClaimed(true);
+    } catch (error: any) {
+      console.error(
+        "MARK QR CLAIMED ERROR:",
+        error
+      );
+
+      Alert.alert(
+        "Unable to Claim QR",
+        error?.message ||
+          "Something went wrong."
+      );
+    }
+  };
+
   // =====================================================
   // CALCULATE SCRATCHED AREA
   // =====================================================
@@ -413,12 +509,18 @@ export default function GiftCardScreen() {
       "%"
     );
 
-    if (
-      scratchedPercentage >=
-      SCRATCH_REQUIRED_PERCENT
-    ) {
-      setScratched(true);
-    }
+ if (
+  scratchedPercentage >=
+    SCRATCH_REQUIRED_PERCENT &&
+  !claimMarkedRef.current
+) {
+  claimMarkedRef.current =
+    true;
+
+  setScratched(true);
+
+  markQRAsClaimed();
+}
   };
 
   // =====================================================

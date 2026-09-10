@@ -6,6 +6,7 @@ const {
   getQRCodesByProductId,
   getQRByCode,
   claimQRCodeAndReward,
+    markQRCodeClaimed,
   deleteQRCodesByProductId,
 } = require("../models/qrCodeModel");
 
@@ -274,6 +275,161 @@ const claimQRReward = async (req, res) => {
 };
 
 // =====================================================
+// MARK QR AS CLAIMED AFTER SCRATCHING
+// =====================================================
+
+const markQRClaimed = async (req, res) => {
+  try {
+    const qrCode =
+      String(
+        req.body?.qrCode || ""
+      ).trim();
+
+    const userId =
+      req.user?.id ||
+      req.user?.userId ||
+      req.user?.user_id;
+
+    console.log(
+      "================================"
+    );
+
+    console.log(
+      "MARK QR CLAIMED REQUEST"
+    );
+
+    console.log(
+      "REQ.USER:",
+      req.user
+    );
+
+    console.log(
+      "USER ID:",
+      userId
+    );
+
+    console.log(
+      "QR CODE:",
+      qrCode
+    );
+
+    console.log(
+      "================================"
+    );
+
+    // =================================================
+    // VALIDATE QR
+    // =================================================
+
+    if (!qrCode) {
+      return res.status(400).json({
+        success: false,
+        message: "QR code is required",
+      });
+    }
+
+    // =================================================
+    // VALIDATE USER
+    // =================================================
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message:
+          "User authentication required",
+      });
+    }
+
+    // =================================================
+    // MARK CLAIMED
+    // =================================================
+
+    const result =
+      await markQRCodeClaimed(
+        qrCode,
+        userId
+      );
+
+    // =================================================
+    // FAILED
+    // =================================================
+
+    if (!result.success) {
+      let message =
+        "Unable to mark QR as claimed.";
+
+      if (
+        result.reason ===
+        "ALREADY_CLAIMED"
+      ) {
+        message =
+          "This QR has already been claimed.";
+      }
+
+      if (
+        result.reason ===
+        "NOT_FOUND"
+      ) {
+        message =
+          "QR code not found.";
+      }
+
+      if (
+        result.reason ===
+        "INVALID_QR"
+      ) {
+        message =
+          "Invalid QR code.";
+      }
+
+      if (
+        result.reason ===
+        "USER_NOT_FOUND"
+      ) {
+        message =
+          "User not found.";
+      }
+
+      return res.status(400).json({
+        success: false,
+        message,
+        data: result,
+      });
+    }
+
+    // =================================================
+    // SUCCESS
+    // =================================================
+
+    console.log(
+      "QR MARKED AS CLAIMED SUCCESSFULLY"
+    );
+
+    return res.status(200).json({
+      success: true,
+
+      message:
+        "QR marked as claimed successfully.",
+
+      data: result,
+    });
+  } catch (error) {
+    console.error(
+      "MARK QR CLAIMED ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+
+      message:
+        error.message ||
+        "Failed to mark QR as claimed.",
+    });
+  }
+};
+
+// =====================================================
 // DELETE QR CODES
 // =====================================================
 
@@ -317,5 +473,6 @@ module.exports = {
   getProductQRCodes,
   getQRDetails,
   claimQRReward,
+   markQRClaimed,
   deleteProductQRCodes,
 };

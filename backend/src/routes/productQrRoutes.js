@@ -20,6 +20,7 @@ const {
   getProductQRCodes,
   getQRDetails,
   claimQRReward,
+   markQRClaimed,
   deleteProductQRCodes,
 } = require("../controllers/qrCodeController");
 
@@ -63,6 +64,19 @@ router.get(
   getQRDetails
 );
 
+// =====================================================
+// MARK QR AS CLAIMED AFTER SCRATCHING
+//
+// POST /api/product-qr/mark-claimed
+//
+// AUTHENTICATION REQUIRED
+// =====================================================
+
+router.post(
+  "/mark-claimed",
+  authMiddleware,
+  markQRClaimed
+);
 // =====================================================
 // CLAIM QR GIFT
 // POST /api/product-qr/claim
