@@ -1,18 +1,180 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+
+
 const {
   createAuthUser,
-  createRegistrationAddress,
   getUserByEmail,
   getUserByPhone,
 } = require("../models/authModel");
-
-
 // =====================================================
 // REGISTER USER
 // =====================================================
 
+// const register = async (req, res) => {
+//   try {
+//     const {
+//       name,
+//       email,
+//       phone,
+//       password,
+//       // address,
+//     } = req.body;
+
+//     console.log("=================================");
+//     console.log("REGISTER REQUEST");
+//     console.log("Name:", name);
+//     console.log("Email:", email);
+//     console.log("Phone:", phone);
+//     console.log("Address:", address);
+//     console.log("=================================");
+
+
+//     // =====================================================
+//     // BASIC VALIDATION
+//     // =====================================================
+
+//     if (
+//       !name ||
+//       !email ||
+//       !phone ||
+//       !password
+//     ) {
+//       return res.status(400).json({
+//         success: false,
+//         message:
+//           "Name, email, phone and password are required",
+//       });
+//     }
+
+//     // const finalAddress =
+//     //   typeof address === "string"
+//     //     ? address.trim()
+//     //     : "";
+
+//     // if (!finalAddress) {
+//     //   return res.status(400).json({
+//     //     success: false,
+//     //     message: "Address is required",
+//     //   });
+//     // }
+
+
+//     // =====================================================
+//     // CHECK EMAIL
+//     // =====================================================
+
+//     const existingUser =
+//       await getUserByEmail(email.trim());
+
+//     if (existingUser) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Email already exists",
+//       });
+//     }
+
+
+//     // =====================================================
+//     // CHECK PHONE
+//     // =====================================================
+
+//     const existingPhone =
+//       await getUserByPhone(phone.trim());
+
+//     if (existingPhone) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Mobile number already exists",
+//       });
+//     }
+
+
+//     // =====================================================
+//     // HASH PASSWORD
+//     // =====================================================
+
+//     const hashedPassword =
+//       await bcrypt.hash(password, 10);
+
+//     const user = await createAuthUser(
+//       name.trim(),
+//       email.trim(),
+//       phone.trim(),
+//       hashedPassword,
+//       // finalAddress
+//     );
+    
+
+
+//     // =====================================================
+//     // GENERATE JWT
+//     // =====================================================
+
+//     const token = jwt.sign(
+//       {
+//         id: user.id,
+//         email: user.email,
+//         phone: user.phone,
+//         role: user.role,
+//       },
+//       process.env.JWT_SECRET,
+//       {
+//         expiresIn: "7d",
+//       }
+//     );
+
+
+//     // =====================================================
+//     // REMOVE PASSWORD
+//     // =====================================================
+
+//     const {
+//       password: _password,
+//       ...userData
+//     } = user;
+
+
+//     // =====================================================
+//     // IMPORTANT:
+//     // RETURN ADDRESS INSIDE USER DATA
+//     // =====================================================
+
+//     userData.address = finalAddress;
+
+
+//     // =====================================================
+//     // RESPONSE
+//     // =====================================================
+
+//     return res.status(201).json({
+//       success: true,
+//       message: "Registration successful",
+
+//       token,
+
+//       data: userData,
+
+//     });
+
+//   } catch (error) {
+
+//     console.error(
+//       "Register error:",
+//       error
+//     );
+
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal Server Error",
+//       error:
+//         process.env.NODE_ENV === "development"
+//           ? error.message
+//           : undefined,
+//     });
+//   }
+// };
 const register = async (req, res) => {
   try {
     const {
@@ -20,7 +182,6 @@ const register = async (req, res) => {
       email,
       phone,
       password,
-      address,
     } = req.body;
 
     console.log("=================================");
@@ -28,14 +189,9 @@ const register = async (req, res) => {
     console.log("Name:", name);
     console.log("Email:", email);
     console.log("Phone:", phone);
-    console.log("Address:", address);
     console.log("=================================");
 
-
-    // =====================================================
     // BASIC VALIDATION
-    // =====================================================
-
     if (
       !name ||
       !email ||
@@ -49,23 +205,7 @@ const register = async (req, res) => {
       });
     }
 
-    const finalAddress =
-      typeof address === "string"
-        ? address.trim()
-        : "";
-
-    if (!finalAddress) {
-      return res.status(400).json({
-        success: false,
-        message: "Address is required",
-      });
-    }
-
-
-    // =====================================================
     // CHECK EMAIL
-    // =====================================================
-
     const existingUser =
       await getUserByEmail(email.trim());
 
@@ -76,11 +216,7 @@ const register = async (req, res) => {
       });
     }
 
-
-    // =====================================================
     // CHECK PHONE
-    // =====================================================
-
     const existingPhone =
       await getUserByPhone(phone.trim());
 
@@ -91,11 +227,7 @@ const register = async (req, res) => {
       });
     }
 
-
-    // =====================================================
     // HASH PASSWORD
-    // =====================================================
-
     const hashedPassword =
       await bcrypt.hash(password, 10);
 
@@ -103,22 +235,10 @@ const register = async (req, res) => {
       name.trim(),
       email.trim(),
       phone.trim(),
-      hashedPassword,
-      finalAddress
+      hashedPassword
     );
-    const userAddress =
-      await createRegistrationAddress(
-        user.id,
-        name.trim(),
-        phone.trim(),
-        finalAddress
-      );
 
-
-    // =====================================================
     // GENERATE JWT
-    // =====================================================
-
     const token = jwt.sign(
       {
         id: user.id,
@@ -132,46 +252,21 @@ const register = async (req, res) => {
       }
     );
 
-
-    // =====================================================
     // REMOVE PASSWORD
-    // =====================================================
-
     const {
       password: _password,
       ...userData
     } = user;
 
-
-    // =====================================================
-    // IMPORTANT:
-    // RETURN ADDRESS INSIDE USER DATA
-    // =====================================================
-
-    userData.address = finalAddress;
-
-
-    // =====================================================
-    // RESPONSE
-    // =====================================================
-
     return res.status(201).json({
       success: true,
       message: "Registration successful",
-
       token,
-
       data: userData,
-
-      address: userAddress,
     });
 
   } catch (error) {
-
-    console.error(
-      "Register error:",
-      error
-    );
+    console.error("Register error:", error);
 
     return res.status(500).json({
       success: false,
@@ -183,7 +278,6 @@ const register = async (req, res) => {
     });
   }
 };
-
 
 // =====================================================
 // LOGIN USER

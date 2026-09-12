@@ -51,48 +51,14 @@ export default function CartScreen() {
   // BACK NAVIGATION
   // =====================================================
 
-  const handleBack = () => {
-    console.log('================================');
-    console.log('CART BACK PRESSED');
-    console.log('FROM:', from);
-    console.log('================================');
+  
+const handleBack = () => {
+  console.log('CART BACK PRESSED');
 
-    /*
-      If Cart was opened from Cart Success:
+  
 
-      Product Details
-          ↓
-      Cart Success
-          ↓
-      Cart
-          ↓
-      Back
-          ↓
-      Cart Success
-    */
-
-    if (from === 'cart-success') {
-      router.replace({
-        pathname: '/(home)/cart-success',
-        params: {
-          productName: params.productName || '',
-        },
-      });
-
-      return;
-    }
-
-    /*
-      If there is a previous screen, go back.
-      Otherwise go safely to Home.
-    */
-
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/');
-    }
-  };
+  router.replace('/home');
+};
 
   // =====================================================
   // CHECKOUT
@@ -190,7 +156,7 @@ export default function CartScreen() {
 
         <TouchableOpacity
           style={styles.shopButton}
-          onPress={() => router.replace('/')}
+          onPress={() => router.replace('/home')}
         >
           <Text style={styles.shopButtonText}>
             Continue Shopping
@@ -509,6 +475,8 @@ const styles = StyleSheet.create({
   paddingHorizontal: 20,
   paddingTop: 20,
   paddingBottom: 10,
+  marginTop:30
+
 },
 
 backButton: {
@@ -562,55 +530,57 @@ clearTopText: {
   // CART CARD
   // ===================================================
 
-  card: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#EEEEEE',
+ card: {
+  width: '92%',
+  alignSelf: 'center',
+  flexDirection: 'row',
+  backgroundColor: '#FFFFFF',
+  borderRadius: 10,
+  padding: 15,
+  marginBottom: 8,
+  borderWidth: 1,
+  borderColor: '#EEEEEE',
 
-    elevation: 2,
+  elevation: 2,
 
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
+  shadowColor: '#000000',
+  shadowOffset: {
+    width: 0,
+    height: 1,
   },
+  shadowOpacity: 0.08,
+  shadowRadius: 3,
+},
 
   productImage: {
-    width: 90,
-    height: 90,
+    width: 70,
+    height: 70,
     borderRadius: 10,
     backgroundColor: '#F7F7F7',
   },
 
-  details: {
-    flex: 1,
-    marginLeft: 12,
-    paddingRight: 40,
-  },
+ details: {
+  flex: 1,
+  marginLeft: 10,
+  paddingRight: 35,
+},
 
   productName: {
-    fontSize: 16,
+    fontSize: 13,
     fontFamily: 'InterSemiBold',
     color: '#222222',
   },
 
   category: {
     marginTop: 4,
-    fontSize: 13,
+    fontSize: 11,
     fontFamily: 'InterRegular',
     color: '#777777',
   },
 
   price: {
     marginTop: 6,
-    fontSize: 16,
+    fontSize: 13,
     fontFamily: 'InterBold',
     color: '#1C9C57',
   },
@@ -626,8 +596,8 @@ clearTopText: {
   },
 
   quantityButton: {
-    width: 30,
-    height: 30,
+    width: 26,
+    height: 26,
     borderWidth: 1,
     borderColor: '#DDDDDD',
     borderRadius: 6,
@@ -637,14 +607,14 @@ clearTopText: {
   },
 
   quantityText: {
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: 'InterRegular',
     color: '#222222',
     lineHeight: 22,
   },
 
   quantity: {
-    width: 35,
+    width: 30,
     textAlign: 'center',
     fontSize: 15,
     fontFamily: 'InterSemiBold',
@@ -675,7 +645,7 @@ clearTopText: {
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 85,
+    bottom: 100,
 
     borderTopWidth: 1,
     borderTopColor: '#EEEEEE',
@@ -710,13 +680,15 @@ clearTopText: {
   // CHECKOUT
   // ===================================================
 
-  checkoutButton: {
-    backgroundColor: '#2E7D32',
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+ checkoutButton: {
+  width: '85%',
+  alignSelf: 'center',
+  backgroundColor: '#2E7D32',
+  paddingVertical: 10,
+  borderRadius: 10,
+  alignItems: 'center',
+  justifyContent: 'center',
+},
 
   checkoutText: {
     color: '#FFFFFF',

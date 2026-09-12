@@ -17,6 +17,8 @@ import {
   InputAdornment,
   CircularProgress,
   Paper,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
@@ -27,14 +29,19 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import PeopleIcon from "@mui/icons-material/People";
 import CloseIcon from "@mui/icons-material/Close";
-
+import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import { API_BASE_URL } from "../api";
 
-export default function Header() {
+// export default function Header() {
+export default function Header({ onMenuClick }) {
   const navigate = useNavigate();
+  const theme = useTheme();
+
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
 
   // =====================================================
   // NOTIFICATIONS
@@ -45,6 +52,7 @@ export default function Header() {
 
   const previousOrderCount = useRef(null);
   const previousUserCount = useRef(null);
+  
 
   // =====================================================
   // GLOBAL SEARCH
@@ -52,10 +60,8 @@ export default function Header() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-
   const [searchLoading, setSearchLoading] = useState(false);
-  const [showSearchResults, setShowSearchResults] =
-    useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
 
   // =====================================================
   // FETCH NOTIFICATIONS
@@ -71,7 +77,6 @@ export default function Header() {
         },
       };
 
-      // ORDERS
       const orderResponse = await axios.get(
         `${API_BASE_URL}/api/orders/admin`,
         config
@@ -79,7 +84,6 @@ export default function Header() {
 
       const orders = orderResponse.data?.data || [];
 
-      // USERS
       let users = [];
 
       try {
@@ -90,16 +94,12 @@ export default function Header() {
 
         users = userResponse.data?.data || [];
       } catch (userError) {
-        console.log(
-          "USER NOTIFICATION API ERROR:",
-          userError
-        );
+        console.log("USER NOTIFICATION API ERROR:", userError);
       }
 
       const orderCount = orders.length;
       const userCount = users.length;
 
-      // FIRST LOAD
       if (previousOrderCount.current === null) {
         previousOrderCount.current = orderCount;
       }
@@ -108,26 +108,15 @@ export default function Header() {
         previousUserCount.current = userCount;
       }
 
-      // NEW ORDERS
-      if (
-        orderCount >
-        previousOrderCount.current
-      ) {
-        const newOrders =
-          orderCount -
-          previousOrderCount.current;
+      if (orderCount > previousOrderCount.current) {
+        const newOrders = orderCount - previousOrderCount.current;
 
         setNotifications((previous) => [
           ...previous,
           {
-            id:
-              Date.now() +
-              Math.random(),
-
+            id: Date.now() + Math.random(),
             type: "order",
-
             title: "New Order",
-
             message: `${newOrders} new order${
               newOrders > 1 ? "s" : ""
             } placed`,
@@ -135,26 +124,15 @@ export default function Header() {
         ]);
       }
 
-      // NEW USERS
-      if (
-        userCount >
-        previousUserCount.current
-      ) {
-        const newUsers =
-          userCount -
-          previousUserCount.current;
+      if (userCount > previousUserCount.current) {
+        const newUsers = userCount - previousUserCount.current;
 
         setNotifications((previous) => [
           ...previous,
           {
-            id:
-              Date.now() +
-              Math.random(),
-
+            id: Date.now() + Math.random(),
             type: "user",
-
             title: "New User",
-
             message: `${newUsers} new user${
               newUsers > 1 ? "s" : ""
             } registered`,
@@ -162,16 +140,10 @@ export default function Header() {
         ]);
       }
 
-      previousOrderCount.current =
-        orderCount;
-
-      previousUserCount.current =
-        userCount;
+      previousOrderCount.current = orderCount;
+      previousUserCount.current = userCount;
     } catch (error) {
-      console.error(
-        "NOTIFICATION ERROR:",
-        error
-      );
+      console.error("NOTIFICATION ERROR:", error);
     }
   };
 
@@ -182,13 +154,9 @@ export default function Header() {
   useEffect(() => {
     fetchNotifications();
 
-    const interval = setInterval(
-      fetchNotifications,
-      30000
-    );
+    const interval = setInterval(fetchNotifications, 30000);
 
-    return () =>
-      clearInterval(interval);
+    return () => clearInterval(interval);
   }, []);
 
   // =====================================================
@@ -196,10 +164,8 @@ export default function Header() {
   // =====================================================
 
   useEffect(() => {
-    const query =
-      searchQuery.trim().toLowerCase();
+    const query = searchQuery.trim().toLowerCase();
 
-    // Empty search
     if (!query) {
       setSearchResults([]);
       setShowSearchResults(false);
@@ -212,8 +178,7 @@ export default function Header() {
 
     const searchData = async () => {
       try {
-        const token =
-          localStorage.getItem("adminToken");
+        const token = localStorage.getItem("adminToken");
 
         const config = {
           headers: {
@@ -221,75 +186,42 @@ export default function Header() {
           },
         };
 
-        // =================================================
-        // FETCH USERS
-        // =================================================
-
         let users = [];
-
-        try {
-          const userResponse =
-            await axios.get(
-              `${API_BASE_URL}/api/users`,
-              config
-            );
-
-          users =
-            userResponse.data?.data || [];
-        } catch (error) {
-          console.error(
-            "SEARCH USERS ERROR:",
-            error
-          );
-        }
-
-        // =================================================
-        // FETCH PRODUCTS
-        // =================================================
-
         let products = [];
-
-        try {
-          const productResponse =
-            await axios.get(
-              `${API_BASE_URL}/api/products`,
-              config
-            );
-
-          products =
-            productResponse.data?.data || [];
-        } catch (error) {
-          console.error(
-            "SEARCH PRODUCTS ERROR:",
-            error
-          );
-        }
-
-        // =================================================
-        // FETCH ORDERS
-        // =================================================
-
         let orders = [];
 
         try {
-          const orderResponse =
-            await axios.get(
-              `${API_BASE_URL}/api/orders/admin`,
-              config
-            );
-
-          orders =
-            orderResponse.data?.data || [];
-        } catch (error) {
-          console.error(
-            "SEARCH ORDERS ERROR:",
-            error
+          const userResponse = await axios.get(
+            `${API_BASE_URL}/api/users`,
+            config
           );
+
+          users = userResponse.data?.data || [];
+        } catch (error) {
+          console.error("SEARCH USERS ERROR:", error);
         }
 
-        // =================================================
-        // SEARCH USERS
-        // =================================================
+        try {
+          const productResponse = await axios.get(
+            `${API_BASE_URL}/api/products`,
+            config
+          );
+
+          products = productResponse.data?.data || [];
+        } catch (error) {
+          console.error("SEARCH PRODUCTS ERROR:", error);
+        }
+
+        try {
+          const orderResponse = await axios.get(
+            `${API_BASE_URL}/api/orders/admin`,
+            config
+          );
+
+          orders = orderResponse.data?.data || [];
+        } catch (error) {
+          console.error("SEARCH ORDERS ERROR:", error);
+        }
 
         const userResults = users
           .filter((user) => {
@@ -303,43 +235,27 @@ export default function Header() {
               user.phone,
               user.mobile,
             ]
-              .map((value) =>
-                String(
-                  value ?? ""
-                ).toLowerCase()
-              )
+              .map((value) => String(value ?? "").toLowerCase())
               .join(" ");
 
-            return searchableText.includes(
-              query
-            );
+            return searchableText.includes(query);
           })
           .slice(0, 5)
           .map((user) => ({
             type: "user",
-
-            id:
-              user.id ||
-              user.user_id,
-
+            id: user.id || user.user_id,
             title:
               user.full_name ||
               user.name ||
               user.username ||
               "User",
-
             subtitle:
               user.phone ||
               user.mobile ||
               user.email ||
               "User",
-
             original: user,
           }));
-
-        // =================================================
-        // SEARCH PRODUCTS
-        // =================================================
 
         const productResults = products
           .filter((product) => {
@@ -352,46 +268,28 @@ export default function Header() {
               product.category,
               product.category_name,
             ]
-              .map((value) =>
-                String(
-                  value ?? ""
-                ).toLowerCase()
-              )
+              .map((value) => String(value ?? "").toLowerCase())
               .join(" ");
 
-            return searchableText.includes(
-              query
-            );
+            return searchableText.includes(query);
           })
           .slice(0, 5)
           .map((product) => ({
             type: "product",
-
-            id:
-              product.id ||
-              product.product_id,
-
+            id: product.id || product.product_id,
             title:
               product.name ||
               product.product_name ||
               product.title ||
               "Product",
-
             subtitle:
               product.category_name ||
               product.category ||
               `Product #${
-                product.id ||
-                product.product_id ||
-                ""
+                product.id || product.product_id || ""
               }`,
-
             original: product,
           }));
-
-        // =================================================
-        // SEARCH ORDERS
-        // =================================================
 
         const orderResults = orders
           .filter((order) => {
@@ -408,98 +306,62 @@ export default function Header() {
               order.payment_method,
               order.total_amount,
             ]
-              .map((value) =>
-                String(
-                  value ?? ""
-                ).toLowerCase()
-              )
+              .map((value) => String(value ?? "").toLowerCase())
               .join(" ");
 
-            return searchableText.includes(
-              query
-            );
+            return searchableText.includes(query);
           })
           .slice(0, 5)
           .map((order) => ({
             type: "order",
-
-            id:
-              order.id ||
-              order.order_id,
-
+            id: order.id || order.order_id,
             title: `Order #${
-              order.id ||
-              order.order_id ||
-              ""
+              order.id || order.order_id || ""
             }`,
-
             subtitle:
               order.full_name ||
               order.name ||
               order.phone ||
               order.status ||
               "Order",
-
             original: order,
           }));
 
-        // =================================================
-        // COMBINE RESULTS
-        // =================================================
-
-        const allResults = [
+        setSearchResults([
           ...userResults,
           ...productResults,
           ...orderResults,
-        ];
-
-        setSearchResults(allResults);
+        ]);
       } catch (error) {
-        console.error(
-          "GLOBAL SEARCH ERROR:",
-          error
-        );
-
+        console.error("GLOBAL SEARCH ERROR:", error);
         setSearchResults([]);
       } finally {
         setSearchLoading(false);
       }
     };
 
-    // Small debounce
-    const timer = setTimeout(
-      searchData,
-      300
-    );
+    const timer = setTimeout(searchData, 300);
 
-    return () =>
-      clearTimeout(timer);
+    return () => clearTimeout(timer);
   }, [searchQuery]);
 
   // =====================================================
-  // OPEN SEARCH RESULT
+  // SEARCH RESULT CLICK
   // =====================================================
 
-  const handleSearchResultClick = (
-    result
-  ) => {
-    setSearchQuery("");
-    setSearchResults([]);
-    setShowSearchResults(false);
+  const handleSearchResultClick = (result) => {
+    clearSearch();
 
-    // USER
     if (result.type === "user") {
       navigate("/users");
       return;
     }
 
-    // PRODUCT
     if (result.type === "product") {
       navigate("/products");
       return;
     }
 
-    // ORDER
     if (result.type === "order") {
       navigate("/orders");
       return;
@@ -521,10 +383,7 @@ export default function Header() {
   // =====================================================
 
   const handleLogout = () => {
-    localStorage.removeItem(
-      "adminToken"
-    );
-
+    localStorage.removeItem("adminToken");
     navigate("/login");
   };
 
@@ -533,9 +392,7 @@ export default function Header() {
   // =====================================================
 
   const openNotifications = (event) => {
-    setAnchorEl(
-      event.currentTarget
-    );
+    setAnchorEl(event.currentTarget);
   };
 
   const closeNotifications = () => {
@@ -584,19 +441,9 @@ export default function Header() {
     );
   };
 
-  // =====================================================
-  // RESULT LABEL
-  // =====================================================
-
   const getSearchTypeLabel = (type) => {
-    if (type === "user") {
-      return "User";
-    }
-
-    if (type === "product") {
-      return "Product";
-    }
-
+    if (type === "user") return "User";
+    if (type === "product") return "Product";
     return "Order";
   };
 
@@ -605,53 +452,59 @@ export default function Header() {
   // =====================================================
 
   return (
-    <AppBar
-      position="fixed"
-      elevation={0}
-      sx={{
-        left: {
-          xs: 0,
-          md: "250px",
-        },
+   <AppBar
+  position="fixed"
+  elevation={0}
+  sx={{
+    left: {
+      xs: 0,
+      md: "250px",
+    },
+    width: {
+      xs: "100%",
+      md: "calc(100% - 250px)",
+    },
+    backgroundColor: "#ffffff",
+    color: "#111827",
+    borderBottom: "1px solid #e5e7eb",
+    zIndex: 1100,
+    fontFamily: "Inter",
 
-        width: {
-          xs: "100%",
-          md: "calc(100% - 250px)",
-        },
-
-        backgroundColor: "#ffffff",
-
-        color: "#111827",
-
-        borderBottom:
-          "1px solid #e5e7eb",
-
-        zIndex: 1100,
-      }}
-    >
-      <Toolbar
-        sx={{
-          minHeight:
-            "80px !important",
-
-          px: {
-            xs: 2,
-            md: 3.5,
-          },
-
-          gap: 2,
-        }}
-      >
-        {/* =================================================
-            LOGO
-        ================================================= */}
+    "& *": {
+      fontFamily: "Inter",
+    },
+  }}
+>
+ <Toolbar
+  sx={{
+    minHeight: {
+      xs: "64px !important",
+      sm: "80px !important",
+    },
+    px: {
+      xs: 1,
+      sm: 1.5,
+      md: 2,
+    },
+    gap: {
+      xs: 0.5,
+      sm: 0.75,
+      md: 1.5,
+    },
+    fontFamily: "Inter",
+  }}
+>
+        {/* LOGO */}
 
         <Box
           sx={{
-            display: "flex",
+            display: {
+              xs: "none",
+              sm: "flex",
+            },
             alignItems: "center",
             gap: 1.5,
-            flex: 1,
+            flexShrink: 0,
           }}
         >
           <Box
@@ -659,10 +512,8 @@ export default function Header() {
               width: 40,
               height: 40,
               borderRadius: "11px",
-
               background:
                 "linear-gradient(135deg, #00843d, #00a94f)",
-
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -671,21 +522,30 @@ export default function Header() {
             <Typography
               sx={{
                 color: "#fff",
-                fontWeight: 800,
+                fontWeight: 700,
                 fontSize: 20,
+                fontFamily: "Inter",
               }}
             >
               V
             </Typography>
           </Box>
 
-          <Box>
+          <Box
+            sx={{
+              display: {
+                xs: "none",
+                md: "block",
+              },
+            }}
+          >
             <Typography
               sx={{
                 fontSize: 20,
-                fontWeight: 800,
+                fontWeight: 700,
                 color: "#00843d",
                 lineHeight: 1.1,
+                fontFamily: "Inter",
               }}
             >
               Vedhamruth
@@ -695,44 +555,70 @@ export default function Header() {
               sx={{
                 fontSize: 11,
                 color: "#9ca3af",
+                fontFamily: "Inter",
               }}
             >
               Admin Panel
             </Typography>
           </Box>
         </Box>
+        {/* SIDEBAR MENU */}
 
-        {/* =================================================
-            GLOBAL SEARCH
-        ================================================= */}
+<IconButton
+  onClick={onMenuClick}
+  sx={{
+    display: {
+      xs: "flex",
+      md: "none",
+    },
+    color: "#111827",
+    flexShrink: 0,
+    p: 1,
+    mr: {
+      xs: 1,
+      sm: 1.5,
+    },
+  }}
+>
+  <MenuIcon
+    sx={{
+      fontSize: {
+        xs: 24,
+        sm: 26,
+      },
+    }}
+  />
+</IconButton>
+
+        {/* GLOBAL SEARCH */}
 
         <Box
           sx={{
             position: "relative",
-            width: {
-              xs: 180,
+            flex: 1,
+            maxWidth: {
+              xs: "100%",
               sm: 280,
               md: 360,
             },
+            minWidth: 0,
           }}
         >
           <TextField
             fullWidth
             size="small"
             value={searchQuery}
-            placeholder="Search users, products, orders..."
+            placeholder={
+              isMobile
+                ? "Search..."
+                : "Search users, products, orders..."
+            }
             onChange={(event) => {
-              setSearchQuery(
-                event.target.value
-              );
+              setSearchQuery(event.target.value);
             }}
             onFocus={() => {
-              if (
-                searchQuery.trim()
-              ) {
-                setShowSearchResults(
-                  true
-                );
+              if (searchQuery.trim()) {
+                setShowSearchResults(true);
               }
             }}
             InputProps={{
@@ -740,367 +626,306 @@ export default function Header() {
                 <InputAdornment position="start">
                   <SearchIcon
                     sx={{
-                      color:
-                        "#9ca3af",
+                      color: "#9ca3af",
+                      fontSize: {
+                        xs: 20,
+                        sm: 22,
+                      },
                     }}
                   />
                 </InputAdornment>
               ),
 
-              endAdornment:
-                searchQuery ? (
-                  <InputAdornment position="end">
-                    {searchLoading ? (
-                      <CircularProgress
-                        size={18}
-                      />
-                    ) : (
-                      <IconButton
-                        size="small"
-                        onClick={
-                          clearSearch
-                        }
-                      >
-                        <CloseIcon
-                          sx={{
-                            fontSize: 18,
-                          }}
-                        />
-                      </IconButton>
-                    )}
-                  </InputAdornment>
-                ) : null,
+              endAdornment: searchQuery ? (
+                <InputAdornment position="end">
+                  {searchLoading ? (
+                    <CircularProgress size={18} />
+                  ) : (
+                    <IconButton
+                      size="small"
+                      onClick={clearSearch}
+                    >
+                      <CloseIcon sx={{ fontSize: 18 }} />
+                    </IconButton>
+                  )}
+                </InputAdornment>
+              ) : null,
             }}
             sx={{
-              "& .MuiOutlinedInput-root":
-                {
-                  height: 44,
-                  borderRadius:
-                    "10px",
-                  backgroundColor:
-                    "#fff",
+              "& .MuiOutlinedInput-root": {
+                height: {
+                  xs: 40,
+                  sm: 44,
+                },
+                borderRadius: "10px",
+                backgroundColor: "#fff",
 
-                  "& fieldset": {
-                    borderColor:
-                      "#d1d5db",
-                  },
-
-                  "&:hover fieldset":
-                    {
-                      borderColor:
-                        "#00843d",
-                    },
-
-                  "&.Mui-focused fieldset":
-                    {
-                      borderColor:
-                        "#00843d",
-                    },
+                "& fieldset": {
+                  borderColor: "#d1d5db",
                 },
 
+                "&:hover fieldset": {
+                  borderColor: "#00843d",
+                },
+
+                "&.Mui-focused fieldset": {
+                  borderColor: "#00843d",
+                },
+              },
+
               "& input": {
-                fontSize: 13,
+                fontSize: {
+                  xs: 12,
+                  sm: 13,
+                },
+                fontFamily: "Inter",
               },
             }}
           />
 
-          {/* =================================================
-              SEARCH RESULTS DROPDOWN
-          ================================================= */}
+          {/* SEARCH RESULTS */}
 
-          {showSearchResults &&
-            searchQuery.trim() && (
-              <Paper
-                elevation={8}
-                sx={{
-                  position:
-                    "absolute",
+          {showSearchResults && searchQuery.trim() && (
+            <Paper
+              elevation={8}
+              sx={{
+                position: "absolute",
+                top: 50,
+                left: {
+                  xs: -8,
+                  sm: 0,
+                },
+                right: {
+                  xs: -8,
+                  sm: 0,
+                },
+                zIndex: 2000,
+                borderRadius: "12px",
+                overflow: "hidden",
+                maxHeight: {
+                  xs: 350,
+                  sm: 420,
+                },
+                overflowY: "auto",
+              }}
+            >
+              {searchLoading ? (
+                <Box
+                  sx={{
+                    py: 3,
+                    textAlign: "center",
+                  }}
+                >
+                  <CircularProgress
+                    size={25}
+                    sx={{ color: "#00843d" }}
+                  />
 
-                  top: 50,
-
-                  left: 0,
-
-                  right: 0,
-
-                  zIndex: 2000,
-
-                  borderRadius:
-                    "12px",
-
-                  overflow:
-                    "hidden",
-
-                  maxHeight: 420,
-
-                  overflowY:
-                    "auto",
-                }}
-              >
-                {searchLoading ? (
-                  <Box
+                 <Typography
+  sx={{
+    mt: 1,
+    fontSize: 13,
+    fontWeight: 400,
+    color: "#6b7280",
+    fontFamily: "Inter",
+  }}
+>
+  Searching...
+</Typography>
+                </Box>
+              ) : searchResults.length === 0 ? (
+                <Box
+                  sx={{
+                    py: 3,
+                    px: 2,
+                    textAlign: "center",
+                  }}
+                >
+                  <SearchIcon
                     sx={{
-                      py: 3,
-                      textAlign:
-                        "center",
+                      fontSize: 35,
+                      color: "#d1d5db",
                     }}
-                  >
-                    <CircularProgress
-                      size={25}
-                      sx={{
-                        color:
-                          "#00843d",
-                      }}
-                    />
+                  />
 
-                    <Typography
-                      sx={{
-                        mt: 1,
-                        fontSize: 13,
-                        color:
-                          "#6b7280",
-                      }}
-                    >
-                      Searching...
-                    </Typography>
-                  </Box>
-                ) : searchResults.length ===
-                  0 ? (
+                 <Typography
+  sx={{
+    mt: 1,
+    fontSize: 13,
+    fontWeight: 400,
+    color: "#6b7280",
+    fontFamily: "Inter",
+  }}
+>
+  No users, products or orders found
+</Typography>
+                </Box>
+              ) : (
+                <Box>
                   <Box
                     sx={{
-                      py: 3,
                       px: 2,
-                      textAlign:
-                        "center",
+                      py: 1,
+                      backgroundColor: "#f9fafb",
+                      borderBottom: "1px solid #eeeeee",
                     }}
                   >
-                    <SearchIcon
-                      sx={{
-                        fontSize: 35,
-                        color:
-                          "#d1d5db",
-                      }}
-                    />
-
                     <Typography
-                      sx={{
-                        mt: 1,
-                        fontSize: 13,
-                        color:
-                          "#6b7280",
-                      }}
-                    >
-                      No users, products
-                      or orders found
-                    </Typography>
+  sx={{
+    fontSize: 12,
+    fontWeight: 700,
+    color: "#6b7280",
+    fontFamily: "Inter",
+  }}
+>
+  SEARCH RESULTS
+</Typography>
                   </Box>
-                ) : (
-                  <Box>
+
+                  {searchResults.map((result) => (
                     <Box
+                      key={`${result.type}-${result.id}`}
+                      onClick={() =>
+                        handleSearchResultClick(result)
+                      }
                       sx={{
                         px: 2,
-                        py: 1,
-                        backgroundColor:
-                          "#f9fafb",
-                        borderBottom:
-                          "1px solid #eeeeee",
+                        py: 1.5,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1.5,
+                        cursor: "pointer",
+                        borderBottom: "1px solid #f1f1f1",
+                        "&:hover": {
+                          backgroundColor: "#f5faf7",
+                        },
                       }}
                     >
-                      <Typography
+                      <Box
                         sx={{
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color:
-                            "#6b7280",
+                          width: 38,
+                          height: 38,
+                          borderRadius: "10px",
+                          backgroundColor:
+                            result.type === "user"
+                              ? "#eff6ff"
+                              : result.type === "product"
+                              ? "#f3e8ff"
+                              : "#e8f7ee",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
                         }}
                       >
-                        SEARCH RESULTS
+                        {getSearchIcon(result.type)}
+                      </Box>
+
+                      <Box
+                        sx={{
+                          flex: 1,
+                          minWidth: 0,
+                        }}
+                      >
+                      <Typography
+  sx={{
+    fontSize: 14,
+    fontWeight: 700,
+    fontFamily: "Inter",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  }}
+>
+  {result.title}
+</Typography>
+
+                       <Typography
+  sx={{
+    fontSize: 12,
+    fontWeight: 400,
+    color: "#6b7280",
+    fontFamily: "Inter",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  }}
+>
+  {result.subtitle}
+</Typography>
+                      </Box>
+
+                      <Typography
+                        sx={{
+                          display: {
+                            xs: "none",
+                            sm: "block",
+                          },
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color:
+                            result.type === "user"
+                              ? "#2563eb"
+                              : result.type === "product"
+                              ? "#7c3aed"
+                              : "#00843d",
+                        }}
+                      >
+                        {getSearchTypeLabel(result.type)}
                       </Typography>
                     </Box>
-
-                    {searchResults.map(
-                      (result) => (
-                        <Box
-                          key={`${result.type}-${result.id}`}
-                          onClick={() =>
-                            handleSearchResultClick(
-                              result
-                            )
-                          }
-                          sx={{
-                            px: 2,
-                            py: 1.5,
-
-                            display:
-                              "flex",
-
-                            alignItems:
-                              "center",
-
-                            gap: 1.5,
-
-                            cursor:
-                              "pointer",
-
-                            borderBottom:
-                              "1px solid #f1f1f1",
-
-                            "&:hover": {
-                              backgroundColor:
-                                "#f5faf7",
-                            },
-                          }}
-                        >
-                          {/* ICON */}
-
-                          <Box
-                            sx={{
-                              width: 38,
-                              height: 38,
-                              borderRadius:
-                                "10px",
-
-                              backgroundColor:
-                                result.type ===
-                                "user"
-                                  ? "#eff6ff"
-                                  : result.type ===
-                                    "product"
-                                  ? "#f3e8ff"
-                                  : "#e8f7ee",
-
-                              display:
-                                "flex",
-
-                              alignItems:
-                                "center",
-
-                              justifyContent:
-                                "center",
-                            }}
-                          >
-                            {getSearchIcon(
-                              result.type
-                            )}
-                          </Box>
-
-                          {/* TEXT */}
-
-                          <Box
-                            sx={{
-                              flex: 1,
-                              minWidth: 0,
-                            }}
-                          >
-                            <Typography
-                              sx={{
-                                fontSize: 14,
-                                fontWeight: 700,
-
-                                overflow:
-                                  "hidden",
-
-                                textOverflow:
-                                  "ellipsis",
-
-                                whiteSpace:
-                                  "nowrap",
-                              }}
-                            >
-                              {
-                                result.title
-                              }
-                            </Typography>
-
-                            <Typography
-                              sx={{
-                                fontSize: 12,
-                                color:
-                                  "#6b7280",
-
-                                overflow:
-                                  "hidden",
-
-                                textOverflow:
-                                  "ellipsis",
-
-                                whiteSpace:
-                                  "nowrap",
-                              }}
-                            >
-                              {
-                                result.subtitle
-                              }
-                            </Typography>
-                          </Box>
-
-                          {/* TYPE */}
-
-                          <Typography
-                            sx={{
-                              fontSize: 11,
-                              fontWeight: 700,
-                              color:
-                                result.type ===
-                                "user"
-                                  ? "#2563eb"
-                                  : result.type ===
-                                    "product"
-                                  ? "#7c3aed"
-                                  : "#00843d",
-                            }}
-                          >
-                            {getSearchTypeLabel(
-                              result.type
-                            )}
-                          </Typography>
-                        </Box>
-                      )
-                    )}
-                  </Box>
-                )}
-              </Paper>
-            )}
+                  ))}
+                </Box>
+              )}
+            </Paper>
+          )}
         </Box>
 
-        {/* =================================================
-            NOTIFICATIONS
-        ================================================= */}
+        {/* NOTIFICATIONS */}
 
         <IconButton
-          onClick={
-            openNotifications
-          }
+          onClick={openNotifications}
           sx={{
             color: "#4b5563",
+            flexShrink: 0,
+            p: {
+              xs: 0.7,
+              sm: 1,
+            },
           }}
         >
           <Badge
-            badgeContent={
-              notifications.length
-            }
+            badgeContent={notifications.length}
             color="error"
           >
-            <NotificationsNoneIcon />
+            <NotificationsNoneIcon
+              sx={{
+                fontSize: {
+                  xs: 21,
+                  sm: 24,
+                },
+              }}
+            />
           </Badge>
         </IconButton>
 
-        {/* =================================================
-            NOTIFICATION MENU
-        ================================================= */}
+        {/* NOTIFICATION MENU */}
 
         <Menu
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
-          onClose={
-            closeNotifications
-          }
+          onClose={closeNotifications}
           PaperProps={{
             sx: {
-              width: 340,
+              width: {
+                xs: "calc(100vw - 24px)",
+                sm: 340,
+              },
+              maxWidth: "340px",
               mt: 1,
               borderRadius: "12px",
-              boxShadow:
-                "0 10px 30px rgba(0,0,0,0.12)",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
+              fontFamily: "Inter",
             },
           }}
         >
@@ -1108,12 +933,8 @@ export default function Header() {
             sx={{
               px: 2,
               py: 1.5,
-
               display: "flex",
-
-              justifyContent:
-                "space-between",
-
+              justifyContent: "space-between",
               alignItems: "center",
             }}
           >
@@ -1121,16 +942,14 @@ export default function Header() {
               Notifications
             </Typography>
 
-            {notifications.length >
-              0 && (
+            {notifications.length > 0 && (
               <Button
                 size="small"
-                onClick={
-                  clearNotifications
-                }
+                onClick={clearNotifications}
                 sx={{
-                  textTransform:
-                    "none",
+                  textTransform: "none",
+                  fontFamily: "Inter",
+                  fontWeight: 600,
                 }}
               >
                 Clear
@@ -1140,8 +959,7 @@ export default function Header() {
 
           <Divider />
 
-          {notifications.length ===
-          0 ? (
+          {notifications.length === 0 ? (
             <Box
               sx={{
                 px: 2,
@@ -1170,128 +988,122 @@ export default function Header() {
             notifications
               .slice()
               .reverse()
-              .map(
-                (notification) => (
-                  <MenuItem
-                    key={
-                      notification.id
-                    }
+              .map((notification) => (
+                <MenuItem
+                  key={notification.id}
+                  sx={{
+                    py: 1.5,
+                    whiteSpace: "normal",
+                  }}
+                >
+                  <Box
                     sx={{
-                      py: 1.5,
-                      whiteSpace:
-                        "normal",
+                      display: "flex",
+                      gap: 1.5,
                     }}
                   >
                     <Box
                       sx={{
-                        display:
-                          "flex",
-                        gap: 1.5,
+                        width: 36,
+                        height: 36,
+                        borderRadius: "50%",
+                        backgroundColor:
+                          notification.type === "order"
+                            ? "#e8f7ee"
+                            : "#eff6ff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
                       }}
                     >
-                      <Box
-                        sx={{
-                          width: 36,
-                          height: 36,
-                          borderRadius:
-                            "50%",
-
-                          backgroundColor:
-                            notification.type ===
-                            "order"
-                              ? "#e8f7ee"
-                              : "#eff6ff",
-
-                          display:
-                            "flex",
-
-                          alignItems:
-                            "center",
-
-                          justifyContent:
-                            "center",
-                        }}
-                      >
-                        {notification.type ===
-                        "order" ? (
-                          <ShoppingCartIcon
-                            sx={{
-                              fontSize: 19,
-                              color:
-                                "#00843d",
-                            }}
-                          />
-                        ) : (
-                          <PersonAddIcon
-                            sx={{
-                              fontSize: 19,
-                              color:
-                                "#2563eb",
-                            }}
-                          />
-                        )}
-                      </Box>
-
-                      <Box>
-                        <Typography
-                          fontSize={14}
-                          fontWeight={700}
-                        >
-                          {
-                            notification.title
-                          }
-                        </Typography>
-
-                        <Typography
-                          fontSize={12}
-                          color="text.secondary"
-                        >
-                          {
-                            notification.message
-                          }
-                        </Typography>
-                      </Box>
+                      {notification.type === "order" ? (
+                        <ShoppingCartIcon
+                          sx={{
+                            fontSize: 19,
+                            color: "#00843d",
+                          }}
+                        />
+                      ) : (
+                        <PersonAddIcon
+                          sx={{
+                            fontSize: 19,
+                            color: "#2563eb",
+                          }}
+                        />
+                      )}
                     </Box>
-                  </MenuItem>
-                )
-              )
+
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography
+                        fontSize={14}
+                        fontWeight={700}
+                      >
+                        {notification.title}
+                      </Typography>
+
+                      <Typography
+                        fontSize={12}
+                        color="text.secondary"
+                      >
+                        {notification.message}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </MenuItem>
+              ))
           )}
         </Menu>
 
-        {/* =================================================
-            LOGOUT
-        ================================================= */}
+        {/* LOGOUT */}
 
         <Button
           variant="contained"
-          startIcon={
-            <LogoutIcon />
-          }
-          onClick={
-            handleLogout
-          }
+          startIcon={<LogoutIcon />}
+          onClick={handleLogout}
           sx={{
-            backgroundColor:
-              "#dc2626",
-
-            textTransform:
-              "none",
-
+            backgroundColor: "#dc2626",
+            textTransform: "none",
             borderRadius: "9px",
-
-            px: 2,
-
-            py: 1,
-
+            minWidth: {
+              xs: 42,
+              sm: 110,
+            },
+            px: {
+              xs: 1,
+              sm: 2,
+            },
+            py: {
+              xs: 0.8,
+              sm: 1,
+            },
             fontWeight: 600,
+            flexShrink: 0,
+            fontFamily: "Inter",
+
+            "& .MuiButton-startIcon": {
+              margin: {
+                xs: 0,
+                sm: "0 8px 0 -4px",
+              },
+            },
 
             "&:hover": {
-              backgroundColor:
-                "#b91c1c",
+              backgroundColor: "#b91c1c",
             },
           }}
         >
-          Logout
+          <Box
+            component="span"
+            sx={{
+              display: {
+                xs: "none",
+                sm: "inline",
+              },
+            }}
+          >
+            Logout
+          </Box>
         </Button>
       </Toolbar>
     </AppBar>

@@ -1004,33 +1004,31 @@ const handleDeliveryPress = () => {
               REVIEWS
           ================================================= */}
 
-          <View
-            style={
-              styles.sectionHeaderRow
-            }
-          >
-            <Text
-              style={
-                styles.sectionHeading
-              }
-            >
-              Ratings and reviews
-            </Text>
+          {/* =================================================
+    REVIEWS
+================================================= */}
 
-            <TouchableOpacity
-              onPress={
-                handleWriteReview
-              }
-            >
-              <Text
-                style={
-                  styles.writeReviewText
-                }
-              >
-                Write a Review
-              </Text>
-            </TouchableOpacity>
-          </View>
+<View style={styles.sectionHeaderRow}>
+  <Text style={styles.sectionHeading}>
+    Ratings and reviews
+  </Text>
+
+  <TouchableOpacity
+    style={styles.writeReviewButton}
+    onPress={handleWriteReview}
+    activeOpacity={0.7}
+  >
+    <Ionicons
+      name="create-outline"
+      size={17}
+      color="#1C9C57"
+    />
+
+    <Text style={styles.writeReviewText}>
+      Write a Review
+    </Text>
+  </TouchableOpacity>
+</View>
 
           {allReviews.length >
           0 ? (
@@ -1726,7 +1724,11 @@ const styles = StyleSheet.create({
     color: '#888888',
     marginTop: 10,
   },
-
+writeReviewButton: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginTop: 20,
+},
   noReviewsText: {
     fontSize: 13,
     fontFamily: 'InterRegular',

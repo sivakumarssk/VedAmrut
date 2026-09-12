@@ -85,7 +85,7 @@ export default function CartSuccessScreen() {
       'CART SUCCESS → CONTINUE SHOPPING'
     );
 
-    router.replace('/');
+    router.replace('/home');
   };
 
   // =====================================================

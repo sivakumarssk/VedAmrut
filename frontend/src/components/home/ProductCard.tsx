@@ -121,14 +121,14 @@ container: {
   },
 
   image: {
-    width: 90,
-    height: 90,
+    width: 60,
+    height: 60,
     alignSelf: 'center',
     marginVertical: 12,
   },
 
   name: {
-    fontSize: 14,
+    fontSize: 10,
     fontFamily: 'InterRegular',
     color: '#222222',
     lineHeight: 18,
@@ -136,7 +136,7 @@ container: {
   },
 
   price: {
-    marginTop: 6,
+    // marginTop: 2,
     fontSize: 16,
     fontFamily: 'InterBold',
     color: '#222222',

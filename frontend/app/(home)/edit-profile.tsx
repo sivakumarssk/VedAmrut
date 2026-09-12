@@ -1,13 +1,13 @@
 
 import { Ionicons } from '@expo/vector-icons';
-// import { router } from 'expo-router';
+
 import {
   router,
   useLocalSearchParams,
 } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  Alert,
+  Modal,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -30,6 +30,12 @@ export default function EditProfileScreen() {
   const [dob, setDob] = useState(user?.dob ?? '');
   const [address, setAddress] = useState( user?.address ?? '');
   const [submitting, setSubmitting] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+const [alertTitle, setAlertTitle] = useState('');
+const [alertMessage, setAlertMessage] = useState('');
+const [alertAction, setAlertAction] = useState<
+  (() => void | Promise<void>) | null
+>(null);
   const isFormValid =
     fullName.trim().length > 0 &&
     phone.length === 10 &&
@@ -37,76 +43,28 @@ export default function EditProfileScreen() {
 const { from } = useLocalSearchParams<{
   from?: string;
 }>();
+const showCustomAlert = (
+  title: string,
+  message: string,
+  action?: () => void | Promise<void>
+) => {
+  setAlertTitle(title);
+  setAlertMessage(message);
+  setAlertAction(() => action || null);
+  setAlertVisible(true);
+};
   // =========================
   // SAVE PROFILE
   // =========================
 
-//  const handleSave = async () => {
-//   if (!isFormValid || submitting) {
-//     return;
-//   }
 
-//   if (!user?.id) {
-//     Alert.alert(
-//       'Error',
-//       'User information not found. Please login again.'
-//     );
-//     return;
-//   }
-
-//   setSubmitting(true);
-
-//   try {
-//     console.log('Updating user:', user.id);
-
-//     // AuthContext handles backend + local storage
-//     await updateUser({
-//       id: user.id,
-//       fullName: fullName.trim(),
-//       mobile: phone,
-//       email: email.trim(),
-//       dob: dob.trim(),
-//       address: address.trim(),
-//       role: user.role,
-//     });
-
-//    Alert.alert(
-//   'Success',
-//   'Profile updated successfully',
-//   [
-//     {
-//       text: 'OK',
-//       onPress: () => {
-//         if (from === 'profile') {
-//           router.replace('/(home)/profile');
-//           return;
-//         }
-
-//         router.back();
-//       },
-//     },
-//   ]
-// );
-//   } catch (error) {
-//     console.error('Update Profile Error:', error);
-
-//     Alert.alert(
-//       'Update Failed',
-//       error instanceof Error
-//         ? error.message
-//         : 'Unable to update profile'
-//     );
-//   } finally {
-//     setSubmitting(false);
-//   }
-// };
 const handleSave = async () => {
   if (!isFormValid || submitting) {
     return;
   }
 
   if (!user?.id) {
-    Alert.alert(
+    showCustomAlert(
       'Error',
       'User information not found. Please login again.'
     );
@@ -128,26 +86,21 @@ const handleSave = async () => {
       role: user.role,
     });
 
-    Alert.alert(
+    showCustomAlert(
       'Success',
       'Profile updated successfully',
-      [
-        {
-          text: 'OK',
-          onPress: () => {
-            if (from === 'profile') {
-              router.replace('/(home)/profile');
-            } else {
-              router.back();
-            }
-          },
-        },
-      ]
+      () => {
+        if (from === 'profile') {
+          router.replace('/(home)/profile');
+        } else {
+          router.back();
+        }
+      }
     );
   } catch (error) {
     console.error('Update Profile Error:', error);
 
-    Alert.alert(
+    showCustomAlert(
       'Update Failed',
       error instanceof Error
         ? error.message
@@ -413,7 +366,39 @@ const handleBackToProfile = () => {
             </TouchableOpacity>
 
           </ScrollView>
+<Modal
+  visible={alertVisible}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setAlertVisible(false)}
+>
+  <View style={styles.alertOverlay}>
+    <View style={styles.alertBox}>
+      <Text style={styles.alertTitle}>
+        {alertTitle}
+      </Text>
 
+      <Text style={styles.alertMessage}>
+        {alertMessage}
+      </Text>
+
+      <TouchableOpacity
+        style={styles.alertButton}
+        onPress={async () => {
+          setAlertVisible(false);
+
+          if (alertAction) {
+            await alertAction();
+          }
+        }}
+      >
+        <Text style={styles.alertButtonText}>
+          OK
+        </Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -597,6 +582,64 @@ const styles = StyleSheet.create({
 
   saveButtonText: {
     fontSize: 17,
+    fontFamily: 'InterSemiBold',
+    color: '#FFFFFF',
+  },
+    // =========================
+  // CUSTOM ALERT
+  // =========================
+
+  alertOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+
+  alertBox: {
+    width: '100%',
+    maxWidth: 360,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 24,
+    elevation: 8,
+    shadowColor: '#000000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+
+  alertTitle: {
+    fontSize: 20,
+    fontFamily: 'InterBold',
+    color: '#222222',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+
+  alertMessage: {
+    fontSize: 14,
+    fontFamily: 'InterRegular',
+    color: '#666666',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+
+  alertButton: {
+    height: 45,
+    borderRadius: 22,
+    backgroundColor: '#1C9C57',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  alertButtonText: {
+    fontSize: 14,
     fontFamily: 'InterSemiBold',
     color: '#FFFFFF',
   },

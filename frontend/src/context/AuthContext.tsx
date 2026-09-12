@@ -17,7 +17,6 @@ type AuthContextType = {
     email: string,
     mobile: string,
     password: string,
-    address: string
   ) => Promise<void>;
 
   updateUser: (
@@ -120,116 +119,181 @@ export function AuthProvider({
   // REGISTER
   // =====================================================
 
-  const register = async (
-    fullName: string,
-    email: string,
-    mobile: string,
-    password: string,
-    address: string
-  ) => {
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/auth/register`,
-        {
-          method: "POST",
+//   const register = async (
+//     fullName: string,
+//     email: string,
+//     mobile: string,
+//     password: string,
+//     address: string
+//   ) => {
+//     try {
+//       const response = await fetch(
+//         `${API_BASE_URL}/api/auth/register`,
+//         {
+//           method: "POST",
 
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
+//           headers: {
+//             "Content-Type":
+//               "application/json",
+//           },
 
-          body: JSON.stringify({
-            name: fullName,
-            email,
-            phone: mobile,
-            password,
-            address: address.trim(),
-          }),
-        }
-      );
+//           body: JSON.stringify({
+//             name: fullName,
+//             email,
+//             phone: mobile,
+//             password,
+//             address: address.trim(),
+//           }),
+//         }
+//       );
 
-      const data =
-        await response.json();
+//       const data =
+//         await response.json();
 
-      console.log(
-        "Register response:",
-        data
-      );
+//       console.log(
+//         "Register response:",
+//         data
+//       );
 
-      if (!response.ok) {
-        throw new Error(
-          data.message ||
-            "Registration failed"
-        );
+//       if (!response.ok) {
+//         throw new Error(
+//           data.message ||
+//             "Registration failed"
+//         );
+//       }
+
+//       // =================================================
+//       // CHECK TOKEN
+//       // =================================================
+
+//       if (!data.token) {
+//         throw new Error(
+//           "Registration token not received"
+//         );
+//       }
+
+//       // =================================================
+//       // CREATE USER
+//       // =================================================
+// const cleanAddress = String(
+//   data.data.address || address || ''
+// )
+//   .split(',')
+//   .map((value) => value.trim())
+//   .filter(Boolean)
+//   .join(', ');
+
+// const registeredUser: StoredUser = {
+//   id: data.data.id,
+//   fullName: data.data.name,
+//   email: data.data.email,
+//   mobile: data.data.phone,
+//   address: cleanAddress,
+//   role: data.data.role,
+// };
+
+//       // =================================================
+//       // SAVE USER + TOKEN
+//       // =================================================
+
+//       await saveUser(
+//         registeredUser
+//       );
+
+//       await saveToken(
+//         data.token
+//       );
+
+//       setUser(
+//         registeredUser
+//       );
+
+//       setIsLoggedIn(true);
+
+//       console.log(
+//         "Registration successful"
+//       );
+
+//       console.log(
+//         "Registration token saved:",
+//         !!data.token
+//       );
+
+//     } catch (error) {
+//       console.error(
+//         "Registration API error:",
+//         error
+//       );
+
+//       throw error;
+//     }
+//   };
+const register = async (
+  fullName: string,
+  email: string,
+  mobile: string,
+  password: string
+) => {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/auth/register`,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          name: fullName,
+          email,
+          phone: mobile,
+          password,
+        }),
       }
+    );
 
-      // =================================================
-      // CHECK TOKEN
-      // =================================================
+    const data = await response.json();
 
-      if (!data.token) {
-        throw new Error(
-          "Registration token not received"
-        );
-      }
+    console.log("Register response:", data);
 
-      // =================================================
-      // CREATE USER
-      // =================================================
-const cleanAddress = String(
-  data.data.address || address || ''
-)
-  .split(',')
-  .map((value) => value.trim())
-  .filter(Boolean)
-  .join(', ');
-
-const registeredUser: StoredUser = {
-  id: data.data.id,
-  fullName: data.data.name,
-  email: data.data.email,
-  mobile: data.data.phone,
-  address: cleanAddress,
-  role: data.data.role,
-};
-
-      // =================================================
-      // SAVE USER + TOKEN
-      // =================================================
-
-      await saveUser(
-        registeredUser
+    if (!response.ok) {
+      throw new Error(
+        data.message || "Registration failed"
       );
-
-      await saveToken(
-        data.token
-      );
-
-      setUser(
-        registeredUser
-      );
-
-      setIsLoggedIn(true);
-
-      console.log(
-        "Registration successful"
-      );
-
-      console.log(
-        "Registration token saved:",
-        !!data.token
-      );
-
-    } catch (error) {
-      console.error(
-        "Registration API error:",
-        error
-      );
-
-      throw error;
     }
-  };
 
+    if (!data.token) {
+      throw new Error(
+        "Registration token not received"
+      );
+    }
+
+    const registeredUser: StoredUser = {
+      id: data.data.id,
+      fullName: data.data.name,
+      email: data.data.email,
+      mobile: data.data.phone,
+      address: "",
+      role: data.data.role,
+    };
+
+    await saveUser(registeredUser);
+    await saveToken(data.token);
+
+    setUser(registeredUser);
+    setIsLoggedIn(true);
+
+    console.log("Registration successful");
+    console.log(
+      "Registration token saved:",
+      !!data.token
+    );
+  } catch (error) {
+    console.error("Registration API error:", error);
+    throw error;
+  }
+};
   // =====================================================
   // UPDATE USER
   // =====================================================

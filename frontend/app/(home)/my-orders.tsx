@@ -34,9 +34,18 @@ type Order = {
 };
 
 export default function MyOrdersScreen() {
-  const { from } = useLocalSearchParams<{
-    from?: string;
-  }>();
+  // const { from } = useLocalSearchParams<{
+  //   from?: string;
+  // }>();
+  const {
+  from,
+  orderSource,
+  productId,
+} = useLocalSearchParams<{
+  from?: string;
+  orderSource?: string;
+  productId?: string;
+}>();
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -104,12 +113,38 @@ export default function MyOrdersScreen() {
   // =====================================================
   // CORRECT BACK NAVIGATION
   // =====================================================
+// const handleBack = () => {
+//   console.log('MY ORDERS BACK PRESSED');
+//   console.log('FROM:', from);
+
+//   if (from === 'order-success') {
+//     router.replace('/(home)/order-success');
+//     return;
+//   }
+
+//   if (from === 'profile') {
+//     router.replace('/(home)/profile');
+//     return;
+//   }
+
+//   // Default fallback
+//   router.replace('/(home)/profile');
+// };
 const handleBack = () => {
   console.log('MY ORDERS BACK PRESSED');
   console.log('FROM:', from);
+  console.log('ORDER SOURCE:', orderSource);
+  console.log('PRODUCT ID:', productId);
 
   if (from === 'order-success') {
-    router.replace('/(home)/order-success');
+    router.replace({
+      pathname: '/(home)/order-success',
+      params: {
+        from: orderSource || '',
+        productId: productId || '',
+      },
+    });
+
     return;
   }
 
@@ -118,10 +153,8 @@ const handleBack = () => {
     return;
   }
 
-  // Default fallback
   router.replace('/(home)/profile');
 };
-
   // =====================================================
   // FORMAT DATE
   // =====================================================
@@ -492,8 +525,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#EEEEEE',
+    marginTop:30
   },
 
   backButton: {

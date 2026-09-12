@@ -7,7 +7,7 @@ import React, {
 
 import {
   ActivityIndicator,
-  Alert,
+  Modal,
   Dimensions,
   Image,
   PanResponder,
@@ -63,20 +63,25 @@ export default function GiftCardScreen() {
   const [loading, setLoading] =
     useState(true);
 
-  const [claiming, setClaiming] =
-    useState(false);
+  const [claiming, setClaiming] = useState(false);
 
   const [scratched, setScratched] =
     useState(false);
 
-  const [claimed, setClaimed] =
-    useState(false);
-
+  const [claimed, setClaimed] =useState(false);
   const [product, setProduct] =
     useState<any>(null);
 
   const [giftReward, setGiftReward] =
     useState(0);
+    const [claimedByName, setClaimedByName] = useState("");
+const [claimedAt, setClaimedAt] = useState("");
+    const [alertVisible, setAlertVisible] = useState(false);
+const [alertTitle, setAlertTitle] = useState("");
+const [alertMessage, setAlertMessage] = useState("");
+const [alertAction, setAlertAction] = useState<
+  (() => void | Promise<void>) | null
+>(null);
 
   const [scratchPaths, setScratchPaths] =
     useState<any[]>([]);
@@ -88,7 +93,16 @@ export default function GiftCardScreen() {
     useRef<Set<string>>(new Set());
 
     const claimMarkedRef = useRef(false);
-
+const showCustomAlert = (
+  title: string,
+  message: string,
+  action?: () => void | Promise<void>
+) => {
+  setAlertTitle(title);
+  setAlertMessage(message);
+  setAlertAction(() => action || null);
+  setAlertVisible(true);
+};
   // =====================================================
   // LOAD GIFT DETAILS
   // =====================================================
@@ -104,11 +118,12 @@ export default function GiftCardScreen() {
         // Reset all per-QR state up front so a new scan
         // never renders the previous QR's result while
         // this one is loading.
-        setLoading(true);
         setProduct(null);
-        setGiftReward(0);
-        setClaimed(false);
-        setScratched(false);
+setGiftReward(0);
+setClaimed(false);
+setClaimedByName("");
+setClaimedAt("");
+setScratched(false);
         setScratchPaths([]);
         currentPathRef.current = null;
         scratchedCellsRef.current = new Set();
@@ -116,17 +131,11 @@ export default function GiftCardScreen() {
   false;
 
         if (!qrCode) {
-          Alert.alert(
-            "Invalid QR",
-            "QR code is missing.",
-            [
-              {
-                text: "OK",
-                onPress: () =>
-                  router.back(),
-              },
-            ]
-          );
+          showCustomAlert(
+  "Invalid QR",
+  "QR code is missing.",
+  () => router.back()
+);
 
           return;
         }
@@ -169,8 +178,15 @@ export default function GiftCardScreen() {
           );
         }
 
-        const qrData =
-          qrResult?.data;
+        const qrData =qrResult?.data;
+
+        setClaimedByName(
+  qrData?.claimed_by_name || ""
+);
+
+setClaimedAt(
+  qrData?.claimed_at || ""
+);
 
         if (!qrData) {
           throw new Error(
@@ -262,44 +278,49 @@ export default function GiftCardScreen() {
         // CLAIM STATUS
         // -------------------------------------------------
 
+        // const alreadyClaimed =
+        //   qrData?.is_claimed === true ||
+        //   qrData?.is_claimed === "true" ||
+        //   qrData?.is_claimed === 1 ||
+        //   qrData?.is_claimed === "1";
+
+        // console.log(
+        //   "ALREADY CLAIMED:",
+        //   alreadyClaimed
+        // );
+
+        // setClaimed(
+        //   alreadyClaimed
+        // );
+
+        // // Already claimed does not
+        // // need scratch screen.
+        // if (alreadyClaimed) {
+        //   setScratched(true);
+        // }
         const alreadyClaimed =
-          qrData?.is_claimed === true ||
-          qrData?.is_claimed === "true" ||
-          qrData?.is_claimed === 1 ||
-          qrData?.is_claimed === "1";
+  qrData.is_claimed === true ||
+  qrData.is_claimed === "true" ||
+  qrData.is_claimed === 1 ||
+  qrData.is_claimed === "1";
 
-        console.log(
-          "ALREADY CLAIMED:",
-          alreadyClaimed
-        );
 
-        setClaimed(
-          alreadyClaimed
-        );
+setClaimed(alreadyClaimed);
 
-        // Already claimed does not
-        // need scratch screen.
-        if (alreadyClaimed) {
-          setScratched(true);
-        }
+if (alreadyClaimed) {
+  setScratched(true);
+}
       } catch (error: any) {
         console.error(
           "LOAD GIFT ERROR:",
           error
         );
 
-        Alert.alert(
-          "Error",
-          error?.message ||
-            "Unable to load gift.",
-          [
-            {
-              text: "OK",
-              onPress: () =>
-                router.back(),
-            },
-          ]
-        );
+       showCustomAlert(
+  "Error",
+  error?.message || "Unable to load gift.",
+  () => router.back()
+);
       } finally {
         setLoading(false);
       }
@@ -405,11 +426,10 @@ const markQRAsClaimed =
         error
       );
 
-      Alert.alert(
-        "Unable to Claim QR",
-        error?.message ||
-          "Something went wrong."
-      );
+     showCustomAlert(
+  "Unable to Claim QR",
+  error?.message || "Something went wrong."
+);
     }
   };
 
@@ -509,20 +529,18 @@ const markQRAsClaimed =
       "%"
     );
 
- if (
-  scratchedPercentage >=
-    SCRATCH_REQUIRED_PERCENT &&
+if (
+  scratchedPercentage >= SCRATCH_REQUIRED_PERCENT &&
   !claimMarkedRef.current
 ) {
-  claimMarkedRef.current =
-    true;
+  claimMarkedRef.current = true;
 
   setScratched(true);
 
-  markQRAsClaimed();
+  // Automatically claim reward and add it to wallet
+  claimReward();
 }
-  };
-
+  }
   // =====================================================
   // SCRATCH PAN RESPONDER
   // =====================================================
@@ -646,119 +664,100 @@ const markQRAsClaimed =
   // CLAIM REWARD
   // =====================================================
 
-  const claimReward =
-    async () => {
-      try {
-        if (claiming) {
-          return;
-        }
+  // =====================================================
+// CLAIM REWARD AUTOMATICALLY
+// =====================================================
 
-        if (!qrCode) {
-          Alert.alert(
-            "Error",
-            "QR code is missing."
-          );
+const claimReward = async () => {
+  try {
+    if (claiming || claimed) return;
 
-          return;
-        }
+    if (!qrCode) {
+      showCustomAlert("Error", "QR code is missing.");
+      return;
+    }
 
-        if (giftReward <= 0) {
-          return;
-        }
+    const token = await getToken();
 
-        if (claimed) {
-          Alert.alert(
-            "Gift Already Claimed",
-            "This gift has already been claimed."
-          );
+    if (!token) {
+      showCustomAlert(
+        "Login Required",
+        "Please login to claim this gift."
+      );
+      return;
+    }
 
-          return;
-        }
+    setClaiming(true);
 
-        const token =
-          await getToken();
-
-        if (!token) {
-          Alert.alert(
-            "Login Required",
-            "Please login to claim this gift."
-          );
-
-          return;
-        }
-
-        setClaiming(true);
-
-        const response =
-          await fetch(
-            `${API_BASE_URL}/api/product-qr/claim`,
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type":
-                  "application/json",
-
-                Authorization:
-                  `Bearer ${token}`,
-              },
-
-              body: JSON.stringify({
-                qrCode,
-              }),
-            }
-          );
-
-        const result =
-          await response.json();
-
-        console.log(
-          "CLAIM RESPONSE:",
-          JSON.stringify(
-            result,
-            null,
-            2
-          )
-        );
-
-        if (
-          !response.ok ||
-          !result?.success
-        ) {
-          throw new Error(
-            result?.message ||
-              "Failed to claim gift."
-          );
-        }
-
-        const data =
-          result?.data || {};
-
-        const reward =
-          Number(
-            data?.reward ??
-              data?.reward_amount ??
-              data?.gift?.amount ??
-              giftReward
-          );
-
-        setClaimed(true);
-      } catch (error: any) {
-        console.error(
-          "CLAIM REWARD ERROR:",
-          error
-        );
-
-        Alert.alert(
-          "Unable to Claim Gift",
-          error?.message ||
-            "Something went wrong."
-        );
-      } finally {
-        setClaiming(false);
+    const response = await fetch(
+      `${API_BASE_URL}/api/product-qr/claim`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          qrCode: qrCode,
+        }),
       }
-    };
+    );
 
+    const result = await response.json();
+
+    console.log(
+      "AUTOMATIC CLAIM RESPONSE:",
+      JSON.stringify(result, null, 2)
+    );
+
+    if (!response.ok || !result?.success) {
+      throw new Error(
+        result?.message || "Failed to claim reward."
+      );
+    }
+
+    const reward = Number(
+      result?.data?.reward ??
+      result?.data?.reward_amount ??
+      0
+    );
+
+    setClaimed(true);
+    setGiftReward(reward);
+
+    showCustomAlert(
+      "Reward Added Successfully",
+      reward > 0
+        ? `₹${reward.toFixed(2)} has been added to your wallet.`
+        : "Better Luck Next Time! No reward for this QR."
+    );
+  } catch (error: any) {
+    console.error("AUTOMATIC CLAIM ERROR:", error);
+
+    showCustomAlert(
+      "Unable to Claim Reward",
+      error?.message || "Something went wrong."
+    );
+  } finally {
+    setClaiming(false);
+  }
+};
+// =====================================================
+// OPEN PRODUCT DETAILS
+// =====================================================
+
+const openProductDetails = () => {
+  if (!product?.id) {
+    return;
+  }
+
+  router.push({
+    pathname: "/product-details",
+    params: {
+      productId: String(product.id),
+    },
+  });
+};
   // =====================================================
   // LOADING
   // =====================================================
@@ -863,13 +862,13 @@ const markQRAsClaimed =
           styles.giftSection
         }
       >
-        <Text
+        {/* <Text
           style={
             styles.giftTitle
           }
         >
           🎁 Your Gift
-        </Text>
+        </Text> */}
 
         {/* =================================================
             SCRATCH CARD
@@ -928,34 +927,33 @@ const markQRAsClaimed =
                     )}
                   </Text>
                 </>
-              ) : (
-                <>
-                  <Text
-                    style={
-                      styles.scratchEmoji
-                    }
-                  >
-                    🎁
-                  </Text>
+      ) : (
+  <>
+    <Text
+      style={
+        styles.scratchEmoji
+      }
+    >
+      🎁
+    </Text>
 
-                  <Text
-                    style={
-                      styles.scratchBaseTitle
-                    }
-                  >
-                    Gift Not Available
-                  </Text>
+    <Text
+      style={
+        styles.scratchBaseTitle
+      }
+    >
+      Scratch to Reveal
+    </Text>
 
-                  <Text
-                    style={
-                      styles.noGiftText
-                    }
-                  >
-                    No gift is assigned
-                    to this QR code
-                  </Text>
-                </>
-              )}
+    <Text
+      style={
+        styles.noGiftText
+      }
+    >
+      Scratch the card to check your gift
+    </Text>
+  </>
+)}
             </View>
 
             {/* =================================================
@@ -1043,41 +1041,6 @@ const markQRAsClaimed =
               </View>
             )}
           </View>
-        ) : claimed ? (
-          /* =================================================
-             ALREADY CLAIMED
-          ================================================= */
-
-          <View
-            style={
-              styles.revealedCard
-            }
-          >
-            <Text
-              style={
-                styles.revealedEmoji
-              }
-            >
-              🎁
-            </Text>
-
-            <Text
-              style={
-                styles.congratulations
-              }
-            >
-              Gift Already Claimed
-            </Text>
-
-            <Text
-              style={
-                styles.productText
-              }
-            >
-              This gift has already
-              been claimed.
-            </Text>
-          </View>
         ) : giftReward > 0 ? (
           /* =================================================
              GIFT AVAILABLE
@@ -1128,80 +1091,63 @@ const markQRAsClaimed =
               )}
             </Text>
 
-            <TouchableOpacity
-              style={
-                styles.claimButton
-              }
-              onPress={
-                claimReward
-              }
-              disabled={
-                claiming
-              }
-            >
-              {claiming ? (
-                <ActivityIndicator
-                  color="#FFFFFF"
-                />
-              ) : (
-                <Text
-                  style={
-                    styles.claimButtonText
-                  }
-                >
-                  Add Gift to Wallet
-                </Text>
-              )}
-            </TouchableOpacity>
+            {claiming && (
+  <View style={styles.claimingContainer}>
+    <ActivityIndicator
+      size="small"
+      color="#1B7F3A"
+    />
+
+    <Text style={styles.claimingText}>
+      Adding reward to your wallet...
+    </Text>
+  </View>
+)}
+
+{claimed && !claiming && (
+  <Text style={styles.rewardAddedText}>
+    ₹{giftReward.toFixed(2)} added to your wallet successfully 🎉
+  </Text>
+)}
           </View>
-        ) : (
-          /* =================================================
-             NO GIFT
-          ================================================= */
+       ) : (
+  /* =================================================
+     NO GIFT
+  ================================================= */
 
-          <View
-            style={
-              styles.revealedCard
-            }
-          >
-            <Text
-              style={
-                styles.revealedEmoji
-              }
-            >
-              🎁
-            </Text>
+  <View
+    style={
+      styles.revealedCard
+    }
+  >
+    <Text
+      style={
+        styles.revealedEmoji
+      }
+    >
+      🎁
+    </Text>
 
-            <Text
-              style={
-                styles.noGiftTitle
-              }
-            >
-              Gift Not Available
-            </Text>
-
-            <Text
-              style={
-                styles.productText
-              }
-            >
-              This QR code is valid,
-              but no gift has been
-              assigned to it.
-            </Text>
-          </View>
-        )}
+    <Text
+      style={
+        styles.congratulations
+      }
+    >
+      Sorry, better luck next time!
+    </Text>
+  </View>
+)}
       </View>
 
       {/* =================================================
           PRODUCT
       ================================================= */}
 
-      <View
-        style={
-          styles.productCard
-        }
-      >
+      <TouchableOpacity
+  style={styles.productCard}
+  onPress={openProductDetails}
+  activeOpacity={0.8}
+>
         <Text
           style={
             styles.productSectionTitle
@@ -1253,7 +1199,24 @@ const markQRAsClaimed =
           You received a special
           gift with this product.
         </Text>
-      </View>
+        {claimed && claimedByName ? (
+  <View style={styles.claimedDetailsContainer}>
+    <Text style={styles.claimedTitle}>
+      Gift Claimed Details
+    </Text>
+
+    <Text style={styles.claimedDetailText}>
+      Claimed By: {claimedByName}
+    </Text>
+
+    {claimedAt ? (
+      <Text style={styles.claimedDetailText}>
+        Claimed On: {new Date(claimedAt).toLocaleString()}
+      </Text>
+    ) : null}
+  </View>
+) : null}
+      </TouchableOpacity>
 
       {/* =================================================
           INFO
@@ -1313,8 +1276,9 @@ const styles =
       justifyContent:
         "space-between",
       paddingHorizontal: 18,
-      backgroundColor:
-        "#FFFFFF",
+      // backgroundColor:
+      //   "#FFFFFF",
+        marginTop:30,
     },
 
     backButton: {
@@ -1352,7 +1316,7 @@ const styles =
       alignItems:
         "center",
       paddingHorizontal: 20,
-      paddingTop: 18,
+      paddingTop: 40,
     },
 
     giftTitle: {
@@ -1385,53 +1349,46 @@ const styles =
     },
 
     scratchBase: {
-      ...StyleSheet.absoluteFillObject,
-      backgroundColor:
-        "#9B4DFF",
-      justifyContent:
-        "center",
-      alignItems: "center",
-      paddingHorizontal: 20,
-    },
+  ...StyleSheet.absoluteFillObject,
+  backgroundColor: "#FFFFFF",
+  justifyContent: "center",
+  alignItems: "center",
+  paddingHorizontal: 20,
+},
 
     scratchEmoji: {
       fontSize: 48,
       marginBottom: 5,
     },
 
-    scratchBaseTitle: {
-      fontSize: 24,
-      fontFamily:
-        "InterBold",
-      color: "#FFFFFF",
-      textAlign: "center",
-    },
+   scratchBaseTitle: {
+  fontSize: 24,
+  fontFamily: "InterBold",
+  color: "#222222",
+  textAlign: "center",
+},
 
-    rewardLabel: {
-      marginTop: 8,
-      fontSize: 15,
-      fontFamily:
-        "InterRegular",
-      color: "#FFFFFF",
-    },
+rewardLabel: {
+  marginTop: 8,
+  fontSize: 15,
+  fontFamily: "InterRegular",
+  color: "#666666",
+},
 
-    rewardAmount: {
-      fontSize: 38,
-      fontFamily:
-        "InterBold",
-      marginTop: 2,
-      color: "#FFFFFF",
-    },
+rewardAmount: {
+  fontSize: 38,
+  fontFamily: "InterBold",
+  marginTop: 2,
+  color: "#9B4DFF",
+},
 
-    noGiftText: {
-      marginTop: 8,
-      fontSize: 14,
-      fontFamily:
-        "InterRegular",
-      color: "#FFFFFF",
-      textAlign: "center",
-    },
-
+noGiftText: {
+  marginTop: 8,
+  fontSize: 14,
+  fontFamily: "InterRegular",
+  color: "#666666",
+  textAlign: "center",
+},
     // =================================================
     // SCRATCH INSTRUCTION
     // =================================================
@@ -1582,14 +1539,14 @@ const styles =
     },
 
     productImage: {
-      width: 90,
-      height: 90,
+      width: 60,
+      height: 60,
       marginBottom: 5,
     },
 
     imagePlaceholder: {
-      width: 90,
-      height: 90,
+      width: 60,
+      height: 60,
       borderRadius: 15,
       justifyContent:
         "center",
@@ -1634,4 +1591,46 @@ const styles =
         "InterRegular",
       paddingHorizontal: 20,
     },
+    claimingContainer: {
+  marginTop: 20,
+  alignItems: "center",
+  justifyContent: "center",
+},
+
+claimingText: {
+  marginTop: 8,
+  fontSize: 14,
+  fontFamily: "InterRegular",
+  color: "#1B7F3A",
+  textAlign: "center",
+},
+
+rewardAddedText: {
+  marginTop: 20,
+  fontSize: 14,
+  fontFamily: "InterBold",
+  color: "#1B7F3A",
+  textAlign: "center",
+},
+claimedDetailsContainer: {
+  width: "100%",
+  marginTop: 12,
+  paddingTop: 12,
+  borderTopWidth: 1,
+  borderTopColor: "#EEEEEE",
+},
+
+claimedTitle: {
+  fontSize: 15,
+  fontFamily: "InterBold",
+  color: "#222222",
+  marginBottom: 6,
+},
+
+claimedDetailText: {
+  fontSize: 13,
+  fontFamily: "InterRegular",
+  color: "#666666",
+  marginTop: 4,
+},
   });

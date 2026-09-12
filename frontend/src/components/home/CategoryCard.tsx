@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
 type CategoryCardProps = {
   title: string;
   image: ImageSourcePropType;
@@ -81,8 +80,9 @@ export default function CategoryCard({
 }
 const styles = StyleSheet.create({
   container: {
-    width: '23%',
-    borderRadius: 14,
+  flex: 1,
+  marginHorizontal: 4,
+  borderRadius: 14,
     paddingVertical: 10,
     paddingHorizontal: 5,
     alignItems: 'center',

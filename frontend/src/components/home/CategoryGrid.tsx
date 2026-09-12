@@ -23,66 +23,42 @@ export default function CategoryGrid({
     <View style={styles.container}>
       <Text style={styles.heading}>Shop by Category</Text>
 
-      <FlatList
-        data={categories}
-        keyExtractor={(item) => String(item.id)}
-        numColumns={4}
-        scrollEnabled={false}
-        showsVerticalScrollIndicator={false}
-        columnWrapperStyle={styles.row}
-//         renderItem={({ item }) => (
-// <CategoryCard
-//   title={item.name}
-//   image={{
-//     uri: `${API_BASE_URL}/uploads/categories/${item.image}`,
-//   }}
-//   color="#FFFFFF"
-//   onPress={() => {
-//     console.log(
-//       'CATEGORY CLICKED:',
-//       item.id,
-//       item.name
-//     );
+     <FlatList
+  data={categories}
+  keyExtractor={(item) => String(item.id)}
+  numColumns={4}
+  scrollEnabled={false}
+  showsVerticalScrollIndicator={false}
+  contentContainerStyle={{ paddingTop: 8 }}
+  columnWrapperStyle={styles.row}
+  renderItem={({ item }) => {
+    console.log('CATEGORY:', item.name);
+    console.log('IMAGE NAME:', item.image);
+    console.log(
+      'FULL IMAGE URL:',
+      `${API_BASE_URL}/uploads/categories/${item.image}`
+    );
 
-//     router.push({
-//       pathname: '/(home)/products',
-//       params: {
-//         categoryId: String(item.id),
-//         categoryName: item.name,
-//       },
-//     });
-//   }}
-// />
-//         )}
-renderItem={({ item }) => {
-  console.log('CATEGORY:', item.name);
-  console.log('IMAGE NAME:', item.image);
-  console.log(
-    'FULL IMAGE URL:',
-    `${API_BASE_URL}/uploads/categories/${item.image}`
-  );
-
-  return (
-   
-    <CategoryCard
-  title={item.name}
-  image={{
-    uri: `${API_BASE_URL}/uploads/categories/${item.image}?v=2`,
-  }}
-  color="#FFFFFF"
-  onPress={() => {
-    router.push({
-      pathname: '/(home)/products',
-      params: {
-        categoryId: String(item.id),
-        categoryName: item.name,
-      },
-    });
+    return (
+      <CategoryCard
+        title={item.name}
+        image={{
+          uri: `${API_BASE_URL}/uploads/categories/${item.image}?v=2`,
+        }}
+        color="#FFFFFF"
+        onPress={() => {
+          router.push({
+            pathname: '/(home)/products',
+            params: {
+              categoryId: String(item.id),
+              categoryName: item.name,
+            },
+          });
+        }}
+      />
+    );
   }}
 />
-  );
-}}
-      />
 
     </View>
   );
@@ -106,7 +82,7 @@ const styles = StyleSheet.create({
   },
 
   row: {
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
+  justifyContent: 'space-between',
+  marginBottom: 10,
+},
 });

@@ -227,32 +227,32 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
 
-  imageColumn: {
-    flex: 0.9,
-    height: 130,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+ imageColumn: {
+  flex: 0.9,
+  height: 130,
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginRight: 4,
+},
+productImage: {
+  position: 'absolute',
+  width: 54,
+  height: 54,
+  opacity: 0.85,
+},
 
-  productImage: {
-    position: 'absolute',
-    width: 64,
-    height: 64,
-    opacity: 0.85,
-  },
-
-  productImageMain: {
-    width: 92,
-    height: 92,
-    opacity: 1,
-    zIndex: 2,
-  },
+productImageMain: {
+  width: 78,
+  height: 78,
+  opacity: 1,
+  zIndex: 2,
+},
 
   productImageBack: {
-    right: -10,
-    top: -10,
-    opacity: 0.6,
-  },
+  right: 0,
+  top: 0,
+  opacity: 0.6,
+},
 
   pagination: {
     flexDirection: 'row',

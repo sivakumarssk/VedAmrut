@@ -14,21 +14,44 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 
 export default function OrderSuccessScreen() {
-  const {
-    orderId,
-    totalAmount,
-    paymentMethod,
-  } = useLocalSearchParams<{
-    orderId?: string;
-    totalAmount?: string;
-    paymentMethod?: string;
-  }>();
-
+  // const {
+  //   orderId,
+  //   totalAmount,
+  //   paymentMethod,
+  // } = useLocalSearchParams<{
+  //   orderId?: string;
+  //   totalAmount?: string;
+  //   paymentMethod?: string;
+  // }>();
+const {
+  orderId,
+  totalAmount,
+  paymentMethod,
+  from,
+  productId,
+} = useLocalSearchParams<{
+  orderId?: string;
+  totalAmount?: string;
+  paymentMethod?: string;
+  from?: string;
+  productId?: string;
+}>();
   // =====================================================
   // VIEW MY ORDERS
   // =====================================================
 
- const handleViewMyOrders = () => {
+//  const handleViewMyOrders = () => {
+//   console.log('ORDER SUCCESS -> MY ORDERS');
+
+//   router.push({
+//     pathname: '/(home)/my-orders',
+//     params: {
+//       from: 'order-success',
+//       orderId: String(orderId || ''),
+//     },
+//   });
+// };
+const handleViewMyOrders = () => {
   console.log('ORDER SUCCESS -> MY ORDERS');
 
   router.push({
@@ -36,17 +59,72 @@ export default function OrderSuccessScreen() {
     params: {
       from: 'order-success',
       orderId: String(orderId || ''),
+
+      // Preserve the original order source
+      orderSource: String(from || ''),
+
+      // Preserve product ID for Buy Now orders
+      productId: String(productId || ''),
     },
   });
 };
   // =====================================================
   // BACK BUTTON
   // =====================================================
-const handleBack = () => {
-  router.replace('/(home)/product-details');
-};
- 
 
+//  const handleBack = () => {
+//   console.log('ORDER SUCCESS BACK PRESSED');
+//   console.log('ORDER SOURCE:', from);
+//   console.log('PRODUCT ID:', productId);
+
+//   // Buy Now order → return to Product Details
+//   if (from === 'buy-now') {
+//     router.replace({
+//       pathname: '/(home)/product-details',
+//       params: {
+//         id: String(productId || ''),
+//       },
+//     });
+
+//     return;
+//   }
+
+//   // Cart order → return to Cart
+//   if (from === 'cart') {
+//     router.replace('/(home)/cart');
+
+//     return;
+//   }
+
+//   // Default fallback
+//   router.replace('/home');
+// };
+const handleBack = () => {
+  console.log('ORDER SUCCESS BACK PRESSED');
+  console.log('ORDER SOURCE:', from);
+  console.log('PRODUCT ID:', productId);
+
+  // Buy Now → Product Details
+  if (from === 'buy-now' && productId) {
+    router.replace({
+      pathname: '/(home)/product-details',
+      params: {
+        id: String(productId),
+      },
+    });
+
+    return;
+  }
+
+  // Cart → Cart Screen
+  if (from === 'cart') {
+    router.replace('/(home)/cart');
+    return;
+  }
+
+  // If parameters are missing, go to Cart instead of Home
+  router.replace('/(home)/cart');
+};
   // =====================================================
   // CONTINUE SHOPPING
   // =====================================================
@@ -232,8 +310,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#EEEEEE',
+    marginTop:20
   },
 
   backButton: {

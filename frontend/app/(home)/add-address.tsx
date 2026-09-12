@@ -1,7 +1,27 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router,useLocalSearchParams,} from 'expo-router';
-import React, { useEffect, useMemo, useState,} from 'react';
-import {Alert,KeyboardAvoidingView,Platform,ScrollView,StyleSheet,Text,TextInput,TouchableOpacity,View,} from 'react-native';
+import {
+  router,
+  useFocusEffect,
+  useLocalSearchParams,
+} from 'expo-router';
+
+import React, {
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
+// import {Alert,KeyboardAvoidingView,Platform,ScrollView,StyleSheet,Text,TextInput,TouchableOpacity,View,} from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {SafeAreaView,useSafeAreaInsets,} from 'react-native-safe-area-context';
 import { useAddress } from '@/hooks/useAddress';
 import { SavedAddress } from '@/utils/storage';
@@ -10,9 +30,11 @@ const LABELS: SavedAddress['label'][] = ['Home','Work','Other',];
 
 export default function AddAddressScreen() {
 
+  
   const params = useLocalSearchParams<{
     id?: string | string[];
     returnTo?: string | string[];
+     fromHeader?: string | string[];
     mode?: string | string[];
     productId?: string | string[];
     productName?: string | string[];
@@ -31,6 +53,7 @@ export default function AddAddressScreen() {
 
   const addressId = getParam(params.id);
   const returnTo = getParam(params.returnTo);
+  const fromHeader = getParam(params.fromHeader);
   const mode = getParam(params.mode);
   const productId = getParam(params.productId);
   const productName = getParam(
@@ -74,42 +97,45 @@ const [phone, setPhone] = useState('');
 const [label, setLabel] =
   useState<SavedAddress['label']>('Home');
 const [submitting, setSubmitting] = useState(false);
+const [alertVisible, setAlertVisible] = useState(false);
+const [alertTitle, setAlertTitle] = useState('');
+const [alertMessage, setAlertMessage] = useState('');
+const showCustomAlert = (
+  title: string,
+  message: string
+) => {
+  setAlertTitle(title);
+  setAlertMessage(message);
+  setAlertVisible(true);
+};
 
-useEffect(() => {
-  // ============================================
-  // EDIT ADDRESS
-  // ============================================
+useFocusEffect(
+  useCallback(() => {
+    // EDIT ADDRESS
+    if (addressId && existingAddress) {
+      setFullName(existingAddress.fullName ?? '');
+      setAddressLine(existingAddress.addressLine ?? '');
+      setArea(existingAddress.area ?? '');
+      setCity(existingAddress.city ?? '');
+      setState(existingAddress.state ?? '');
+      setPincode(String(existingAddress.pincode ?? ''));
+      setPhone(String(existingAddress.phone ?? ''));
+      setLabel(existingAddress.label ?? 'Home');
 
-  if (addressId && existingAddress) {
-    setFullName(existingAddress.fullName ?? '');
-    setAddressLine(existingAddress.addressLine ?? '');
-    setArea(existingAddress.area ?? '');
-    setCity(existingAddress.city ?? '');
-    setState(existingAddress.state ?? '');
-    setPincode(String(existingAddress.pincode ?? ''));
-    setPhone(String(existingAddress.phone ?? ''));
-    setLabel(existingAddress.label ?? 'Home');
+      return;
+    }
 
-    return;
-  }
-
-  // ============================================
-  // ADD NEW ADDRESS
-  // ALWAYS CLEAR OLD FORM DATA
-  // ============================================
-
-  setFullName('');
-  setAddressLine('');
-  setArea('');
-  setCity('');
-  setState('');
-  setPincode('');
-  setPhone('');
-  setLabel('Home');
-}, [addressId, existingAddress]);
-  // =====================================================
-  // VALIDATION
-  // =====================================================
+    // ADD NEW ADDRESS
+    setFullName('');
+    setAddressLine('');
+    setArea('');
+    setCity('');
+    setState('');
+    setPincode('');
+    setPhone('');
+    setLabel('Home');
+  }, [addressId, existingAddress])
+);
 
   const isFormValid =
     fullName.trim().length > 0 &&
@@ -175,12 +201,7 @@ useEffect(() => {
   // =====================================================
   // GO TO SAVED ADDRESSES
   // =====================================================
-
-
 const goToSavedAddresses = () => {
-  // ============================================
-  // BUY NOW FLOW
-  // ============================================
   if (mode === 'buyNow') {
     router.replace({
       pathname: '/(home)/saved-addresses',
@@ -198,9 +219,6 @@ const goToSavedAddresses = () => {
     return;
   }
 
-  // ============================================
-  // PRODUCT DETAILS NORMAL FLOW
-  // ============================================
   if (returnTo === 'product-details') {
     router.replace({
       pathname: '/(home)/product-details',
@@ -211,12 +229,12 @@ const goToSavedAddresses = () => {
     return;
   }
 
-  // ============================================
-  // DEFAULT
-  // ============================================
   router.replace({
     pathname: '/(home)/saved-addresses',
-    params: getNavigationParams(),
+    params: {
+      returnTo,
+      fromHeader,
+    },
   });
 };
   // =====================================================
@@ -286,11 +304,11 @@ const goToSavedAddresses = () => {
         error,
       );
 
-      Alert.alert(
-        'Unable to save address',
-        error?.message ||
-          'Something went wrong while saving the address.',
-      );
+     showCustomAlert(
+  'Unable to save address',
+  error?.message ||
+    'Something went wrong while saving the address.'
+);
     } finally {
       setSubmitting(false);
     }
@@ -300,43 +318,69 @@ const goToSavedAddresses = () => {
   // BACK
   // =====================================================
 
-//  const handleBack = () => {
-//   if (returnTo) {
-//     router.back();
-//   } else {
-//     goToSavedAddresses();
-//   }
-// };
+
 // =====================================================
 // BACK → SAVED ADDRESSES
 // =====================================================
 
+// const handleBack = () => {
+//   console.log('================================');
+//   console.log('ADD/EDIT ADDRESS → BACK PRESSED');
+//   console.log('RETURNING TO SAVED ADDRESSES');
+//   console.log('================================');
+
+//   router.replace({
+//     pathname: '/(home)/saved-addresses',
+//     params: {
+//       returnTo: returnTo || '',
+//       mode: mode || '',
+//       productId: productId || '',
+//       productName: productName || '',
+//       productPrice: productPrice || '',
+//       productImage: productImage || '',
+//       categoryName: categoryName || '',
+//       quantity: quantity || '1',
+//     },
+//   });
+// };
+
+// const handleBack = () => {
+//   console.log('ADD ADDRESS → BACK PRESSED');
+//   console.log('FROM HEADER:', fromHeader);
+
+//   if (fromHeader === 'true') {
+//     router.replace({
+//       pathname: '/(home)/saved-addresses',
+//       params: {
+//         fromHeader: 'true',
+//         returnTo: 'home',
+//       },
+//     });
+//     return;
+//   }
+
+//   router.back();
+// };
 const handleBack = () => {
-  console.log('================================');
-  console.log('ADD/EDIT ADDRESS → BACK PRESSED');
-  console.log('RETURNING TO SAVED ADDRESSES');
-  console.log('================================');
+  console.log('ADD ADDRESS → BACK PRESSED');
+  console.log('RETURN TO:', returnTo);
+  console.log('FROM HEADER:', fromHeader);
 
   router.replace({
     pathname: '/(home)/saved-addresses',
     params: {
-      returnTo: returnTo || '',
-      mode: mode || '',
-      productId: productId || '',
-      productName: productName || '',
-      productPrice: productPrice || '',
-      productImage: productImage || '',
-      categoryName: categoryName || '',
-      quantity: quantity || '1',
+      returnTo,
+      fromHeader,
+      mode,
+      productId,
+      productName,
+      productPrice,
+      productImage,
+      categoryName,
+      quantity,
     },
   });
 };
-
-
-  // =====================================================
-  // UI
-  // =====================================================
-
   return (
     <SafeAreaView
       style={styles.safeArea}
@@ -589,6 +633,36 @@ const handleBack = () => {
             </Text>
           </TouchableOpacity>
         </ScrollView>
+
+<Modal
+  visible={alertVisible}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setAlertVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.alertBox}>
+      <Text style={styles.alertTitle}>
+        {alertTitle}
+      </Text>
+
+      <Text style={styles.alertMessage}>
+        {alertMessage}
+      </Text>
+
+      <TouchableOpacity
+        style={styles.alertButton}
+        onPress={() => setAlertVisible(false)}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.alertButtonText}>
+          OK
+        </Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -759,4 +833,51 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontFamily: 'InterSemiBold',
   },
+  modalOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 24,
+},
+
+alertBox: {
+  width: '100%',
+  backgroundColor: '#FFFFFF',
+  borderRadius: 20,
+  padding: 24,
+  alignItems: 'center',
+},
+
+alertTitle: {
+  fontSize: 20,
+  fontFamily: 'InterBold',
+  color: '#222222',
+  textAlign: 'center',
+  marginBottom: 10,
+},
+
+alertMessage: {
+  fontSize: 14,
+  fontFamily: 'InterRegular',
+  color: '#666666',
+  textAlign: 'center',
+  lineHeight: 22,
+  marginBottom: 24,
+},
+
+alertButton: {
+  width: '100%',
+  height: 48,
+  borderRadius: 24,
+  backgroundColor: '#1C9C57',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+alertButtonText: {
+  color: '#FFFFFF',
+  fontSize: 15,
+  fontFamily: 'InterSemiBold',
+},
 });

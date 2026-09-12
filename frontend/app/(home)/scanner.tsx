@@ -4,11 +4,16 @@ import {
   useCameraPermissions,
 } from "expo-camera";
 import { router, useFocusEffect } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import {
   ActivityIndicator,
-  Alert,
+  Modal,
   Dimensions,
   StyleSheet,
   Text,
@@ -30,27 +35,40 @@ const CORNER_SIZE = 32;
 export default function ScannerScreen() {
   const [permission, requestPermission] =
     useCameraPermissions();
+    useEffect(() => {
+  if (permission && !permission.granted && permission.canAskAgain) {
+    requestPermission();
+  }
+}, [permission]);
 
   const [torchOn, setTorchOn] = useState(false);
   const [scanned, setScanned] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+const [alertTitle, setAlertTitle] = useState("");
+const [alertMessage, setAlertMessage] = useState("");
+const showCustomAlert = (
+  title: string,
+  message: string,
+) => {
+  setAlertTitle(title);
+  setAlertMessage(message);
+  setAlertVisible(true);
+};
 
+const scannerLocked = useRef(false);
   // =====================================================
   // RESET SCANNER WHEN SCREEN GETS FOCUS
   // =====================================================
 
-  useFocusEffect(
-    useCallback(() => {
-      setScanned(false);
-      setProcessing(false);
-
-      return () => {
-        setScanned(false);
-        setProcessing(false);
-      };
-    }, [])
-  );
-
+  
+useFocusEffect(
+  useCallback(() => {
+    scannerLocked.current = false;
+    setScanned(false);
+    setProcessing(false);
+  }, [])
+);
   // =====================================================
   // QR SCANNED
   // =====================================================
@@ -61,13 +79,19 @@ export default function ScannerScreen() {
     data: string;
   }) => {
     // Prevent duplicate scans while processing
-    if (scanned || processing) {
-      return;
-    }
+   // Prevent duplicate scans completely
+if (scanned || processing || scannerLocked.current) {
+  return;
+}
+
+scannerLocked.current = true;
+
+
 
     const qrCode = String(data || "").trim();
 
     if (!qrCode) {
+        scannerLocked.current = false;
       return;
     }
 
@@ -87,19 +111,10 @@ export default function ScannerScreen() {
       const token = await getToken();
 
       if (!token) {
-        Alert.alert(
-          "Login Required",
-          "Please login before scanning a product QR.",
-          [
-            {
-              text: "OK",
-              onPress: () => {
-                setScanned(false);
-                setProcessing(false);
-              },
-            },
-          ]
-        );
+       showCustomAlert(
+  "Login Required",
+  "Please login before scanning a product QR.",
+);
 
         return;
       }
@@ -132,21 +147,11 @@ export default function ScannerScreen() {
         !result?.success ||
         !result?.data
       ) {
-        Alert.alert(
-          "Invalid QR Code",
-          result?.message ||
-            "This QR code is not a valid VedAmrut product QR.",
-          [
-            {
-              text: "Scan Again",
-              onPress: () => {
-                setScanned(false);
-                setProcessing(false);
-              },
-            },
-          ]
-        );
-
+        showCustomAlert(
+  "Invalid QR Code",
+  result?.message ||
+    "This QR code is not a valid VedAmrut product QR.",
+);
         return;
       }
 
@@ -256,24 +261,13 @@ export default function ScannerScreen() {
       // DO NOT OPEN GIFT CARD
       // =================================================
 
-      if (isClaimed) {
-        Alert.alert(
-          "🎁 Gift Already Claimed",
-          "This QR code has already been claimed. You cannot claim this gift again.",
-          [
-            {
-              text: "Scan Another QR",
-              onPress: () => {
-                setScanned(false);
-                setProcessing(false);
-              },
-            },
-          ]
-        );
-
-        return;
-      }
-
+     
+      
+if (isClaimed) {
+  setProcessing(false);
+  setScanned(false);
+  return;
+}
       // =================================================
       // OPEN GIFT CARD
       //
@@ -336,20 +330,11 @@ export default function ScannerScreen() {
         error
       );
 
-      Alert.alert(
-        "QR Scan Failed",
-        error?.message ||
-          "Unable to process this QR code.",
-        [
-          {
-            text: "Try Again",
-            onPress: () => {
-              setScanned(false);
-              setProcessing(false);
-            },
-          },
-        ]
-      );
+     showCustomAlert(
+  "QR Scan Failed",
+  error?.message ||
+    "Unable to process this QR code.",
+);
     } finally {
       setProcessing(false);
     }
@@ -585,6 +570,38 @@ export default function ScannerScreen() {
               : "Turn On Torch"}
           </Text>
         </TouchableOpacity>
+        <Modal
+  visible={alertVisible}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setAlertVisible(false)}
+>
+  <View style={styles.alertOverlay}>
+    <View style={styles.alertBox}>
+      <Text style={styles.alertTitle}>
+        {alertTitle}
+      </Text>
+
+      <Text style={styles.alertMessage}>
+        {alertMessage}
+      </Text>
+
+      <TouchableOpacity
+        style={styles.alertButton}
+        onPress={() => {
+          setAlertVisible(false);
+          setScanned(false);
+          setProcessing(false);
+        }}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.alertButtonText}>
+          OK
+        </Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
       </View>
     </SafeAreaView>
   );
@@ -819,5 +836,53 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "InterRegular",
   },
+  alertOverlay: {
+  flex: 1,
+  backgroundColor: "rgba(0, 0, 0, 0.45)",
+  justifyContent: "center",
+  alignItems: "center",
+  paddingHorizontal: 24,
+},
+
+alertBox: {
+  width: "100%",
+  maxWidth: 360,
+  backgroundColor: "#FFFFFF",
+  borderRadius: 20,
+  padding: 24,
+  alignItems: "center",
+},
+
+alertTitle: {
+  fontSize: 20,
+  fontFamily: "InterBold",
+  color: "#222222",
+  textAlign: "center",
+  marginBottom: 10,
+},
+
+alertMessage: {
+  fontSize: 14,
+  fontFamily: "InterRegular",
+  color: "#666666",
+  textAlign: "center",
+  lineHeight: 22,
+  marginBottom: 24,
+},
+
+alertButton: {
+  width: "100%",
+  height: 48,
+  borderRadius: 24,
+  backgroundColor: "#9B4DFF",
+  justifyContent: "center",
+  alignItems: "center",
+},
+
+alertButtonText: {
+  color: "#FFFFFF",
+  fontSize: 15,
+  fontFamily: "InterSemiBold",
+},
 });
 

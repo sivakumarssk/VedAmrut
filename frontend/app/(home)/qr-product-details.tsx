@@ -3,8 +3,8 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import {
   ActivityIndicator,
-  Alert,
   Image,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -237,7 +237,22 @@ export default function QRProductDetailsScreen() {
 
   const [imageError, setImageError] =
     useState(false);
-
+const [alertVisible, setAlertVisible] = useState(false);
+const [alertTitle, setAlertTitle] = useState("");
+const [alertMessage, setAlertMessage] = useState("");
+const [alertAction, setAlertAction] = useState<
+  (() => void) | null
+>(null);
+const showCustomAlert = (
+  title: string,
+  message: string,
+  action?: () => void,
+) => {
+  setAlertTitle(title);
+  setAlertMessage(message);
+  setAlertAction(() => action || null);
+  setAlertVisible(true);
+};
   // ===================================================
   // FETCH QR DETAILS
   // ===================================================
@@ -248,16 +263,11 @@ export default function QRProductDetailsScreen() {
 
   const loadQRDetails = async () => {
     if (!qrCode) {
-      Alert.alert(
-        "Invalid QR",
-        "QR code is missing.",
-        [
-          {
-            text: "Go Back",
-            onPress: () => router.back(),
-          },
-        ]
-      );
+      showCustomAlert(
+  "Invalid QR",
+  "QR code is missing.",
+  () => router.back(),
+);
 
       return;
     }
@@ -366,19 +376,11 @@ export default function QRProductDetailsScreen() {
       );
 
       if (data.is_claimed) {
-        Alert.alert(
-          "QR Already Claimed",
-          "This product QR code has already been claimed.",
-          [
-            {
-              text: "Back to Scanner",
-              onPress: () =>
-                router.replace(
-                  "/scanner"
-                ),
-            },
-          ]
-        );
+       showCustomAlert(
+  "QR Already Claimed",
+  "This product QR code has already been claimed.",
+  () => router.replace("/scanner"),
+);
       }
     } catch (error: any) {
       console.error(
@@ -386,18 +388,12 @@ export default function QRProductDetailsScreen() {
         error
       );
 
-      Alert.alert(
-        "Unable to Load Product",
-        error?.message ||
-          "Something went wrong while loading the product.",
-        [
-          {
-            text: "Back",
-            onPress: () =>
-              router.back(),
-          },
-        ]
-      );
+     showCustomAlert(
+  "Unable to Load Product",
+  error?.message ||
+    "Something went wrong while loading the product.",
+  () => router.back(),
+);
     } finally {
       setLoading(false);
     }
@@ -482,19 +478,18 @@ export default function QRProductDetailsScreen() {
     }
 
     if (!qrCode) {
-      Alert.alert(
-        "Invalid QR",
-        "QR code is missing."
-      );
-
+     showCustomAlert(
+  "Invalid QR",
+  "QR code is missing.",
+);
       return;
     }
 
     if (claimed) {
-      Alert.alert(
-        "Already Claimed",
-        "This QR code has already been claimed."
-      );
+    showCustomAlert(
+  "Already Claimed",
+  "This QR code has already been claimed.",
+);
 
       return;
     }
@@ -504,19 +499,11 @@ export default function QRProductDetailsScreen() {
         await getToken();
 
       if (!token) {
-        Alert.alert(
-          "Login Required",
-          "Please login before claiming your reward.",
-          [
-            {
-              text: "OK",
-              onPress: () =>
-                router.replace(
-                  "/login"
-                ),
-            },
-          ]
-        );
+       showCustomAlert(
+  "Login Required",
+  "Please login before claiming your reward.",
+  () => router.replace("/login"),
+);
 
         return;
       }
@@ -679,11 +666,11 @@ export default function QRProductDetailsScreen() {
         error
       );
 
-      Alert.alert(
-        "Claim Failed",
-        error?.message ||
-          "Unable to claim the QR reward. Please try again."
-      );
+    showCustomAlert(
+  "Claim Failed",
+  error?.message ||
+    "Unable to claim the QR reward. Please try again.",
+);
     } finally {
       setClaiming(false);
     }
@@ -700,19 +687,19 @@ export default function QRProductDetailsScreen() {
       }
 
       if (!qrCode) {
-        Alert.alert(
-          "Invalid QR",
-          "QR code is missing."
-        );
+       showCustomAlert(
+  "Invalid QR",
+  "QR code is missing.",
+);
 
         return;
       }
 
       if (claimed) {
-        Alert.alert(
-          "QR Already Claimed",
-          "This QR code has already been claimed."
-        );
+       showCustomAlert(
+  "QR Already Claimed",
+  "This QR code has already been claimed.",
+);
 
         return;
       }
@@ -806,10 +793,10 @@ export default function QRProductDetailsScreen() {
           error
         );
 
-        Alert.alert(
-          "Unable to Continue",
-          "Unable to open the QR payment screen."
-        );
+       showCustomAlert(
+  "Unable to Continue",
+  "Unable to open the QR payment screen.",
+);
       } finally {
         setPaymentLoading(false);
       }
@@ -1036,43 +1023,49 @@ export default function QRProductDetailsScreen() {
             REWARD
         ================================================= */}
 
-        <View
-          style={styles.rewardCard}
-        >
-          <View
-            style={styles.rewardIcon}
-          >
-            <Ionicons
-              name="gift-outline"
-              size={27}
-              color="#9B4DFF"
-            />
-          </View>
+       <View style={styles.rewardCard}>
+  <View style={styles.rewardIcon}>
+    <Ionicons
+      name={
+        rewardAmount > 0
+          ? "gift-outline"
+          : "sad-outline"
+      }
+      size={27}
+      color="#9B4DFF"
+    />
+  </View>
 
-          <View
-            style={styles.rewardInfo}
-          >
-            <Text
-              style={styles.rewardLabel}
-            >
-              YOUR QR REWARD
-            </Text>
+  <View style={styles.rewardInfo}>
+    <Text style={styles.rewardLabel}>
+      YOUR QR REWARD
+    </Text>
 
-            <Text
-              style={styles.rewardAmount}
-            >
-              {formatMoney(
-                rewardAmount
-              )}
-            </Text>
-          </View>
+    {rewardAmount > 0 ? (
+      <Text style={styles.rewardAmount}>
+        {formatMoney(rewardAmount)}
+      </Text>
+    ) : (
+      <Text style={styles.betterLuckText}>
+        Better Luck Next Time!
+      </Text>
+    )}
+  </View>
 
-          <Ionicons
-            name="checkmark-circle"
-            size={27}
-            color="#27AE60"
-          />
-        </View>
+  <Ionicons
+    name={
+      rewardAmount > 0
+        ? "checkmark-circle"
+        : "information-circle"
+    }
+    size={27}
+    color={
+      rewardAmount > 0
+        ? "#27AE60"
+        : "#9B4DFF"
+    }
+  />
+</View>
 
         {/* =================================================
             PRODUCT DETAILS
@@ -1128,15 +1121,19 @@ export default function QRProductDetailsScreen() {
           />
 
           <DetailRow
-            icon="gift-outline"
-            label="QR Reward"
-            value={formatMoney(
-              rewardAmount
-            )}
-            valueStyle={
-              styles.rewardValue
-            }
-          />
+  icon="gift-outline"
+  label="QR Reward"
+  value={
+    rewardAmount > 0
+      ? formatMoney(rewardAmount)
+      : "Better Luck Next Time"
+  }
+  valueStyle={
+    rewardAmount > 0
+      ? styles.rewardValue
+      : styles.betterLuckValue
+  }
+/>
         </View>
 
         {/* =================================================
@@ -1175,21 +1172,22 @@ export default function QRProductDetailsScreen() {
                 : "QR Ready"}
             </Text>
 
-            <Text
-              style={styles.statusText}
-            >
-              {claimed
-                ? "This QR reward has already been credited."
-                : "You can claim the reward or continue directly to QR payment."}
-            </Text>
+           <Text
+  style={styles.statusText}
+>
+  {claimed
+    ? "This QR reward has already been credited."
+    : rewardAmount > 0
+      ? "You can claim your reward or continue directly to QR payment."
+      : "Better Luck Next Time! You can continue directly to QR payment."}
+</Text>
           </View>
         </View>
 
         {/* =================================================
             QR ACTIONS
         ================================================= */}
-
-        {!claimed && (
+{!claimed && rewardAmount > 0 && (
           <>
             {/* CLAIM REWARD */}
 
@@ -1374,7 +1372,42 @@ export default function QRProductDetailsScreen() {
           Thank you for choosing
           VedAmrut
         </Text>
+        
       </ScrollView>
+      <Modal
+  visible={alertVisible}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setAlertVisible(false)}
+>
+  <View style={styles.alertOverlay}>
+    <View style={styles.alertBox}>
+      <Text style={styles.alertTitle}>
+        {alertTitle}
+      </Text>
+
+      <Text style={styles.alertMessage}>
+        {alertMessage}
+      </Text>
+
+      <TouchableOpacity
+        style={styles.alertButton}
+        activeOpacity={0.8}
+        onPress={async () => {
+          setAlertVisible(false);
+
+          if (alertAction) {
+            await alertAction();
+          }
+        }}
+      >
+        <Text style={styles.alertButtonText}>
+          OK
+        </Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
     </SafeAreaView>
   );
 }
@@ -1721,6 +1754,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "InterBold",
   },
+  betterLuckText: {
+  marginTop: 2,
+  color: "#9B4DFF",
+  fontSize: 17,
+  fontFamily: "InterBold",
+},
+
+betterLuckValue: {
+  color: "#9B4DFF",
+  fontSize: 13,
+  fontFamily: "InterBold",
+},
 
   divider: {
     height: 1,
@@ -1895,5 +1940,57 @@ const styles = StyleSheet.create({
     color: "#AAAAAA",
     fontSize: 12,
     fontFamily: "InterRegular",
+  },
+    // ===================================================
+  // CUSTOM ALERT
+  // ===================================================
+
+  alertOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+
+  alertBox: {
+    width: "100%",
+    maxWidth: 360,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    padding: 24,
+    alignItems: "center",
+  },
+
+  alertTitle: {
+    fontSize: 20,
+    fontFamily: "InterBold",
+    color: "#222222",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+
+  alertMessage: {
+    fontSize: 14,
+    fontFamily: "InterRegular",
+    color: "#666666",
+    textAlign: "center",
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+
+  alertButton: {
+    width: "100%",
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#9B4DFF",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  alertButtonText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontFamily: "InterSemiBold",
   },
 });

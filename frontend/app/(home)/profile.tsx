@@ -2,7 +2,7 @@
 import {Ionicons,MaterialCommunityIcons,} from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import React, { useCallback, useState } from 'react';
-import { Alert,  ScrollView,StyleSheet, Text, TouchableOpacity,View,} from 'react-native';
+import { Modal,  ScrollView,StyleSheet, Text, TouchableOpacity,View,} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { API_BASE_URL } from '@/constants/api';
 import ScreenHeader from '@/components/common/ScreenHeader';
@@ -31,7 +31,22 @@ export default function ProfileScreen() {
     useState<ProfileUser | null>(null);
 
   const [loading, setLoading] = useState(true);
-
+  const [alertVisible, setAlertVisible] = useState(false);
+const [alertTitle, setAlertTitle] = useState('');
+const [alertMessage, setAlertMessage] = useState('');
+const [alertAction, setAlertAction] = useState<
+  (() => void | Promise<void>) | null
+>(null);
+const showCustomAlert = (
+  title: string,
+  message: string,
+  action?: () => void | Promise<void>
+) => {
+  setAlertTitle(title);
+  setAlertMessage(message);
+  setAlertAction(() => action || null);
+  setAlertVisible(true);
+};
   // =====================================================
   // FETCH PROFILE FROM BACKEND
   // =====================================================
@@ -62,10 +77,10 @@ export default function ProfileScreen() {
       console.log('Profile Response:', data);
 
       if (!response.ok) {
-        Alert.alert(
-          'Profile Error',
-          data.message || 'Unable to fetch profile'
-        );
+       showCustomAlert(
+  'Profile Error',
+  data.message || 'Unable to fetch profile'
+);
         return;
       }
 
@@ -85,10 +100,10 @@ await updateUser({
     } catch (error) {
       console.error('Profile Error:', error);
 
-      Alert.alert(
-        'Connection Error',
-        'Cannot connect to backend. Make sure your backend is running.'
-      );
+     showCustomAlert(
+  'Connection Error',
+  'Cannot connect to backend. Make sure your backend is running.'
+);
     } finally {
       setLoading(false);
     }
@@ -130,26 +145,14 @@ await updateUser({
   // =====================================================
 
   const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            await logout();
-
-            router.replace('/(home)/home');
-          },
-        },
-      ]
-    );
-  };
+  setAlertTitle('Logout');
+  setAlertMessage('Are you sure you want to logout?');
+  setAlertAction(() => async () => {
+    await logout();
+    router.replace('/(home)/home');
+  });
+  setAlertVisible(true);
+};
 
   // =====================================================
   // DELETE ACCOUNT
@@ -157,86 +160,68 @@ await updateUser({
 
  
 const handleDeleteAccount = () => {
-  Alert.alert(
-    'Delete Account',
-    'This will permanently remove your account data. This action cannot be undone.',
-    [
-      {
-        text: 'Cancel',
-        style: 'cancel',
-      },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            setLoading(true);
-
-            const token = await getToken();
-
-            if (!token) {
-              Alert.alert(
-                'Session Expired',
-                'Please login again.'
-              );
-              return;
-            }
-
-            const response = await fetch(
-              `${API_BASE_URL}/api/users/profile`,
-              {
-                method: 'DELETE',
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                },
-              }
-            );
-
-            const data = await response.json();
-
-            console.log(
-              'Delete Account Response:',
-              data
-            );
-
-            if (!response.ok) {
-              Alert.alert(
-                'Delete Failed',
-                data.message ||
-                  'Unable to delete account.'
-              );
-              return;
-            }
-
-           if (data.success) {
-  console.log('ACCOUNT DELETED SUCCESSFULLY');
-
-  // Clear login/session data
-  await logout();
-
-  // Go to Home screen just like Logout
-  router.replace('/(home)/home');
-
-  return;
-}
-          } catch (error) {
-            console.error(
-              'Delete Account Error:',
-              error
-            );
-
-            Alert.alert(
-              'Connection Error',
-              'Cannot connect to backend. Please try again.'
-            );
-          } finally {
-            setLoading(false);
-          }
-        },
-      },
-    ]
+  setAlertTitle('Delete Account');
+  setAlertMessage(
+    'This will permanently remove your account data. This action cannot be undone.'
   );
+  setAlertAction(() => async () => {
+    try {
+      setLoading(true);
+
+      const token = await getToken();
+
+      if (!token) {
+        showCustomAlert(
+          'Session Expired',
+          'Please login again.'
+        );
+        return;
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/users/profile`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      console.log('Delete Account Response:', data);
+
+      if (!response.ok) {
+        showCustomAlert(
+          'Delete Failed',
+          data.message || 'Unable to delete account.'
+        );
+        return;
+      }
+
+      if (data.success) {
+        console.log('ACCOUNT DELETED SUCCESSFULLY');
+
+        await logout();
+
+        router.replace('/(home)/home');
+
+        return;
+      }
+    } catch (error) {
+      console.error('Delete Account Error:', error);
+
+      showCustomAlert(
+        'Connection Error',
+        'Cannot connect to backend. Please try again.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  });
+  setAlertVisible(true);
 };
   // =====================================================
   // UI
@@ -337,7 +322,7 @@ const handleDeleteAccount = () => {
     {/* <Text style={styles.address}>
       {profile?.address || user?.address}
     </Text> */}
-    <Text>
+    <Text style={styles.address}>
   {String(user?.address || "")
     .split(",")
     .map((value) => value.trim())
@@ -586,6 +571,50 @@ const handleDeleteAccount = () => {
         </View>
 
       </ScrollView>
+      <Modal
+  visible={alertVisible}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setAlertVisible(false)}
+>
+  <View style={styles.alertOverlay}>
+    <View style={styles.alertBox}>
+      <Text style={styles.alertTitle}>
+        {alertTitle}
+      </Text>
+
+      <Text style={styles.alertMessage}>
+        {alertMessage}
+      </Text>
+
+      <View style={styles.alertActions}>
+        <TouchableOpacity
+          style={styles.alertCancelButton}
+          onPress={() => setAlertVisible(false)}
+        >
+          <Text style={styles.alertCancelText}>
+            Cancel
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.alertButton}
+          onPress={async () => {
+            setAlertVisible(false);
+
+            if (alertAction) {
+              await alertAction();
+            }
+          }}
+        >
+          <Text style={styles.alertButtonText}>
+            OK
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</Modal>
     </SafeAreaView>
   );
 }
@@ -602,6 +631,7 @@ type MenuRowProps = {
   onPress?: () => void;
   isLast?: boolean;
 };
+
 
 function MenuRow({
   iconBg,
@@ -620,7 +650,6 @@ function MenuRow({
       activeOpacity={0.7}
       onPress={onPress}
     >
-
       <View
         style={[
           styles.menuIcon,
@@ -633,7 +662,6 @@ function MenuRow({
       </View>
 
       <View style={styles.menuTextContainer}>
-
         <Text style={styles.menuTitle}>
           {title}
         </Text>
@@ -643,16 +671,12 @@ function MenuRow({
             {subtitle}
           </Text>
         )}
-
       </View>
-
     </TouchableOpacity>
   );
 }
 
-// =====================================================
-// STYLES
-// =====================================================
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -754,7 +778,7 @@ const styles = StyleSheet.create({
 
   address: {
     marginLeft: 6,
-    fontSize: 14,
+    fontSize: 11,
     fontFamily: 'InterRegular',
     color: '#666666',
     flex: 1,
@@ -782,11 +806,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  menuRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: 16,
-  },
+menuRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingVertical: 16,
+},
 
   menuRowBorder: {
     borderBottomWidth: 1,
@@ -802,9 +826,10 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
 
-  menuTextContainer: {
-    flex: 1,
-  },
+ menuTextContainer: {
+  flex: 1,
+  justifyContent: 'center',
+},
 
   menuTitle: {
     fontSize: 16,
@@ -819,5 +844,80 @@ const styles = StyleSheet.create({
     color: '#777777',
     lineHeight: 19,
   },
+ // =====================================================
+// CUSTOM ALERT
+// =====================================================
+
+alertOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 24,
+},
+
+alertBox: {
+  width: '100%',
+  maxWidth: 360,
+  backgroundColor: '#FFFFFF',
+  borderRadius: 20,
+  padding: 24,
+},
+
+alertTitle: {
+  fontSize: 20,
+  fontFamily: 'InterBold',
+  color: '#222222',
+  textAlign: 'center',
+  marginBottom: 10,
+},
+
+alertMessage: {
+  fontSize: 14,
+  fontFamily: 'InterRegular',
+  color: '#666666',
+  textAlign: 'center',
+  lineHeight: 22,
+  marginBottom: 24,
+},
+
+alertActions: {
+  flexDirection: 'row',
+  justifyContent: 'flex-end',
+  gap: 10,
+},
+
+alertCancelButton: {
+  minWidth: 90,
+  height: 45,
+  borderRadius: 22,
+  borderWidth: 1,
+  borderColor: '#DDDDDD',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 16,
+},
+
+alertCancelText: {
+  fontSize: 14,
+  fontFamily: 'InterMedium',
+  color: '#666666',
+},
+
+alertButton: {
+  minWidth: 90,
+  height: 45,
+  borderRadius: 22,
+  backgroundColor: '#1C6FD9',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 16,
+},
+
+alertButtonText: {
+  fontSize: 14,
+  fontFamily: 'InterSemiBold',
+  color: '#FFFFFF',
+},
 });
 

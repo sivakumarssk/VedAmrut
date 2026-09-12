@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 
 import {
   ActivityIndicator,
-  Alert,
+  Modal,
   Image,
   ScrollView,
   StyleSheet,
@@ -102,7 +102,22 @@ export default function OrderDetailsScreen() {
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
   const [error, setError] = useState('');
-
+const [alertVisible, setAlertVisible] = useState(false);
+const [alertTitle, setAlertTitle] = useState('');
+const [alertMessage, setAlertMessage] = useState('');
+const [alertAction, setAlertAction] = useState<
+  (() => void | Promise<void>) | null
+>(null);
+const showCustomAlert = (
+  title: string,
+  message: string,
+  action?: () => void | Promise<void>
+) => {
+  setAlertTitle(title);
+  setAlertMessage(message);
+  setAlertAction(() => action || null);
+  setAlertVisible(true);
+};
   // =====================================================
   // FETCH ORDER
   // =====================================================
@@ -179,103 +194,76 @@ export default function OrderDetailsScreen() {
   // =====================================================
 
   const handleCancelOrder = () => {
-    Alert.alert(
-      'Cancel Order',
-      'Are you sure you want to cancel this order?',
-      [
+  setAlertTitle('Cancel Order');
+  setAlertMessage(
+    'Are you sure you want to cancel this order?'
+  );
+  setAlertAction(() => async () => {
+    try {
+      setCancelling(true);
+      setError('');
+
+      if (!orderId) {
+        throw new Error('Order ID is missing');
+      }
+
+      const token = await getToken();
+
+      if (!token) {
+        throw new Error('Please login again');
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/orders/${orderId}/cancel`,
         {
-          text: 'No',
-          style: 'cancel',
-        },
-        {
-          text: 'Yes, Cancel',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              setCancelling(true);
-              setError('');
-
-              if (!orderId) {
-                throw new Error(
-                  'Order ID is missing'
-                );
-              }
-
-              const token = await getToken();
-
-              if (!token) {
-                throw new Error(
-                  'Please login again'
-                );
-              }
-
-              const response = await fetch(
-                `${API_BASE_URL}/api/orders/${orderId}/cancel`,
-                {
-                  method: 'PUT',
-                  headers: {
-                    Authorization:
-                      `Bearer ${token}`,
-                    'Content-Type':
-                      'application/json',
-                  },
-                }
-              );
-
-              const result =
-                await response.json();
-
-              console.log(
-                'CANCEL ORDER RESPONSE:',
-                JSON.stringify(
-                  result,
-                  null,
-                  2
-                )
-              );
-
-              if (
-                !response.ok ||
-                !result.success
-              ) {
-                throw new Error(
-                  result.message ||
-                    'Failed to cancel order'
-                );
-              }
-
-              const updatedOrder =
-                result.data?.order ||
-                result.data;
-
-              if (updatedOrder) {
-                setOrder(updatedOrder);
-              }
-
-              Alert.alert(
-                'Order Cancelled',
-                'Your order has been cancelled successfully.'
-              );
-            } catch (err) {
-              console.error(
-                'CANCEL ORDER ERROR:',
-                err
-              );
-
-              Alert.alert(
-                'Unable to Cancel',
-                err instanceof Error
-                  ? err.message
-                  : 'Failed to cancel order'
-              );
-            } finally {
-              setCancelling(false);
-            }
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
-        },
-      ]
-    );
-  };
+        }
+      );
+
+      const result = await response.json();
+
+      console.log(
+        'CANCEL ORDER RESPONSE:',
+        JSON.stringify(result, null, 2)
+      );
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.message || 'Failed to cancel order'
+        );
+      }
+
+      const updatedOrder =
+        result.data?.order || result.data;
+
+      if (updatedOrder) {
+        setOrder(updatedOrder);
+      }
+
+      showCustomAlert(
+        'Order Cancelled',
+        'Your order has been cancelled successfully.'
+      );
+    } catch (err) {
+      console.error('CANCEL ORDER ERROR:', err);
+
+      showCustomAlert(
+        'Unable to Cancel',
+        err instanceof Error
+          ? err.message
+          : 'Failed to cancel order'
+      );
+    } finally {
+      setCancelling(false);
+    }
+  });
+
+  setAlertVisible(true);
+};
 
   // =====================================================
   // LOAD WHEN SCREEN FOCUSES
@@ -1127,8 +1115,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#EEEEEE',
+    marginTop:30
   },
 
   backButton: {

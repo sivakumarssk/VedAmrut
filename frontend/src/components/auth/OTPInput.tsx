@@ -1,9 +1,102 @@
 
+// import React, { useRef } from "react";
+// import {
+//   StyleSheet,
+//   TextInput,
+//   View,
+// } from "react-native";
+
+// type OTPInputProps = {
+//   otp: string[];
+//   setOtp: React.Dispatch<React.SetStateAction<string[]>>;
+// };
+
+// export default function OTPInput({
+//   otp,
+//   setOtp,
+// }: OTPInputProps) {
+
+//   const inputRefs = useRef<Array<TextInput | null>>([]);
+
+//   const handleChange = (text: string, index: number) => {
+
+//     const value = text.slice(-1);
+
+//     const updatedOtp = [...otp];
+//     updatedOtp[index] = value;
+
+//     setOtp(updatedOtp);
+
+//     if (value && index < otp.length - 1) {
+//       inputRefs.current[index + 1]?.focus();
+//     }
+//   };
+
+
+//   return (
+//     <View style={styles.container}>
+//       {otp.map((value, index) => (
+//         <TextInput
+//           key={index}
+
+//           ref={(ref) => {
+//             inputRefs.current[index] = ref;
+//           }}
+
+//           value={value}
+
+//           onChangeText={(text) =>
+//             handleChange(text, index)
+//           }
+
+//           keyboardType="number-pad"
+
+//           inputMode="numeric"
+
+//           maxLength={1}
+
+//           editable={true}
+
+//           autoFocus={index === 0}
+
+//           style={styles.input}
+
+//           textAlign="center"
+
+//         />
+//       ))}
+//     </View>
+//   );
+// }
+
+
+// const styles = StyleSheet.create({
+//   container: {
+//     marginTop: 55,
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     paddingHorizontal: 20,
+//   },
+
+//   input: {
+//     width: 56,
+//     height: 56,
+//     borderWidth: 1.5,
+//     borderColor: '#92F0C2',
+//     borderRadius: 14,
+//     fontSize: 22,
+//     fontFamily: 'InterBold',
+//     color: '#222222',
+//     textAlign: 'center',
+//   },
+// });
 import React, { useRef } from "react";
 import {
   StyleSheet,
   TextInput,
   View,
+  NativeSyntheticEvent,
+  TextInputKeyPressEventData,
 } from "react-native";
 
 type OTPInputProps = {
@@ -15,11 +108,9 @@ export default function OTPInput({
   otp,
   setOtp,
 }: OTPInputProps) {
-
   const inputRefs = useRef<Array<TextInput | null>>([]);
 
   const handleChange = (text: string, index: number) => {
-
     const value = text.slice(-1);
 
     const updatedOtp = [...otp];
@@ -32,49 +123,56 @@ export default function OTPInput({
     }
   };
 
+  const handleKeyPress = (
+    event: NativeSyntheticEvent<TextInputKeyPressEventData>,
+    index: number
+  ) => {
+    if (event.nativeEvent.key === "Backspace") {
+      const updatedOtp = [...otp];
+
+      if (otp[index]) {
+        // Clear current box first
+        updatedOtp[index] = "";
+        setOtp(updatedOtp);
+      } else if (index > 0) {
+        // If current box is already empty, move to previous box and clear it
+        updatedOtp[index - 1] = "";
+        setOtp(updatedOtp);
+
+        inputRefs.current[index - 1]?.focus();
+      }
+    }
+  };
 
   return (
     <View style={styles.container}>
       {otp.map((value, index) => (
         <TextInput
           key={index}
-
           ref={(ref) => {
             inputRefs.current[index] = ref;
           }}
-
           value={value}
-
-          onChangeText={(text) =>
-            handleChange(text, index)
-          }
-
+          onChangeText={(text) => handleChange(text, index)}
+          onKeyPress={(event) => handleKeyPress(event, index)}
           keyboardType="number-pad"
-
           inputMode="numeric"
-
           maxLength={1}
-
           editable={true}
-
           autoFocus={index === 0}
-
           style={styles.input}
-
           textAlign="center"
-
         />
       ))}
     </View>
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     marginTop: 55,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
   },
 
@@ -82,11 +180,11 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderWidth: 1.5,
-    borderColor: '#92F0C2',
+    borderColor: "#92F0C2",
     borderRadius: 14,
     fontSize: 22,
-    fontFamily: 'InterBold',
-    color: '#222222',
-    textAlign: 'center',
+    fontFamily: "InterBold",
+    color: "#222222",
+    textAlign: "center",
   },
 });

@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View,} from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator,  Modal,} from 'react-native';
 import { SafeAreaView, useSafeAreaInsets,} from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/useAuth';
 export default function RegisterScreen() {
@@ -10,22 +10,30 @@ export default function RegisterScreen() {
   const insets = useSafeAreaInsets();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState(mobile ?? '');
-  const [address, setAddress] = useState('');
+  const [phone, setPhone] = useState(mobile ?? '')
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+const [alertTitle, setAlertTitle] = useState('');
+const [alertMessage, setAlertMessage] = useState('');
 
   // Form validation
   const isFormValid =
     fullName.trim().length > 0 &&
     /^\S+@\S+\.\S+$/.test(email.trim()) &&
     phone.length === 10 &&
-    address.trim().length > 0 &&
+    // address.trim().length > 0 &&
     password.length >= 6 &&
     password === confirmPassword;
+
+    const showCustomAlert = (title: string, message: string) => {
+  setAlertTitle(title);
+  setAlertMessage(message);
+  setAlertVisible(true);
+};
 
   // Create account
   const handleCreateAccount = async () => {
@@ -41,28 +49,13 @@ export default function RegisterScreen() {
         email.trim(),
         phone,
         password,
-        address.trim()
+        // address.trim()
       );
 
-      Alert.alert(
-        'Registration Successful',
-        'Your account has been created successfully.',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              router.replace('/(home)/home');
-            },
-          },
-        ]
-      );
-    } catch (error: any) {
-      console.error('Registration error:', error);
-
-      Alert.alert(
-        'Registration Failed',
-        error?.message || 'Something went wrong. Please try again.'
-      );
+     showCustomAlert(
+  'Registration Successful',
+  'Your account has been created successfully.'
+);
     } finally {
       setSubmitting(false);
     }
@@ -177,19 +170,7 @@ export default function RegisterScreen() {
               />
             </View>
 
-            {/* Address */}
-            <Text style={styles.label}>
-              Address
-            </Text>
-
-            <TextInput
-              placeholder="Enter your complete address"
-              placeholderTextColor="#999"
-              value={address}
-              onChangeText={setAddress}
-              style={styles.input}
-              multiline={false}
-            />
+           
 
             {/* Password */}
             <Text style={styles.label}>
@@ -300,6 +281,38 @@ export default function RegisterScreen() {
             </Text>
           </TouchableOpacity>
         </ScrollView>
+<Modal
+  visible={alertVisible}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setAlertVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.alertBox}>
+      <Text style={styles.alertTitle}>
+        {alertTitle}
+      </Text>
+
+      <Text style={styles.alertMessage}>
+        {alertMessage}
+      </Text>
+
+      <TouchableOpacity
+        style={styles.alertButton}
+        onPress={() => {
+          setAlertVisible(false);
+          router.replace('/(home)/home');
+        }}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.alertButtonText}>
+          OK
+        </Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -446,4 +459,51 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontFamily: 'InterSemiBold',
   },
+  modalOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 24,
+},
+
+alertBox: {
+  width: '100%',
+  backgroundColor: '#FFFFFF',
+  borderRadius: 20,
+  padding: 24,
+  alignItems: 'center',
+},
+
+alertTitle: {
+  fontSize: 20,
+  fontFamily: 'InterBold',
+  color: '#222222',
+  textAlign: 'center',
+  marginBottom: 10,
+},
+
+alertMessage: {
+  fontSize: 14,
+  fontFamily: 'InterRegular',
+  color: '#666666',
+  textAlign: 'center',
+  lineHeight: 22,
+  marginBottom: 24,
+},
+
+alertButton: {
+  width: '100%',
+  height: 48,
+  borderRadius: 24,
+  backgroundColor: '#1C9C57',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+alertButtonText: {
+  color: '#FFFFFF',
+  fontSize: 15,
+  fontFamily: 'InterSemiBold',
+},
 });

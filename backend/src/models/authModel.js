@@ -5,22 +5,55 @@ const pool = require("../config/db");
 // CREATE USER
 // =====================================================
 
+// const createAuthUser = async (
+//   name,
+//   email,
+//   phone,
+//   password,
+//   address
+// ) => {
+//   const query = `
+//     INSERT INTO users (
+//       name,
+//       email,
+//       phone,
+//       password,
+//       address
+//     )
+//     VALUES ($1, $2, $3, $4, $5)
+//     RETURNING *;
+//   `;
+
+//   const values = [
+//     name,
+//     email,
+//     phone,
+//     password,
+//     address,
+//   ];
+
+//   const result = await pool.query(
+//     query,
+//     values
+//   );
+
+//   return result.rows[0];
+// };
+
 const createAuthUser = async (
   name,
   email,
   phone,
-  password,
-  address
+  password
 ) => {
   const query = `
     INSERT INTO users (
       name,
       email,
       phone,
-      password,
-      address
+      password
     )
-    VALUES ($1, $2, $3, $4, $5)
+    VALUES ($1, $2, $3, $4)
     RETURNING *;
   `;
 
@@ -29,7 +62,6 @@ const createAuthUser = async (
     email,
     phone,
     password,
-    address,
   ];
 
   const result = await pool.query(
@@ -39,60 +71,6 @@ const createAuthUser = async (
 
   return result.rows[0];
 };
-
-const createRegistrationAddress = async (
-  userId,
-  name,
-  phone,
-  address
-) => {
-  const query = `
-    INSERT INTO addresses (
-      user_id,
-      full_name,
-      phone,
-      address_line1,
-      address_line2,
-      city,
-      state,
-      pincode,
-      landmark,
-      is_default
-    )
-    VALUES (
-      $1,
-      $2,
-      $3,
-      $4,
-       '',
-       '',
-       '',
-       '',
-       '',
-      TRUE
-    )
-    RETURNING *;
-  `;
-
-  const values = [
-    userId,
-    name,
-    phone,
-    address,
-  ];
-
-  const result = await pool.query(
-    query,
-    values
-  );
-
-  return result.rows[0];
-};
-
-
-// =====================================================
-// FIND USER BY EMAIL
-// =====================================================
 
 const getUserByEmail = async (email) => {
   const query = `
@@ -136,7 +114,6 @@ const getUserByPhone = async (phone) => {
 
 module.exports = {
   createAuthUser,
-  createRegistrationAddress,
   getUserByEmail,
   getUserByPhone,
 };

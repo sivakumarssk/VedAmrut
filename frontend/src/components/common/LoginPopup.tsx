@@ -1,7 +1,7 @@
 
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import {Alert,Image,KeyboardAvoidingView,Modal,Platform,Pressable,StyleSheet,Text,TextInput,TouchableOpacity,} from 'react-native';
+import {Image,KeyboardAvoidingView,Modal,Platform,Pressable,StyleSheet,Text,TextInput,TouchableOpacity,View} from 'react-native';
 import { API_BASE_URL } from '@/constants/api';
 type LoginPopupProps = {
   visible: boolean;
@@ -15,6 +15,17 @@ export default function LoginPopup({
 }: LoginPopupProps) {
   const [mobileNumber, setMobileNumber] = useState('');
   const [loading, setLoading] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+const [alertTitle, setAlertTitle] = useState('');
+const [alertMessage, setAlertMessage] = useState('');
+const showCustomAlert = (
+  title: string,
+  message: string
+) => {
+  setAlertTitle(title);
+  setAlertMessage(message);
+  setAlertVisible(true);
+};
 
   const handleConfirm = async () => {
     if (mobileNumber.length !== 10 || loading) {
@@ -50,29 +61,21 @@ try {
 } catch (error) {
   console.log('NOT JSON:', responseText);
 
-  Alert.alert(
-    'Backend Error',
-    `Server returned ${response.status}. Check console.`
-  );
+ showCustomAlert(
+  'Backend Error',
+  `Server returned ${response.status}. Check console.`
+);
 
   return;
 }
 
 if (!response.ok) {
-  Alert.alert(
-    'Login Failed',
-    data.message || 'Unable to send OTP'
-  );
+ showCustomAlert(
+  'Login Failed',
+  data.message || 'Unable to send OTP'
+);
   return;
 }
-
-      // Backend successfully created OTP
-      // Alert.alert(
-      //   'OTP Sent',
-      //   'Testing OTP is 1234'
-      // );
-
-      // Close popup
       onClose();
 
       // Open OTP screen
@@ -86,10 +89,10 @@ if (!response.ok) {
     } catch (error) {
       console.error('Send OTP Error:', error);
 
-      Alert.alert(
-        'Connection Error',
-        'Cannot connect to backend. Make sure the backend is running and your IP address is correct.'
-      );
+      showCustomAlert(
+  'Connection Error',
+  'Cannot connect to backend. Make sure the backend is running and your IP address is correct.'
+);
     } finally {
       setLoading(false);
     }
@@ -111,78 +114,74 @@ if (!response.ok) {
         }
       >
         {/* Background */}
-        <Pressable
-          style={styles.overlay}
-          onPress={onClose}
-        >
-          {/* Popup */}
-          <Pressable
-            style={styles.container}
-            onPress={() => {}}
-          >
-            <Image
-              source={require('../../assets/images/LoginImage.png')}
-              style={styles.image}
-              resizeMode="contain"
-            />
+<Pressable
+  style={styles.overlay}
+  onPress={onClose}
+>
+  {/* Popup */}
+  <Pressable
+    style={styles.container}
+    onPress={onClose}
+  >
+    <Image
+      source={require('../../assets/images/LoginImage.png')}
+      style={styles.image}
+      resizeMode="contain"
+    />
 
-            <Text style={styles.title}>
-              Login Or Sign in
-            </Text>
+    <Text style={styles.title}>
+      Login Or Sign in
+    </Text>
 
-            <TextInput
-              placeholder="Enter your mobile number"
-              placeholderTextColor="#999"
-              value={mobileNumber}
-              onChangeText={(text) => {
-                const formatted = text
-                  .replace(/\D/g, '')
-                  .slice(0, 10);
+    <TextInput
+      placeholder="Enter your mobile number"
+      placeholderTextColor="#999"
+      value={mobileNumber}
+      onChangeText={(text) => {
+        const formatted = text
+          .replace(/\D/g, '')
+          .slice(0, 10);
 
-                setMobileNumber(formatted);
-              }}
-              keyboardType={
-                Platform.OS === 'web'
-                  ? 'numeric'
-                  : 'number-pad'
-              }
-              maxLength={10}
-              autoFocus
-              style={styles.input}
-            />
+        setMobileNumber(formatted);
+      }}
+      keyboardType={
+        Platform.OS === 'web'
+          ? 'numeric'
+          : 'number-pad'
+      }
+      maxLength={10}
+      autoFocus
+      style={styles.input}
+    />
 
-            {/* Validation */}
-            {mobileNumber.length > 0 &&
-              mobileNumber.length < 10 && (
-                <Text style={styles.errorText}>
-                  Please enter a valid 10-digit mobile number
-                </Text>
-              )}
+    {mobileNumber.length > 0 &&
+      mobileNumber.length < 10 && (
+        <Text style={styles.errorText}>
+          Please enter a valid 10-digit mobile number
+        </Text>
+      )}
 
-            {/* Confirm */}
-            <TouchableOpacity
-              style={[
-                styles.button,
-                {
-                  backgroundColor:
-                    mobileNumber.length === 10 &&
-                    !loading
-                      ? '#1C9C57'
-                      : '#B5B5B5',
-                },
-              ]}
-              disabled={
-                mobileNumber.length !== 10 ||
-                loading
-              }
-              onPress={handleConfirm}
-            >
-              <Text style={styles.buttonText}>
-                {loading ? 'Sending OTP...' : 'Confirm'}
-              </Text>
-            </TouchableOpacity>
-          </Pressable>
-        </Pressable>
+    <TouchableOpacity
+      style={[
+        styles.button,
+        {
+          backgroundColor:
+            mobileNumber.length === 10 && !loading
+              ? '#1C9C57'
+              : '#B5B5B5',
+        },
+      ]}
+      disabled={
+        mobileNumber.length !== 10 || loading
+      }
+      onPress={handleConfirm}
+    >
+      <Text style={styles.buttonText}>
+        {loading ? 'Sending OTP...' : 'Confirm'}
+      </Text>
+    </TouchableOpacity>
+  </Pressable>
+</Pressable>
       </KeyboardAvoidingView>
     </Modal>
   );
@@ -252,3 +251,6 @@ const styles = StyleSheet.create({
     fontFamily: 'InterBold',
   },
 });
+
+
+

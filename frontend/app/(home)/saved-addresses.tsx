@@ -2,8 +2,8 @@ import {Ionicons,MaterialCommunityIcons,} from '@expo/vector-icons';
 import { router,useLocalSearchParams,} from 'expo-router';
 import React from 'react';
 import {
-  Alert,
   FlatList,
+  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -44,9 +44,9 @@ export default function SavedAddressesScreen() {
   // =====================================================
 
   const params = useLocalSearchParams<{
-    returnTo?: string | string[];
-
-    mode?: string | string[];
+   returnTo?: string | string[];
+fromHeader?: string | string[];
+mode?: string | string[];
 
     productId?: string | string[];
     productName?: string | string[];
@@ -71,7 +71,7 @@ export default function SavedAddressesScreen() {
   };
 
   const returnTo = getParam(params.returnTo);
-
+const fromHeader = getParam(params.fromHeader);
   const mode = getParam(params.mode);
 
   const isBuyNow = mode === 'buyNow';
@@ -98,7 +98,22 @@ export default function SavedAddressesScreen() {
     selectAddress,
     deleteAddress,
   } = useAddress();
-
+const [alertVisible, setAlertVisible] = React.useState(false);
+const [alertTitle, setAlertTitle] = React.useState('');
+const [alertMessage, setAlertMessage] = React.useState('');
+const [alertAction, setAlertAction] = React.useState<
+  (() => void) | null
+>(null);
+const showCustomAlert = (
+  title: string,
+  message: string,
+  action?: () => void,
+) => {
+  setAlertTitle(title);
+  setAlertMessage(message);
+  setAlertAction(() => action || null);
+  setAlertVisible(true);
+};
   // =====================================================
   // NAVIGATION PARAMS
   // =====================================================
@@ -149,83 +164,42 @@ export default function SavedAddressesScreen() {
   };
 
 
+
+
 // =====================================================
 // BACK BUTTON
 // =====================================================
 
 const handleBack = () => {
-  console.log('================================');
   console.log('SAVED ADDRESSES → BACK PRESSED');
   console.log('RETURN TO:', returnTo);
-  console.log('MODE:', mode);
-  console.log('================================');
+  console.log('FROM HEADER:', fromHeader);
 
+  if (returnTo === 'profile') {
+    router.replace('/(home)/profile');
+    return;
+  }
 
-   if (returnTo === 'home') {
+  if (returnTo === 'home' || fromHeader === 'true') {
     router.replace('/home');
     return;
   }
-  // ============================================
-  // FROM CHECKOUT
-  // ============================================
-  if (returnTo === 'checkout') {
-    console.log('→ GOING BACK TO CHECKOUT');
 
+  if (returnTo === 'checkout') {
     router.replace({
       pathname: '/(home)/checkout',
       params: getNavigationParams(),
     });
-
     return;
   }
 
-  // ============================================
-  // FROM PROFILE
-  // ============================================
-  if (returnTo === 'profile') {
-    console.log('→ GOING BACK TO PROFILE');
-
-    router.replace('/(home)/profile');
-
-    return;
-  }
-
-  // ============================================
-  // FROM CART
-  // ============================================
   if (returnTo === 'cart') {
-    console.log('→ GOING BACK TO CART');
-
     router.replace('/(home)/cart');
-
     return;
   }
 
-  // ============================================
-  // FROM PRODUCT DETAILS
-  // ============================================
-  if (returnTo === 'product-details') {
-    console.log('→ GOING BACK TO PRODUCT DETAILS');
-
-    router.replace({
-      pathname: '/(home)/product-details',
-      params: {
-        id: productId,
-      },
-    });
-
-    return;
-  }
-
-  // ============================================
-  // DEFAULT
-  // ============================================
-  console.log('→ NO RETURN PATH, GOING HOME');
-
-  router.replace('/');
+  router.replace('/home');
 };
-
-
 
   // =====================================================
   // SELECT ADDRESS
@@ -332,65 +306,58 @@ if (returnTo === 'product-details') {
   // ADD NEW ADDRESS
   // =====================================================
 
-  // const handleAddNew = () => {
-  //   router.push({
-  //     pathname: '/(home)/add-address',
-  //     params: getNavigationParams(),
-  //   });
-  // };
+// const handleAddNew = () => {
+//   router.push({
+//     pathname: '/(home)/add-address',
+//     params: {
+//       ...getNavigationParams(),
+//       mode: 'add',
+//     },
+//   });
+// };
 const handleAddNew = () => {
   router.push({
     pathname: '/(home)/add-address',
     params: {
       ...getNavigationParams(),
+      returnTo,
+      fromHeader,
       mode: 'add',
     },
   });
 };
-  // =====================================================
-  // EDIT ADDRESS
-  // =====================================================
 
-  const handleEdit = (id: string) => {
-    router.push({
-      pathname: '/(home)/add-address',
-      params: {
-        ...getNavigationParams(),
-        id,
-      },
-    });
-  };
-
+const handleEdit = (id: string) => {
+  router.push({
+    pathname: '/(home)/add-address',
+    params: {
+      ...getNavigationParams(),
+      id,
+      fromHeader,
+      returnTo,
+    },
+  });
+};
   // =====================================================
   // DELETE ADDRESS
   // =====================================================
 
-  const handleDelete = (id: string) => {
-    Alert.alert(
-      'Delete Address',
-      'Are you sure you want to delete this address?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await deleteAddress(id);
-            } catch (error) {
-              console.error(
-                'Delete address error:',
-                error,
-              );
-            }
-          },
-        },
-      ],
-    );
-  };
+ const handleDelete = (id: string) => {
+  showCustomAlert(
+    'Delete Address',
+    'Are you sure you want to delete this address?',
+    async () => {
+      try {
+        await deleteAddress(id);
+      } catch (error) {
+        console.error(
+          'Delete address error:',
+          error,
+        );
+      }
+    },
+  );
+};
 
   // =====================================================
   // UI
@@ -610,6 +577,52 @@ const handleAddNew = () => {
           );
         }}
       />
+      <Modal
+  visible={alertVisible}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setAlertVisible(false)}
+>
+  <View style={styles.alertOverlay}>
+    <View style={styles.alertBox}>
+      <Text style={styles.alertTitle}>
+        {alertTitle}
+      </Text>
+
+      <Text style={styles.alertMessage}>
+        {alertMessage}
+      </Text>
+
+      <View style={styles.alertButtonRow}>
+        <TouchableOpacity
+          style={styles.cancelAlertButton}
+          activeOpacity={0.8}
+          onPress={() => setAlertVisible(false)}
+        >
+          <Text style={styles.cancelAlertText}>
+            Cancel
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.confirmAlertButton}
+          activeOpacity={0.8}
+          onPress={async () => {
+            setAlertVisible(false);
+
+            if (alertAction) {
+              await alertAction();
+            }
+          }}
+        >
+          <Text style={styles.confirmAlertText}>
+            Delete
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</Modal>
     </SafeAreaView>
   );
 }
@@ -855,4 +868,71 @@ const styles = StyleSheet.create({
     fontFamily: 'InterSemiBold',
     color: '#E53935',
   },
+  alertOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 24,
+},
+
+alertBox: {
+  width: '100%',
+  maxWidth: 360,
+  backgroundColor: '#FFFFFF',
+  borderRadius: 20,
+  padding: 24,
+},
+
+alertTitle: {
+  fontSize: 20,
+  fontFamily: 'InterBold',
+  color: '#222222',
+  textAlign: 'center',
+  marginBottom: 10,
+},
+
+alertMessage: {
+  fontSize: 14,
+  fontFamily: 'InterRegular',
+  color: '#666666',
+  textAlign: 'center',
+  lineHeight: 22,
+  marginBottom: 24,
+},
+
+alertButtonRow: {
+  flexDirection: 'row',
+  gap: 10,
+},
+
+cancelAlertButton: {
+  flex: 1,
+  height: 46,
+  borderRadius: 12,
+  backgroundColor: '#F1F1F1',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+cancelAlertText: {
+  fontSize: 14,
+  fontFamily: 'InterSemiBold',
+  color: '#555555',
+},
+
+confirmAlertButton: {
+  flex: 1,
+  height: 46,
+  borderRadius: 12,
+  backgroundColor: '#E53935',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+confirmAlertText: {
+  fontSize: 14,
+  fontFamily: 'InterSemiBold',
+  color: '#FFFFFF',
+},
 });
