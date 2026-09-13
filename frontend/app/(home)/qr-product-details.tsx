@@ -1478,8 +1478,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 20,
     fontFamily: "InterBold",
-    textAlign: "center",
-    marginRight: 40,
   },
 
   scrollView: {

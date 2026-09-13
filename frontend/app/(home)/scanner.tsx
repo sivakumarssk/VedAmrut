@@ -35,11 +35,46 @@ const CORNER_SIZE = 32;
 export default function ScannerScreen() {
   const [permission, requestPermission] =
     useCameraPermissions();
-    useEffect(() => {
-  if (permission && !permission.granted && permission.canAskAgain) {
-    requestPermission();
-  }
-}, [permission]);
+
+  // =====================================================
+  // ASK FOR CAMERA PERMISSION ONCE PER VISIT TO THIS
+  // SCREEN, UNTIL THE USER ACCEPTS
+  //
+  // Tabs keep this screen mounted in the background, so a
+  // plain useEffect (mount-only) would only ever ask once
+  // per app session. We want the opposite problem solved
+  // too: if the user denies while on this screen, don't
+  // immediately ask again just because `permission`
+  // re-renders — only ask again the NEXT time they arrive
+  // at this screen (leave the tab and come back).
+  //
+  // askedThisVisitRef tracks whether we've already asked
+  // during the current visit; it resets to false only when
+  // the screen regains focus (a fresh visit).
+  // =====================================================
+
+  const askedThisVisitRef = useRef(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      askedThisVisitRef.current = false;
+    }, [])
+  );
+
+  useEffect(() => {
+    if (askedThisVisitRef.current) {
+      return;
+    }
+
+    if (
+      permission &&
+      !permission.granted &&
+      permission.canAskAgain
+    ) {
+      askedThisVisitRef.current = true;
+      requestPermission();
+    }
+  }, [permission, requestPermission]);
 
   const [torchOn, setTorchOn] = useState(false);
   const [scanned, setScanned] = useState(false);
@@ -641,8 +676,6 @@ const styles = StyleSheet.create({
     fontSize: 21,
     fontFamily: "InterBold",
     color: "#FFFFFF",
-    textAlign: "center",
-    marginRight: 40,
   },
 
   headingContainer: {

@@ -34,6 +34,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import { API_BASE_URL } from "../api";
+import logo from "../assets/logo.png";
 
 // export default function Header() {
 export default function Header({ onMenuClick }) {
@@ -508,28 +509,16 @@ export default function Header({ onMenuClick }) {
           }}
         >
           <Box
+            component="img"
+            src={logo}
+            alt="Vedhamruth"
             sx={{
               width: 40,
               height: 40,
               borderRadius: "11px",
-              background:
-                "linear-gradient(135deg, #00843d, #00a94f)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              objectFit: "cover",
             }}
-          >
-            <Typography
-              sx={{
-                color: "#fff",
-                fontWeight: 700,
-                fontSize: 20,
-                fontFamily: "Inter",
-              }}
-            >
-              V
-            </Typography>
-          </Box>
+          />
 
           <Box
             sx={{

@@ -385,8 +385,6 @@ const handleEdit = (id: string) => {
         <Text style={styles.headerTitle}>
           Saved Addresses
         </Text>
-
-        <View style={styles.headerRight} />
       </View>
 
       {/* ================================================= */}
@@ -661,14 +659,10 @@ const styles = StyleSheet.create({
 
   headerTitle: {
     flex: 1,
-    textAlign: 'center',
+    marginLeft: 8,
     fontSize: 19,
     fontFamily: 'InterBold',
     color: '#222222',
-  },
-
-  headerRight: {
-    width: 40,
   },
 
   // ===================================================

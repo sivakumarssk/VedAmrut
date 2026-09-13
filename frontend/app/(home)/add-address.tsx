@@ -12,17 +12,15 @@ import React, {
 } from 'react';
 // import {Alert,KeyboardAvoidingView,Platform,ScrollView,StyleSheet,Text,TextInput,TouchableOpacity,View,} from 'react-native';
 import {
-  KeyboardAvoidingView,
   Modal,
-  Platform,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import {SafeAreaView,useSafeAreaInsets,} from 'react-native-safe-area-context';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import {SafeAreaView,} from 'react-native-safe-area-context';
 import { useAddress } from '@/hooks/useAddress';
 import { SavedAddress } from '@/utils/storage';
 
@@ -73,7 +71,6 @@ export default function AddAddressScreen() {
   );
   const quantity =getParam(params.quantity) || '1';
   const { addresses, addAddress, updateAddress,} = useAddress();
-  const insets = useSafeAreaInsets();
 
   const existingAddress = useMemo(() => {
     if (!addressId) {
@@ -384,59 +381,48 @@ const handleBack = () => {
   return (
     <SafeAreaView
       style={styles.safeArea}
-      edges={['top']}
+      edges={['top', 'bottom']}
     >
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={
-          Platform.OS === 'ios'
-            ? 'padding'
-            : undefined
-        }
-        keyboardVerticalOffset={80}
-      >
-        {/* HEADER */}
+      {/* HEADER */}
 
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            activeOpacity={0.7}
-            onPress={handleBack}
-          >
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color="#222"
-            />
-          </TouchableOpacity>
-
-          <Text style={styles.headerTitle}>
-            {isEditing
-              ? 'Edit Address'
-              : 'Add New Address'}
-          </Text>
-
-          <View
-            style={styles.headerRight}
-          />
-        </View>
-
-        {/* FORM */}
-
-        <ScrollView
-          style={styles.flex}
-          contentContainerStyle={[
-            styles.scrollContent,
-            {
-              paddingBottom:
-                120 + insets.bottom,
-            },
-          ]}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={
-            false
-          }
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          activeOpacity={0.7}
+          onPress={handleBack}
         >
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color="#222"
+          />
+        </TouchableOpacity>
+
+        <Text style={styles.headerTitle}>
+          {isEditing
+            ? 'Edit Address'
+            : 'Add New Address'}
+        </Text>
+      </View>
+
+      {/* FORM */}
+
+      <KeyboardAwareScrollView
+        style={styles.flex}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingBottom: 40,
+          },
+        ]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={
+          false
+        }
+        enableOnAndroid
+        extraScrollHeight={60}
+        keyboardOpeningTime={0}
+      >
           <Text style={styles.label}>
             Full name
           </Text>
@@ -632,38 +618,36 @@ const handleBack = () => {
                 : 'Save Address'}
             </Text>
           </TouchableOpacity>
-        </ScrollView>
+      </KeyboardAwareScrollView>
 
-<Modal
-  visible={alertVisible}
-  transparent
-  animationType="fade"
-  onRequestClose={() => setAlertVisible(false)}
->
-  <View style={styles.modalOverlay}>
-    <View style={styles.alertBox}>
-      <Text style={styles.alertTitle}>
-        {alertTitle}
-      </Text>
-
-      <Text style={styles.alertMessage}>
-        {alertMessage}
-      </Text>
-
-      <TouchableOpacity
-        style={styles.alertButton}
-        onPress={() => setAlertVisible(false)}
-        activeOpacity={0.8}
+      <Modal
+        visible={alertVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setAlertVisible(false)}
       >
-        <Text style={styles.alertButtonText}>
-          OK
-        </Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
+        <View style={styles.modalOverlay}>
+          <View style={styles.alertBox}>
+            <Text style={styles.alertTitle}>
+              {alertTitle}
+            </Text>
 
-      </KeyboardAvoidingView>
+            <Text style={styles.alertMessage}>
+              {alertMessage}
+            </Text>
+
+            <TouchableOpacity
+              style={styles.alertButton}
+              onPress={() => setAlertVisible(false)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.alertButtonText}>
+                OK
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -694,7 +678,6 @@ const styles = StyleSheet.create({
     height: 56,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 16,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
@@ -710,14 +693,10 @@ const styles = StyleSheet.create({
 
   headerTitle: {
     flex: 1,
-    textAlign: 'center',
+    marginLeft: 8,
     fontSize: 19,
     fontFamily: 'InterSemiBold',
     color: '#222222',
-  },
-
-  headerRight: {
-    width: 40,
   },
 
   // =====================================================

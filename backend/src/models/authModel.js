@@ -109,6 +109,55 @@ const getUserByPhone = async (phone) => {
 
 
 // =====================================================
+// REPLACE THE SINGLE ADMIN ACCOUNT
+//
+// Only one admin should ever exist. Any existing admin
+// row is deleted first, then the new one is inserted, so
+// calling this again always replaces the previous admin
+// instead of creating a second one.
+// =====================================================
+
+const replaceAdminUser = async (
+  name,
+  email,
+  hashedPassword
+) => {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    await client.query(
+      `DELETE FROM users WHERE role = 'admin'`
+    );
+
+    const result = await client.query(
+      `
+      INSERT INTO users (
+        name,
+        email,
+        phone,
+        password,
+        role
+      )
+      VALUES ($1, $2, $3, $4, 'admin')
+      RETURNING *;
+      `,
+      [name, email, null, hashedPassword]
+    );
+
+    await client.query("COMMIT");
+
+    return result.rows[0];
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+// =====================================================
 // EXPORT
 // =====================================================
 
@@ -116,4 +165,5 @@ module.exports = {
   createAuthUser,
   getUserByEmail,
   getUserByPhone,
+  replaceAdminUser,
 };

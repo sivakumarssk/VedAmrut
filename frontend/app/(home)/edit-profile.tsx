@@ -8,15 +8,13 @@ import {
 import React, { useState } from 'react';
 import {
   Modal,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {SafeAreaView,useSafeAreaInsets} from 'react-native-safe-area-context';
 import ScreenHeader from '@/components/common/ScreenHeader';
 import { useAuth } from '@/hooks/useAuth';
@@ -130,19 +128,10 @@ const handleBackToProfile = () => {
       style={styles.safeArea}
       edges={['top']}
     >
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={
-          Platform.OS === 'ios'
-            ? 'padding'
-            : 'height'
-        }
-        keyboardVerticalOffset={80}
-      >
-        <View style={styles.flex}>
+      <View style={styles.flex}>
 
-          {/* <ScreenHeader title="Edit Profile" /> */}
-          
+        {/* <ScreenHeader title="Edit Profile" /> */}
+
 <View style={styles.header}>
 
   <TouchableOpacity
@@ -163,9 +152,7 @@ const handleBackToProfile = () => {
 
 </View>
 
-
-
-          <ScrollView
+          <KeyboardAwareScrollView
             contentContainerStyle={[
               styles.scrollContent,
               {
@@ -175,6 +162,9 @@ const handleBackToProfile = () => {
             ]}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
+            enableOnAndroid
+            extraScrollHeight={60}
+            keyboardOpeningTime={0}
           >
 
             {/* =========================
@@ -365,42 +355,42 @@ const handleBackToProfile = () => {
               </Text>
             </TouchableOpacity>
 
-          </ScrollView>
-<Modal
-  visible={alertVisible}
-  transparent
-  animationType="fade"
-  onRequestClose={() => setAlertVisible(false)}
->
-  <View style={styles.alertOverlay}>
-    <View style={styles.alertBox}>
-      <Text style={styles.alertTitle}>
-        {alertTitle}
-      </Text>
-
-      <Text style={styles.alertMessage}>
-        {alertMessage}
-      </Text>
-
-      <TouchableOpacity
-        style={styles.alertButton}
-        onPress={async () => {
-          setAlertVisible(false);
-
-          if (alertAction) {
-            await alertAction();
-          }
-        }}
-      >
-        <Text style={styles.alertButtonText}>
-          OK
-        </Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
+          </KeyboardAwareScrollView>
         </View>
-      </KeyboardAvoidingView>
+
+      <Modal
+        visible={alertVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setAlertVisible(false)}
+      >
+        <View style={styles.alertOverlay}>
+          <View style={styles.alertBox}>
+            <Text style={styles.alertTitle}>
+              {alertTitle}
+            </Text>
+
+            <Text style={styles.alertMessage}>
+              {alertMessage}
+            </Text>
+
+            <TouchableOpacity
+              style={styles.alertButton}
+              onPress={async () => {
+                setAlertVisible(false);
+
+                if (alertAction) {
+                  await alertAction();
+                }
+              }}
+            >
+              <Text style={styles.alertButtonText}>
+                OK
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

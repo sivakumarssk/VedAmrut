@@ -1,7 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator,  Modal,} from 'react-native';
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator,  Modal,} from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { SafeAreaView, useSafeAreaInsets,} from 'react-native-safe-area-context';
 import { useAuth } from '@/hooks/useAuth';
 export default function RegisterScreen() {
@@ -63,21 +64,20 @@ const [alertMessage, setAlertMessage] = useState('');
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <KeyboardAvoidingView
+      <KeyboardAwareScrollView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={80}
+        contentContainerStyle={[
+          styles.scrollContent,
+          {
+            paddingBottom: 200 + insets.bottom,
+          },
+        ]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        enableOnAndroid
+        extraScrollHeight={60}
+        keyboardOpeningTime={0}
       >
-        <ScrollView
-          contentContainerStyle={[
-            styles.scrollContent,
-            {
-              paddingBottom: 120 + insets.bottom,
-            },
-          ]}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
           {/* Back Button */}
           <TouchableOpacity
             style={styles.backButton}
@@ -280,40 +280,39 @@ const [alertMessage, setAlertMessage] = useState('');
                 : 'Create Account'}
             </Text>
           </TouchableOpacity>
-        </ScrollView>
-<Modal
-  visible={alertVisible}
-  transparent
-  animationType="fade"
-  onRequestClose={() => setAlertVisible(false)}
->
-  <View style={styles.modalOverlay}>
-    <View style={styles.alertBox}>
-      <Text style={styles.alertTitle}>
-        {alertTitle}
-      </Text>
+      </KeyboardAwareScrollView>
 
-      <Text style={styles.alertMessage}>
-        {alertMessage}
-      </Text>
-
-      <TouchableOpacity
-        style={styles.alertButton}
-        onPress={() => {
-          setAlertVisible(false);
-          router.replace('/(home)/home');
-        }}
-        activeOpacity={0.8}
+      <Modal
+        visible={alertVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setAlertVisible(false)}
       >
-        <Text style={styles.alertButtonText}>
-          OK
-        </Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-</Modal>
+        <View style={styles.modalOverlay}>
+          <View style={styles.alertBox}>
+            <Text style={styles.alertTitle}>
+              {alertTitle}
+            </Text>
 
-      </KeyboardAvoidingView>
+            <Text style={styles.alertMessage}>
+              {alertMessage}
+            </Text>
+
+            <TouchableOpacity
+              style={styles.alertButton}
+              onPress={() => {
+                setAlertVisible(false);
+                router.replace('/(home)/home');
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.alertButtonText}>
+                OK
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

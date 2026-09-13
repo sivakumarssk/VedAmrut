@@ -24,6 +24,8 @@ import CategoryIcon from "@mui/icons-material/Category";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 
+import logo from "../assets/logo.png";
+
 // export default function Sidebar() {
 export default function Sidebar({ mobileOpen, setMobileOpen }) {
   const theme = useTheme();
@@ -91,30 +93,18 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
         }}
       >
         <Box
+          component="img"
+          src={logo}
+          alt="Vedhamruth"
           sx={{
             width: 42,
             height: 42,
             borderRadius: "12px",
-            background:
-              "linear-gradient(135deg, #00843d, #00a94f)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            objectFit: "cover",
             mr: 1.5,
             flexShrink: 0,
           }}
-        >
-          <Typography
-            sx={{
-              color: "#fff",
-              fontSize: 21,
-              fontWeight: 700,
-              fontFamily: "Inter",
-            }}
-          >
-            V
-          </Typography>
-        </Box>
+        />
 
         <Typography
           sx={{

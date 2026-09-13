@@ -7,7 +7,9 @@ import {
 } from "react-router-dom";
 
 import AdminLayout from "./components/AdminLayout";
+import RequireAuth from "./components/RequireAuth";
 
+import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import Orders from "./pages/Orders";
@@ -20,6 +22,13 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+
+        {/* LOGIN */}
+
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
         {/* DEFAULT → DASHBOARD */}
 
@@ -38,9 +47,11 @@ export default function App() {
         <Route
           path="/dashboard"
           element={
-            <AdminLayout>
-              <Dashboard />
-            </AdminLayout>
+            <RequireAuth>
+              <AdminLayout>
+                <Dashboard />
+              </AdminLayout>
+            </RequireAuth>
           }
         />
 
@@ -49,9 +60,11 @@ export default function App() {
         <Route
           path="/users"
           element={
-            <AdminLayout>
-              <Users />
-            </AdminLayout>
+            <RequireAuth>
+              <AdminLayout>
+                <Users />
+              </AdminLayout>
+            </RequireAuth>
           }
         />
 
@@ -60,24 +73,59 @@ export default function App() {
         <Route
           path="/orders"
           element={
-            <AdminLayout>
-              <Orders />
-            </AdminLayout>
+            <RequireAuth>
+              <AdminLayout>
+                <Orders />
+              </AdminLayout>
+            </RequireAuth>
           }
         />
-   <Route
-  path="/orders/customer/:userId"
-  element={<CustomerOrderDetails />}
-/>
+
+        <Route
+          path="/orders/customer/:userId"
+          element={
+            <RequireAuth>
+              <CustomerOrderDetails />
+            </RequireAuth>
+          }
+        />
 
         {/* ORDER DETAILS */}
 
         <Route
           path="/orders/:id"
           element={
-            <AdminLayout>
-              <OrderDetails />
-            </AdminLayout>
+            <RequireAuth>
+              <AdminLayout>
+                <OrderDetails />
+              </AdminLayout>
+            </RequireAuth>
+          }
+        />
+
+        {/* PRODUCTS */}
+
+        <Route
+          path="/products"
+          element={
+            <RequireAuth>
+              <AdminLayout>
+                <Products />
+              </AdminLayout>
+            </RequireAuth>
+          }
+        />
+
+        {/* CATEGORIES */}
+
+        <Route
+          path="/categories"
+          element={
+            <RequireAuth>
+              <AdminLayout>
+                <Categories />
+              </AdminLayout>
+            </RequireAuth>
           }
         />
 
@@ -92,23 +140,6 @@ export default function App() {
             />
           }
         />
-<Route
-  path="/products"
-  element={
-    <AdminLayout>
-      <Products />
-    </AdminLayout>
-  }
-/>
-
-<Route
-  path="/categories"
-  element={
-    <AdminLayout>
-      <Categories />
-    </AdminLayout>
-  }
-/>
       </Routes>
     </BrowserRouter>
   );

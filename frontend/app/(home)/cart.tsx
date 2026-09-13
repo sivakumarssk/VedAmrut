@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,8 +18,17 @@ import { API_BASE_URL } from '@/constants/api';
 import { useAuth } from '@/hooks/useAuth';
 import { useAddress } from '@/hooks/useAddress';
 import { useLoginPopup } from '@/hooks/useLoginPopup';
+import {
+  TAB_BAR_BOTTOM_MARGIN,
+  TAB_BAR_HEIGHT,
+} from '@/constants/Layout';
 
 export default function CartScreen() {
+  const insets = useSafeAreaInsets();
+
+  const tabBarClearance =
+    insets.bottom + TAB_BAR_BOTTOM_MARGIN + TAB_BAR_HEIGHT;
+
   const [removingProductId, setRemovingProductId] =
     React.useState<string | null>(null);
 
@@ -371,7 +381,7 @@ const handleBack = () => {
         contentContainerStyle={[
           styles.list,
           {
-            paddingBottom: 220,
+            paddingBottom: tabBarClearance + 140,
           },
         ]}
         showsVerticalScrollIndicator={false}
@@ -381,7 +391,12 @@ const handleBack = () => {
           CART SUMMARY
       ================================================= */}
 
-      <View style={styles.bottomContainer}>
+      <View
+        style={[
+          styles.bottomContainer,
+          { bottom: tabBarClearance },
+        ]}
+      >
         {/* TOTAL */}
 
         <View style={styles.summaryRow}>
@@ -645,7 +660,6 @@ clearTopText: {
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 100,
 
     borderTopWidth: 1,
     borderTopColor: '#EEEEEE',

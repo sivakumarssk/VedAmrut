@@ -1089,8 +1089,6 @@ function Header({
       <Text style={styles.headerTitle}>
         Order Details
       </Text>
-
-      <View style={styles.headerSpacer} />
     </View>
   );
 }
@@ -1113,7 +1111,6 @@ const styles = StyleSheet.create({
     height: 60,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 16,
     // borderBottomWidth: 1,
     // borderBottomColor: '#EEEEEE',
@@ -1128,14 +1125,11 @@ const styles = StyleSheet.create({
   },
 
   headerTitle: {
+    flex: 1,
     fontSize: 20,
     fontFamily: 'InterBold',
     color: '#222222',
-    marginLeft:-110
-  },
-
-  headerSpacer: {
-    width: 38,
+    marginLeft: 8,
   },
 
   // =========================

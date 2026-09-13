@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useCameraPermissions } from 'expo-camera';
 import Header from '../../src/components/home/Header';
 import CategoryGrid from '../../src/components/home/CategoryGrid';
 import HeroPromo from '../../src/components/home/HeroPromo';
@@ -24,6 +25,32 @@ export default function HomeScreen() {
 
   const tabBarClearance =
     insets.bottom + TAB_BAR_BOTTOM_MARGIN + TAB_BAR_HEIGHT;
+
+  const [cameraPermission, requestCameraPermission] =
+    useCameraPermissions();
+
+  // =====================================================
+  // ASK FOR CAMERA PERMISSION UP FRONT
+  //
+  // Like most apps, ask for camera access as soon as the
+  // user lands on the home screen, rather than waiting
+  // until they open the scanner. If they deny it here,
+  // `canAskAgain` becomes false and this stays quiet —
+  // the scanner screen itself asks again (via its own
+  // "tap to allow" prompt) the next time they try to open
+  // the camera there.
+  // =====================================================
+
+  useEffect(() => {
+    if (
+      cameraPermission &&
+      !cameraPermission.granted &&
+      cameraPermission.canAskAgain
+    ) {
+      requestCameraPermission();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cameraPermission?.granted]);
 
   useEffect(() => {
     fetchCategories();
