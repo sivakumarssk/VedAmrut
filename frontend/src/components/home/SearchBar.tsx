@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+  Animated,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -17,7 +18,6 @@ type Product = {
 
 export default function SearchBar() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
 
   // ==========================================
   // FETCH PRODUCT NAMES
@@ -68,36 +68,72 @@ export default function SearchBar() {
   }, []);
 
   // ==========================================
-  // CHANGE PRODUCT NAME
+  // SCROLLING PRODUCT NAME TICKER
+  //
+  // Continuous upward-scrolling ticker: every product
+  // name is stacked in one tall column and the column
+  // keeps translating up, one row at a time, instead of
+  // instantly swapping text. The first name is duplicated
+  // at the end of the list so the loop can jump back to
+  // the top instantly once it scrolls past the duplicate
+  // — both rows look identical, so the reset is invisible.
   // ==========================================
 
+  const TICKER_ROW_HEIGHT = 16;
+
+  const baseNames =
+    products.length > 0
+      ? products.map((product) => product.name)
+      : ['Skin Care', 'Herbal Juice', 'Ayurvedic Products'];
+
+  const tickerNames = [...baseNames, baseNames[0]];
+
+  const scrollAnim = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
-    if (products.length <= 1) {
+    if (baseNames.length <= 1) {
       return;
     }
 
-    const interval = setInterval(() => {
-      setCurrentIndex((previousIndex) => {
-        return (
-          (previousIndex + 1) %
-          products.length
-        );
+    let currentStep = 0;
+    let isCancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const scrollToNextName = () => {
+      if (isCancelled) {
+        return;
+      }
+
+      currentStep += 1;
+
+      Animated.timing(scrollAnim, {
+        toValue: -(currentStep * TICKER_ROW_HEIGHT),
+        duration: 550,
+        useNativeDriver: true,
+      }).start(() => {
+        if (isCancelled) {
+          return;
+        }
+
+        if (currentStep >= baseNames.length) {
+          currentStep = 0;
+          scrollAnim.setValue(0);
+        }
+
+        timeoutId = setTimeout(scrollToNextName, 3000);
       });
-    }, 10000);
+    };
+
+    timeoutId = setTimeout(scrollToNextName, 3000);
 
     return () => {
-      clearInterval(interval);
+      isCancelled = true;
+      clearTimeout(timeoutId);
+      scrollAnim.stopAnimation();
+      scrollAnim.setValue(0);
     };
-  }, [products]);
-
-  // ==========================================
-  // CURRENT PRODUCT
-  // ==========================================
-
-  const currentProduct =
-    products.length > 0
-      ? products[currentIndex]?.name
-      : 'Skin Care';
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products.length]);
 
   // ==========================================
   // UI
@@ -123,12 +159,32 @@ export default function SearchBar() {
         </Text>
       </View>
 
-      <Text
-        style={styles.suggestion}
-        numberOfLines={1}
-      >
-        "{currentProduct}"
-      </Text>
+      <View style={styles.suggestionWrapper}>
+        <Animated.View
+          style={{
+            width: '100%',
+            transform: [
+              {
+                translateY: scrollAnim,
+              },
+            ],
+          }}
+        >
+          {tickerNames.map((name, index) => (
+            <View
+              key={`${name}-${index}`}
+              style={styles.suggestionRow}
+            >
+              <Text
+                style={styles.suggestion}
+                numberOfLines={1}
+              >
+                "{name}"
+              </Text>
+            </View>
+          ))}
+        </Animated.View>
+      </View>
     </TouchableOpacity>
   );
 }
@@ -174,11 +230,24 @@ const styles = StyleSheet.create({
     color: '#9A9A9A',
   },
 
-  suggestion: {
+  suggestionWrapper: {
     marginLeft: 10,
+    height: 16,
+    width: 130,
+    overflow: 'hidden',
+  },
+
+  suggestionRow: {
+    height: 16,
+    width: 130,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+
+  suggestion: {
     fontSize: 10,
     fontFamily: 'InterMedium',
     color: '#3B3B3B',
-    flexShrink: 1,
+    textAlign: 'right',
   },
 });

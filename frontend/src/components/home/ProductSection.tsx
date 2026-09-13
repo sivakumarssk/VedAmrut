@@ -1,4 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -24,7 +29,13 @@ type Product = {
 
   image?: string | null;
 };
-export default function ProductSection() {
+
+export type ProductSectionHandle = {
+  refresh: () => Promise<void>;
+};
+
+const ProductSection = forwardRef<ProductSectionHandle>(
+  (_props, ref) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -90,6 +101,10 @@ export default function ProductSection() {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  useImperativeHandle(ref, () => ({
+    refresh: fetchProducts,
+  }));
 
   // ==========================================
   // OPEN PRODUCT DETAILS
@@ -265,7 +280,12 @@ discount={
       )}
     </View>
   );
-}
+  }
+);
+
+ProductSection.displayName = 'ProductSection';
+
+export default ProductSection;
 
 // ==========================================
 // STYLES

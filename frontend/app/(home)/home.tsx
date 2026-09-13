@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Header from '../../src/components/home/Header';
 import CategoryGrid from '../../src/components/home/CategoryGrid';
 import HeroPromo from '../../src/components/home/HeroPromo';
-import ProductSection from '../../src/components/home/ProductSection';
+import ProductSection, {
+  ProductSectionHandle,
+} from '../../src/components/home/ProductSection';
 import { API_BASE_URL } from '@/constants/api';
 import { TAB_BAR_BOTTOM_MARGIN, TAB_BAR_HEIGHT } from '../../src/constants/Layout';
 
@@ -14,6 +16,9 @@ export default function HomeScreen() {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const productSectionRef = useRef<ProductSectionHandle>(null);
 
   const insets = useSafeAreaInsets();
 
@@ -24,9 +29,25 @@ export default function HomeScreen() {
     fetchCategories();
   }, []);
 
-  const fetchCategories = async () => {
+  const onRefresh = async () => {
+    setRefreshing(true);
+
+    await Promise.all([
+      fetchCategories({ silent: true }),
+      productSectionRef.current?.refresh(),
+    ]);
+
+    setRefreshing(false);
+  };
+
+  const fetchCategories = async (
+    options: { silent?: boolean } = {}
+  ) => {
     try {
-      setLoading(true);
+      if (!options.silent) {
+        setLoading(true);
+      }
+
       setError('');
 
     const response = await fetch(`${API_BASE_URL}/api/categories`);
@@ -68,6 +89,14 @@ export default function HomeScreen() {
         }}
         showsVerticalScrollIndicator={false}
          nestedScrollEnabled
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#1C9C57']}
+            tintColor="#1C9C57"
+          />
+        }
       >
         <Header />
 
@@ -95,7 +124,7 @@ export default function HomeScreen() {
 
         <HeroPromo />
 
-        <ProductSection />
+        <ProductSection ref={productSectionRef} />
       </ScrollView>
     </SafeAreaView>
   );

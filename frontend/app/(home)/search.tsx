@@ -603,6 +603,15 @@ export default function SearchScreen() {
 
   // =====================================================
   // DYNAMIC TEXT ANIMATION
+  //
+  // Continuous upward-scrolling ticker: every word is
+  // stacked in one tall column and the whole column keeps
+  // translating up, one row at a time, without ever
+  // pausing on a blank gap. The first word is duplicated
+  // at the end of the list so the loop can jump back to
+  // the top instantly, in the same visual position as the
+  // row it just finished scrolling to, making the reset
+  // invisible.
   // =====================================================
 
   const dynamicWords = [
@@ -616,39 +625,52 @@ export default function SearchScreen() {
     'Oral Care',
   ];
 
-  const [wordIndex, setWordIndex] = useState(0);
+  const TICKER_ROW_HEIGHT = 32;
 
-  const slideAnim = useRef(new Animated.Value(0)).current;
+  const tickerWords = [...dynamicWords, dynamicWords[0]];
+
+  const scrollAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      // Move current text downward and hide it
-      Animated.timing(slideAnim, {
-        toValue: 35,
-        duration: 450,
+    let currentStep = 0;
+    let isCancelled = false;
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const scrollToNextWord = () => {
+      if (isCancelled) {
+        return;
+      }
+
+      currentStep += 1;
+
+      Animated.timing(scrollAnim, {
+        toValue: -(currentStep * TICKER_ROW_HEIGHT),
+        duration: 550,
         useNativeDriver: true,
       }).start(() => {
-        // Change the text after old text disappears
-        setWordIndex(
-          (previousIndex) =>
-            (previousIndex + 1) % dynamicWords.length
-        );
+        if (isCancelled) {
+          return;
+        }
 
-        // Place new text above the visible area
-        slideAnim.setValue(-35);
+        // Once we've scrolled past the duplicated first
+        // word, snap back to the real first word with no
+        // animation — both rows look identical, so the
+        // jump is invisible.
+        if (currentStep >= dynamicWords.length) {
+          currentStep = 0;
+          scrollAnim.setValue(0);
+        }
 
-        // Move new text down into the center
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 450,
-          useNativeDriver: true,
-        }).start();
+        timeoutId = setTimeout(scrollToNextWord, 1650);
       });
-    }, 2200);
+    };
+
+    timeoutId = setTimeout(scrollToNextWord, 1650);
 
     return () => {
-      clearInterval(interval);
-      slideAnim.stopAnimation();
+      isCancelled = true;
+      clearTimeout(timeoutId);
+      scrollAnim.stopAnimation();
     };
   }, []);
 
@@ -839,39 +861,7 @@ export default function SearchScreen() {
       style={styles.safeArea}
       edges={['top']}
     >
-      {/* =================================================
-          GREEN HEADER WITH ANIMATED DYNAMIC TEXT
-      ================================================= */}
 
-      <View style={styles.animatedHeader}>
-        <View style={styles.headerTextContainer}>
-          <Text style={styles.headerTitle}>
-            What are you looking for today?
-          </Text>
-
-          <Text style={styles.headerSubtitle}>
-            Discover natural wellness products
-          </Text>
-        </View>
-
-        <View style={styles.dynamicTextWrapper}>
-          <Animated.Text
-            style={[
-              styles.dynamicText,
-              {
-                transform: [
-                  {
-                    translateY: slideAnim,
-                  },
-                ],
-              },
-            ]}
-            numberOfLines={1}
-          >
-            {dynamicWords[wordIndex]}
-          </Animated.Text>
-        </View>
-      </View>
 
       {/* =================================================
           SEARCH BAR
@@ -1075,11 +1065,15 @@ const styles = StyleSheet.create({
     width: 110,
     height: 32,
     overflow: 'hidden',
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     paddingHorizontal: 8,
+  },
+
+  dynamicTextRow: {
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   dynamicText: {

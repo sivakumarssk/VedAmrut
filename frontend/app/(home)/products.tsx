@@ -1,9 +1,10 @@
 
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  RefreshControl,
   StyleSheet,
   Text,
   View,
@@ -37,6 +38,7 @@ export default function ProductsScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   // ==========================================
   // FETCH PRODUCTS
@@ -51,9 +53,20 @@ export default function ProductsScreen() {
     fetchProducts();
   }, [categoryId]);
 
-  const fetchProducts = async () => {
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchProducts({ silent: true });
+    setRefreshing(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categoryId]);
+
+  const fetchProducts = async (
+    options: { silent?: boolean } = {}
+  ) => {
     try {
-      setLoading(true);
+      if (!options.silent) {
+        setLoading(true);
+      }
 
       console.log('================================');
       console.log('PRODUCTS SCREEN');
@@ -214,6 +227,14 @@ export default function ProductsScreen() {
         numColumns={2}
         columnWrapperStyle={
           styles.row
+        }
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#1C9C57']}
+            tintColor="#1C9C57"
+          />
         }
         contentContainerStyle={
           styles.listContent

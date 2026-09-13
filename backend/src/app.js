@@ -1,10 +1,13 @@
 
 
-require("dotenv").config();
+const path = require("path");
+
+require("dotenv").config({
+  path: path.join(__dirname, "..", ".env"),
+});
 
 const express = require("express");
 const cors = require("cors");
-const path = require("path");
 
 // ========================================
 // ROUTES
@@ -60,12 +63,15 @@ const app = express();
 app.use(cors());
 
 app.use(
-  express.json()
+  express.json({
+    limit: "50mb",
+  })
 );
 
 app.use(
   express.urlencoded({
     extended: true,
+    limit: "50mb",
   })
 );
 

@@ -10,9 +10,13 @@ const {
 // Create Category
 const addCategory = async (req, res) => {
   try {
-    const { name, description, image } = req.body;
+    const { name, description } = req.body;
 
-    if (!name) {
+    const image = req.file
+      ? req.file.filename
+      : null;
+
+    if (!name || !name.trim()) {
       return res.status(400).json({
         success: false,
         message: "Category name is required",
@@ -20,7 +24,7 @@ const addCategory = async (req, res) => {
     }
 
     const category = await createCategory(
-      name,
+      name.trim(),
       description,
       image
     );
@@ -97,21 +101,34 @@ const getCategory = async (req, res) => {
 const editCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, image } = req.body;
+    const { name, description } = req.body;
 
-    const category = await updateCategory(
-      id,
-      name,
-      description,
-      image
-    );
+    const existingCategory = await getCategoryById(id);
 
-    if (!category) {
+    if (!existingCategory) {
       return res.status(404).json({
         success: false,
         message: "Category not found",
       });
     }
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Category name is required",
+      });
+    }
+
+    const image = req.file
+      ? req.file.filename
+      : existingCategory.image;
+
+    const category = await updateCategory(
+      id,
+      name.trim(),
+      description,
+      image
+    );
 
     res.status(200).json({
       success: true,

@@ -14,6 +14,7 @@ import Orders from "./pages/Orders";
 import CustomerOrderDetails from "./pages/CustomerOrderDetails";
 import OrderDetails from "./pages/OrderDetails";
 import Products from "./pages/Products";
+import Categories from "./pages/Categories";
 
 export default function App() {
   return (
@@ -96,6 +97,15 @@ export default function App() {
   element={
     <AdminLayout>
       <Products />
+    </AdminLayout>
+  }
+/>
+
+<Route
+  path="/categories"
+  element={
+    <AdminLayout>
+      <Categories />
     </AdminLayout>
   }
 />

@@ -20,6 +20,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
+import CategoryIcon from "@mui/icons-material/Category";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -46,6 +47,11 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
       name: "Products",
       path: "/products",
       icon: <Inventory2Icon />,
+    },
+    {
+      name: "Categories",
+      path: "/categories",
+      icon: <CategoryIcon />,
     },
     {
       name: "Orders",
