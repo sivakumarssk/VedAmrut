@@ -9,7 +9,7 @@ async function startServer() {
     console.log("✅ PostgreSQL Connected Successfully");
 
     app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server running on http://192.168.0.112:${PORT}`);
+   console.log(`🌐 Live Backend: https://api.vedaamurut.com`);
 });
   } catch (error) {
     console.error("❌ Database Connection Failed");
