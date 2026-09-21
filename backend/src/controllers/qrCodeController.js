@@ -25,12 +25,29 @@ const generateProductQRCodes = async (req, res) => {
       });
     }
 
+    const stock =
+      req.body?.stock !== undefined
+        ? Number(req.body.stock)
+        : null;
+
+    const rewardTiers = Array.isArray(
+      req.body?.rewardTiers
+    )
+      ? req.body.rewardTiers
+      : null;
+
     console.log("================================");
     console.log("GENERATE PRODUCT QR");
     console.log("PRODUCT ID:", productId);
+    console.log("STOCK:", stock);
+    console.log("REWARD TIERS:", rewardTiers);
     console.log("================================");
 
-    const qrCodes = await createProductQRCodes(productId);
+    const qrCodes = await createProductQRCodes(
+      productId,
+      stock,
+      rewardTiers
+    );
 
     return res.status(200).json({
       success: true,

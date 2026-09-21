@@ -12,6 +12,7 @@ type CategoryCardProps = {
   title: string;
   image: ImageSourcePropType;
   color: string;
+  imageBgColor?: string;
   transparent?: boolean;
   onPress?: () => void;
 };
@@ -20,6 +21,7 @@ export default function CategoryCard({
   title,
   image,
   color,
+  imageBgColor,
   transparent,
   onPress,
 }: CategoryCardProps) {
@@ -37,7 +39,17 @@ export default function CategoryCard({
       activeOpacity={0.85}
       onPress={onPress}
     >
-      <View style={styles.imageContainer}>
+      <View
+        style={[
+          styles.imageContainer,
+          imageBgColor && imageBgColor !== 'transparent'
+            ? {
+                backgroundColor: imageBgColor,
+                borderRadius: 10,
+              }
+            : null,
+        ]}
+      >
         {imageLoading && !imageError && (
           <ActivityIndicator
             size="small"

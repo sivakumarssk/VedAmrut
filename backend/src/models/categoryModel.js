@@ -1,12 +1,17 @@
 const pool = require("../config/db");
 
 // Create Category
-const createCategory = async (name, description, image) => {
+const createCategory = async (
+  name,
+  description,
+  image,
+  bg_color = "transparent"
+) => {
   const result = await pool.query(
-    `INSERT INTO categories (name, description, image)
-     VALUES ($1, $2, $3)
+    `INSERT INTO categories (name, description, image, bg_color)
+     VALUES ($1, $2, $3, $4)
      RETURNING *`,
-    [name, description, image]
+    [name, description, image, bg_color]
   );
 
   return result.rows[0];
@@ -39,17 +44,19 @@ const updateCategory = async (
   id,
   name,
   description,
-  image
+  image,
+  bg_color = "transparent"
 ) => {
   const result = await pool.query(
     `UPDATE categories
      SET name=$1,
          description=$2,
          image=$3,
+         bg_color=$4,
          updated_at=CURRENT_TIMESTAMP
-     WHERE id=$4
+     WHERE id=$5
      RETURNING *`,
-    [name, description, image, id]
+    [name, description, image, bg_color, id]
   );
 
   return result.rows[0];

@@ -28,6 +28,7 @@ type Product = {
   review_count?: number | string | null;
 
   image?: string | null;
+  bg_color?: string | null;
 };
 
 export type ProductSectionHandle = {
@@ -232,6 +233,13 @@ image={
       }
     : require('@/assets/images/product1.png')
 }
+  bgColor={
+    [13, 16, 17, 19, 20, 21].includes(
+      Number(item.id)
+    )
+      ? undefined
+      : item.bg_color || undefined
+  }
   name={item.name}
 
   price={Number(item.price)}

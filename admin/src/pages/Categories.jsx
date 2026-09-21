@@ -48,6 +48,7 @@ export default function Categories() {
   const [form, setForm] = useState({
     name: "",
     description: "",
+    bg_color: "transparent",
   });
 
   // =====================================================
@@ -131,6 +132,7 @@ export default function Categories() {
     setForm({
       name: "",
       description: "",
+      bg_color: "transparent",
     });
 
     setImage(null);
@@ -147,6 +149,7 @@ export default function Categories() {
     setForm({
       name: category.name || "",
       description: category.description || "",
+      bg_color: category.bg_color || "transparent",
     });
 
     setImage(null);
@@ -170,6 +173,11 @@ export default function Categories() {
       formData.append(
         "description",
         form.description.trim()
+      );
+
+      formData.append(
+        "bg_color",
+        form.bg_color || "transparent"
       );
 
       if (image) {
@@ -456,7 +464,11 @@ export default function Categories() {
                   sx={{
                     height: { xs: 130, sm: 150 },
                     width: "100%",
-                    backgroundColor: "#f6f8f7",
+                    backgroundColor:
+                      category.bg_color &&
+                      category.bg_color !== "transparent"
+                        ? category.bg_color
+                        : "#f6f8f7",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -677,6 +689,122 @@ export default function Categories() {
                 }}
               />
             </Button>
+
+            {/* =================================================
+                IMAGE BACKGROUND COLOR
+            ================================================= */}
+
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  fontFamily: "Inter",
+                  fontWeight: 600,
+                  color: "#17201b",
+                  mb: 1,
+                }}
+              >
+                Image Background Color
+              </Typography>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                }}
+              >
+                <Box
+                  component="input"
+                  type="color"
+                  value={
+                    form.bg_color === "transparent"
+                      ? "#ffffff"
+                      : form.bg_color
+                  }
+                  onChange={(event) =>
+                    setForm((previous) => ({
+                      ...previous,
+                      bg_color: event.target.value,
+                    }))
+                  }
+                  sx={{
+                    width: 48,
+                    height: 40,
+                    border: "1px solid #d1d5db",
+                    borderRadius: "8px",
+                    padding: 0,
+                    cursor: "pointer",
+                    backgroundColor: "transparent",
+                  }}
+                />
+
+                <TextField
+                  size="small"
+                  label="Color"
+                  value={form.bg_color}
+                  onChange={(event) =>
+                    setForm((previous) => ({
+                      ...previous,
+                      bg_color: event.target.value,
+                    }))
+                  }
+                  sx={{ flex: 1 }}
+                />
+
+                <Button
+                  onClick={() =>
+                    setForm((previous) => ({
+                      ...previous,
+                      bg_color: "transparent",
+                    }))
+                  }
+                  sx={{
+                    color: "#6b7280",
+                    fontFamily: "Inter",
+                    fontWeight: 600,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Reset
+                </Button>
+
+                {/* PREVIEW */}
+
+                <Box
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: "8px",
+                    border: "1px solid #d1d5db",
+                    backgroundColor:
+                      form.bg_color === "transparent"
+                        ? "#ffffff"
+                        : form.bg_color,
+                    backgroundImage:
+                      form.bg_color === "transparent"
+                        ? "linear-gradient(45deg, #eee 25%, transparent 25%), linear-gradient(-45deg, #eee 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #eee 75%), linear-gradient(-45deg, transparent 75%, #eee 75%)"
+                        : "none",
+                    backgroundSize: "12px 12px",
+                    backgroundPosition:
+                      "0 0, 0 6px, 6px -6px, -6px 0px",
+                    flexShrink: 0,
+                  }}
+                />
+              </Box>
+
+              <Typography
+                sx={{
+                  mt: 0.5,
+                  fontSize: 12,
+                  fontFamily: "Inter",
+                  color: "#6b7280",
+                }}
+              >
+                This color shows behind the category image
+                in the app. Default is transparent.
+              </Typography>
+            </Box>
           </Box>
         </DialogContent>
 

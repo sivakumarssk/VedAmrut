@@ -2328,7 +2328,8 @@ const getOrderById =
           oi.price,
           oi.created_at,
           p.name,
-          p.image
+          p.image,
+          p.bg_color
         FROM order_items oi
         LEFT JOIN products p
           ON oi.product_id = p.id
@@ -3027,7 +3028,8 @@ const getAdminOrderById =
           oi.price,
           oi.created_at,
           p.name,
-          p.image
+          p.image,
+          p.bg_color
         FROM order_items oi
         LEFT JOIN products p
           ON oi.product_id = p.id

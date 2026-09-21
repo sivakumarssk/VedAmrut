@@ -41,6 +41,7 @@ type QRDetails = {
   product_description?: string;
   product_price?: string | number;
   product_image?: string | null;
+  product_bg_color?: string | null;
   product_stock?: string | number;
 
   reward_amount?: string | number;
@@ -51,6 +52,7 @@ type QRDetails = {
     description?: string;
     price?: string | number;
     image?: string | null;
+    bg_color?: string | null;
     category_name?: string;
   };
 
@@ -427,6 +429,11 @@ const showCustomAlert = (
     initialImage ||
     null;
 
+  const bgColor =
+    qrData?.product_bg_color ||
+    qrData?.product?.bg_color ||
+    undefined;
+
   const stock =
     qrData?.product_stock ??
     initialStock ??
@@ -774,6 +781,9 @@ const showCustomAlert = (
             productImage:
               String(image || ""),
 
+            productBgColor:
+              String(bgColor || ""),
+
             categoryName:
               String(category),
 
@@ -886,7 +896,12 @@ const showCustomAlert = (
         ================================================= */}
 
         <View
-          style={styles.imageCard}
+          style={[
+            styles.imageCard,
+            bgColor && bgColor !== "transparent"
+              ? { backgroundColor: bgColor }
+              : null,
+          ]}
         >
           {productImageUrl &&
           !imageError ? (

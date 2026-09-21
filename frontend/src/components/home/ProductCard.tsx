@@ -12,6 +12,7 @@ import RatingBadge from './RatingBadge';
 
 type ProductCardProps = {
   image: ImageSourcePropType;
+  bgColor?: string;
   name: string;
   price: number;
   oldPrice?: number;
@@ -24,6 +25,7 @@ type ProductCardProps = {
 
 export default function ProductCard({
   image,
+  bgColor,
   name,
   price,
   oldPrice,
@@ -51,11 +53,20 @@ export default function ProductCard({
       )}
 
       {/* Product Image */}
-      <Image
-        source={image}
-        resizeMode="contain"
-        style={styles.image}
-      />
+      <View
+        style={[
+          styles.imageWrapper,
+          bgColor && bgColor !== 'transparent'
+            ? { backgroundColor: bgColor }
+            : null,
+        ]}
+      >
+        <Image
+          source={image}
+          resizeMode="contain"
+          style={styles.image}
+        />
+      </View>
 
       {/* Product Name */}
       <Text
@@ -120,11 +131,16 @@ container: {
     fontFamily: 'InterSemiBold',
   },
 
+  imageWrapper: {
+    alignSelf: 'center',
+    borderRadius: 12,
+    marginVertical: 12,
+  },
+
   image: {
     width: 60,
     height: 60,
-    alignSelf: 'center',
-    marginVertical: 12,
+    margin: 6,
   },
 
   name: {

@@ -199,7 +199,13 @@ const handleBack = () => {
 
         <Image
           source={imageSource}
-          style={styles.productImage}
+          style={[
+            styles.productImage,
+            product.bg_color &&
+            product.bg_color !== 'transparent'
+              ? { backgroundColor: product.bg_color }
+              : null,
+          ]}
           resizeMode="contain"
         />
 

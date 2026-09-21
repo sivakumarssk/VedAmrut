@@ -588,6 +588,7 @@ type Product = {
   description: string;
   price: string;
   image: string | null;
+  bg_color?: string | null;
   stock: number;
   category_id: number;
   category_name: string;
@@ -829,7 +830,12 @@ export default function SearchScreen() {
         <Image
           source={getProductImage(item.image)}
           resizeMode="contain"
-          style={styles.resultImage}
+          style={[
+            styles.resultImage,
+            item.bg_color && item.bg_color !== 'transparent'
+              ? { backgroundColor: item.bg_color }
+              : null,
+          ]}
         />
 
         <View style={styles.resultInfo}>

@@ -6,11 +6,33 @@ const {
   deleteCategory,
 } = require("../models/categoryModel");
 
+// ========================================
+// NORMALIZE IMAGE BACKGROUND COLOR
+//
+// Accepts "transparent", a hex color (#RGB / #RRGGBB),
+// or an rgba()/rgb() string. Falls back to "transparent"
+// for anything empty or invalid.
+// ========================================
+
+const BG_COLOR_PATTERN =
+  /^(transparent|#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})|rgba?\([^)]+\))$/;
+
+const normalizeBgColor = (rawBgColor) => {
+  const value = String(rawBgColor || "").trim();
+
+  if (!value) {
+    return "transparent";
+  }
+
+  return BG_COLOR_PATTERN.test(value)
+    ? value
+    : "transparent";
+};
 
 // Create Category
 const addCategory = async (req, res) => {
   try {
-    const { name, description } = req.body;
+    const { name, description, bg_color } = req.body;
 
     const image = req.file
       ? req.file.filename
@@ -26,7 +48,8 @@ const addCategory = async (req, res) => {
     const category = await createCategory(
       name.trim(),
       description,
-      image
+      image,
+      normalizeBgColor(bg_color)
     );
 
     res.status(201).json({
@@ -101,7 +124,7 @@ const getCategory = async (req, res) => {
 const editCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description } = req.body;
+    const { name, description, bg_color } = req.body;
 
     const existingCategory = await getCategoryById(id);
 
@@ -123,11 +146,17 @@ const editCategory = async (req, res) => {
       ? req.file.filename
       : existingCategory.image;
 
+    const normalizedBgColor =
+      bg_color !== undefined
+        ? normalizeBgColor(bg_color)
+        : existingCategory.bg_color || "transparent";
+
     const category = await updateCategory(
       id,
       name.trim(),
       description,
-      image
+      image,
+      normalizedBgColor
     );
 
     res.status(200).json({

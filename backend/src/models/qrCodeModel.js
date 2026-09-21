@@ -2004,13 +2004,81 @@ const generateRewardPattern = (quantity) => {
   return shuffleArray(rewards);
 };
 
+// =====================================================
+// NORMALIZE ADMIN-DEFINED REWARD TIERS
+//
+// Accepts an array like:
+// [{ amount: 1, quantity: 10 }, { amount: 2, quantity: 5 }]
+//
+// Returns a cleaned array of { amount, quantity } with
+// invalid rows removed, or null when nothing usable
+// was provided (caller should fall back to the legacy
+// random pattern in that case).
+// =====================================================
+
+const normalizeRewardTiers = (rewardTiers) => {
+  if (!Array.isArray(rewardTiers)) {
+    return null;
+  }
+
+  const cleaned = rewardTiers
+    .map((tier) => ({
+      amount: Number(tier?.amount),
+      quantity: Number(tier?.quantity),
+    }))
+    .filter(
+      (tier) =>
+        Number.isFinite(tier.amount) &&
+        tier.amount >= 0 &&
+        Number.isInteger(tier.quantity) &&
+        tier.quantity > 0
+    );
+
+  return cleaned.length > 0 ? cleaned : null;
+};
+
+// =====================================================
+// BUILD REWARD LIST FROM ADMIN-DEFINED TIERS
+//
+// Expands each tier into `quantity` copies of `amount`,
+// pads/truncates to match the exact number of QR codes
+// being generated, and shuffles so reward amounts are
+// randomly distributed across the physical units.
+// =====================================================
+
+const buildRewardsFromTiers = (
+  rewardTiers,
+  quantity
+) => {
+  const rewards = [];
+
+  rewardTiers.forEach((tier) => {
+    for (let i = 0; i < tier.quantity; i++) {
+      rewards.push(tier.amount);
+    }
+  });
+
+  // Tiers did not add up to the full quantity requested -
+  // treat the remaining units as "no gift" (0).
+  while (rewards.length < quantity) {
+    rewards.push(0);
+  }
+
+  // Tiers added up to more than the quantity requested -
+  // only take as many as are actually needed.
+  rewards.length = quantity;
+
+  return shuffleArray(rewards);
+};
+
 const generateQRToken = () => {
   return `VA-${crypto.randomBytes(8).toString("hex").toUpperCase()}`;
 };
 
 const createProductQRCodes = async (
   productId,
-  requestedStock = null
+  requestedStock = null,
+  rewardTiers = null
 ) => {
   const client = await pool.connect();
 
@@ -2089,10 +2157,21 @@ const createProductQRCodes = async (
     const lastUnitNumber =
       lastUnitResult.rows[0].last_unit;
 
-    // Generate rewards based on the missing stock quantity
-    const rewards = generateRewardPattern(
-      missingCount
-    );
+    // Generate rewards for the missing QR codes.
+    //
+    // If the admin defined explicit reward tiers
+    // (e.g. ₹1 x 10, ₹2 x 5), use those. Otherwise fall
+    // back to the legacy random reward pattern so older
+    // flows (like "Generate All QR") keep working.
+    const normalizedTiers =
+      normalizeRewardTiers(rewardTiers);
+
+    const rewards = normalizedTiers
+      ? buildRewardsFromTiers(
+          normalizedTiers,
+          missingCount
+        )
+      : generateRewardPattern(missingCount);
 
     let createdCount = 0;
 
@@ -2233,6 +2312,7 @@ const getQRByCode = async (qrCode) => {
       p.name AS product_name,
       p.price AS product_price,
       p.image AS product_image,
+      p.bg_color AS product_bg_color,
 
       u.name AS claimed_by_name,
       u.email AS claimed_by_email
@@ -2541,4 +2621,5 @@ module.exports = {
   claimQRCodeAndReward,
   markQRCodeClaimed,
   deleteQRCodesByProductId,
+  normalizeRewardTiers,
 };

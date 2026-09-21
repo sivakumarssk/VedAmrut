@@ -13,7 +13,58 @@ const {
 const {
   createProductQRCodes,
   deleteQRCodesByProductId,
+  normalizeRewardTiers,
 } = require("../models/qrCodeModel");
+
+// ========================================
+// PARSE REWARD TIERS FROM REQUEST BODY
+//
+// Admin sends reward tiers as a JSON string inside the
+// multipart form, e.g.
+// reward_tiers = '[{"amount":1,"quantity":10},{"amount":2,"quantity":5}]'
+// ========================================
+
+const parseRewardTiers = (rawRewardTiers) => {
+  if (!rawRewardTiers) {
+    return null;
+  }
+
+  if (Array.isArray(rawRewardTiers)) {
+    return rawRewardTiers;
+  }
+
+  try {
+    const parsed = JSON.parse(rawRewardTiers);
+
+    return Array.isArray(parsed) ? parsed : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+// ========================================
+// NORMALIZE IMAGE BACKGROUND COLOR
+//
+// Accepts "transparent", a hex color (#RGB / #RRGGBB),
+// or an rgba()/rgb() string. Falls back to "transparent"
+// for anything empty or invalid so the image never ends
+// up with an unusable background value.
+// ========================================
+
+const BG_COLOR_PATTERN =
+  /^(transparent|#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})|rgba?\([^)]+\))$/;
+
+const normalizeBgColor = (rawBgColor) => {
+  const value = String(rawBgColor || "").trim();
+
+  if (!value) {
+    return "transparent";
+  }
+
+  return BG_COLOR_PATTERN.test(value)
+    ? value
+    : "transparent";
+};
 
 // ========================================
 // CREATE PRODUCT
@@ -37,10 +88,15 @@ const {
   stock,
   category_id,
   reward_amount,
+  reward_tiers,
+  bg_color,
 } = req.body;
     const image = req.file
       ? req.file.filename
       : null;
+
+    const normalizedBgColor =
+      normalizeBgColor(bg_color);
 
     // ------------------------------------
     // VALIDATION
@@ -125,6 +181,46 @@ if (
     }
 
     // ------------------------------------
+    // REWARD TIERS (MANDATORY)
+    //
+    // Admin defines how many QR codes should get
+    // each reward amount, e.g.
+    // ₹1 x 10 units, ₹2 x 5 units, ...
+    //
+    // Tiers must exactly account for every QR code
+    // being generated - no silent fallback to random
+    // rewards. Use a ₹0 tier for no-gift units.
+    // ------------------------------------
+
+    const rewardTiers = parseRewardTiers(
+      reward_tiers
+    );
+
+    if (numericStock > 0) {
+      if (!rewardTiers || rewardTiers.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "QR reward tiers are required",
+        });
+      }
+
+      const tiersTotal = rewardTiers.reduce(
+        (sum, tier) =>
+          sum + Number(tier?.quantity || 0),
+        0
+      );
+
+      if (tiersTotal !== numericStock) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Reward tier quantities must add up to exactly the total stock",
+        });
+      }
+    }
+
+    // ------------------------------------
     // CREATE PRODUCT
     // ------------------------------------
 
@@ -136,7 +232,8 @@ if (
   image,
   numericStock,
   category_id,
-  numericReward
+  numericReward,
+  normalizedBgColor
 );
 
     // ------------------------------------
@@ -148,7 +245,8 @@ if (
     if (numericStock > 0) {
       qrCodes = await createProductQRCodes(
         product.id,
-        numericStock
+        numericStock,
+        rewardTiers
       );
     }
 
@@ -260,6 +358,8 @@ const editProduct = async (req, res) => {
   stock,
   category_id,
   reward_amount,
+  reward_tiers,
+  bg_color,
 } = req.body;
 
     // ------------------------------------
@@ -362,12 +462,62 @@ if (
     }
 
     // ------------------------------------
+    // REWARD TIERS (MANDATORY)
+    //
+    // These describe how the newly added QR
+    // codes (stock increase only) should be
+    // distributed across reward amounts. They
+    // must exactly account for every new QR code -
+    // no silent fallback to random rewards. Use a
+    // ₹0 tier for no-gift units.
+    // ------------------------------------
+
+    const newUnitsCount = Math.max(
+      numericStock -
+        Number(existingProduct.stock || 0),
+      0
+    );
+
+    const rewardTiers = parseRewardTiers(
+      reward_tiers
+    );
+
+    if (newUnitsCount > 0) {
+      if (!rewardTiers || rewardTiers.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "QR reward tiers are required",
+        });
+      }
+
+      const tiersTotal = rewardTiers.reduce(
+        (sum, tier) =>
+          sum + Number(tier?.quantity || 0),
+        0
+      );
+
+      if (tiersTotal !== newUnitsCount) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Reward tier quantities must add up to exactly the newly added stock",
+        });
+      }
+    }
+
+    // ------------------------------------
     // IMAGE
     // ------------------------------------
 
     const image = req.file
       ? req.file.filename
       : existingProduct.image;
+
+    const normalizedBgColor =
+      bg_color !== undefined
+        ? normalizeBgColor(bg_color)
+        : existingProduct.bg_color || "transparent";
 
     // ------------------------------------
     // UPDATE PRODUCT
@@ -383,7 +533,8 @@ if (
     image,
     numericStock,
     category_id,
-    numericReward
+    numericReward,
+    normalizedBgColor
   );
 
     // ------------------------------------
@@ -401,7 +552,8 @@ if (
       newQRCodes =
         await createProductQRCodes(
           id,
-          numericStock
+          numericStock,
+          rewardTiers
         );
     }
 

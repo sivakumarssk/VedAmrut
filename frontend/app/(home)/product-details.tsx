@@ -22,6 +22,7 @@ type ApiProduct = {
   price: string | number;
   old_price?: string | number | null;
   image: string | null;
+  bg_color?: string | null;
   stock: number;
   category_id: number;
   category_name: string;
@@ -42,6 +43,7 @@ type Product = {
   reviews: number;
   discount: number;
   image: ImageSourcePropType;
+  bgColor?: string;
   quantityLabel: string;
   stock: number;
    category_name?: string;
@@ -133,6 +135,7 @@ const [productAdded, setProductAdded] = useState(false);
       uri: `${API_BASE_URL}/uploads/${item.image}?v=${Date.now()}`,
     }
   : require('@/assets/images/product1.png'),
+      bgColor: item.bg_color || undefined,
     };
   };
 
@@ -663,7 +666,12 @@ const handleDeliveryPress = () => {
         {/* ========= PRODUCT IMAGE========== */}
 
         <Image  source={product.image} resizeMode="contain"
-          style={styles.productImage}/>
+          style={[
+            styles.productImage,
+            product.bgColor && product.bgColor !== 'transparent'
+              ? { backgroundColor: product.bgColor }
+              : null,
+          ]}/>
 
         {/* ================QR CLAIMED INDICATOR================ */}
 
@@ -1171,9 +1179,16 @@ const handleDeliveryPress = () => {
                       item.image
                     }
                     resizeMode="contain"
-                    style={
-                      styles.similarImage
-                    }
+                    style={[
+                      styles.similarImage,
+                      item.bgColor &&
+                      item.bgColor !== 'transparent'
+                        ? {
+                            backgroundColor:
+                              item.bgColor,
+                          }
+                        : null,
+                    ]}
                   />
 
                   <Text

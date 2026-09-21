@@ -10,6 +10,7 @@ type Category = {
   name: string;
   description?: string;
   image: string;
+  bg_color?: string | null;
 };
 
 type CategoryGridProps = {
@@ -46,6 +47,7 @@ export default function CategoryGrid({
           uri: `${API_BASE_URL}/uploads/categories/${item.image}?v=2`,
         }}
         color="#FFFFFF"
+        imageBgColor={item.bg_color || undefined}
         onPress={() => {
           router.push({
             pathname: '/(home)/products',

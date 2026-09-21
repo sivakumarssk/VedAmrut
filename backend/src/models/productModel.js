@@ -14,7 +14,8 @@
   image,
   stock,
   category_id,
-  reward_amount = 0
+  reward_amount = 0,
+  bg_color = "transparent"
 ) => {
   const result = await pool.query(
     `
@@ -27,10 +28,11 @@
   image,
   stock,
   category_id,
-  reward_amount
+  reward_amount,
+  bg_color
 )
 VALUES
-($1, $2, $3, $4, $5, $6, $7, $8)
+($1, $2, $3, $4, $5, $6, $7, $8, $9)
     RETURNING *
     `,
    [
@@ -42,6 +44,7 @@ VALUES
   stock,
   category_id,
   reward_amount,
+  bg_color,
 ]
   );
 
@@ -135,7 +138,8 @@ const updateProduct = async (
   image,
   stock,
   category_id,
-  reward_amount = 0
+  reward_amount = 0,
+  bg_color = "transparent"
 ) => {
   const result = await pool.query(
     `
@@ -149,8 +153,9 @@ const updateProduct = async (
   stock = $6,
   category_id = $7,
   reward_amount = $8,
+  bg_color = $9,
   updated_at = CURRENT_TIMESTAMP
-WHERE id = $9
+WHERE id = $10
     RETURNING *
     `,
     [
@@ -162,6 +167,7 @@ WHERE id = $9
   stock,
   category_id,
   reward_amount,
+  bg_color,
   id,
 ]
   );

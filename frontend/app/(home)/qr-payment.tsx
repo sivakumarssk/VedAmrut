@@ -201,6 +201,7 @@ export default function QRPaymentScreen() {
       productDescription?: string | string[];
       productPrice?: string | string[];
       productImage?: string | string[];
+      productBgColor?: string | string[];
       categoryName?: string | string[];
       unitNumber?: string | string[];
       reward?: string | string[];
@@ -234,6 +235,10 @@ export default function QRPaymentScreen() {
 
   const productImage =
     getParam(params.productImage);
+
+  const productBgColor =
+    getParam(params.productBgColor) ||
+    undefined;
 
   const categoryName =
     getParam(params.categoryName) ||
@@ -1550,9 +1555,13 @@ const showCustomAlert = (
           }
         >
           <View
-            style={
-              styles.productImageBox
-            }
+            style={[
+              styles.productImageBox,
+              productBgColor &&
+              productBgColor !== "transparent"
+                ? { backgroundColor: productBgColor }
+                : null,
+            ]}
           >
             {productImageUrl &&
             !imageError ? (

@@ -32,7 +32,6 @@ import QrCodeIcon from "@mui/icons-material/QrCode2";
 import DownloadIcon from "@mui/icons-material/Download";
 import CloseIcon from "@mui/icons-material/Close";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import QrCode2Icon from "@mui/icons-material/QrCode2";
 
 import { QRCodeCanvas } from "qrcode.react";
 import { API_BASE_URL } from "../api";
@@ -48,9 +47,9 @@ export default function Products() {
   const [categories, setCategories] = useState([]);
 
   const [loading, setLoading] = useState(false);
-  const [generatingAll, setGeneratingAll] = useState(false);
 
   const [openForm, setOpenForm] = useState(false);
+  const [formStep, setFormStep] = useState(1);
   const [openQR, setOpenQR] = useState(false);
 
   const [editingProduct, setEditingProduct] = useState(null);
@@ -74,7 +73,19 @@ export default function Products() {
     price: "",
     stock: "",
     category_id: "",
+    bg_color: "transparent",
   });
+
+  // =====================================================
+  // REWARD TIERS
+  //
+  // Each row = { amount, quantity }
+  // e.g. amount 1, quantity 10 -> 10 QR codes get ₹1
+  // =====================================================
+
+  const [rewardTiers, setRewardTiers] = useState([
+    { amount: "", quantity: "" },
+  ]);
 
   // =====================================================
   // TOKEN
@@ -189,6 +200,57 @@ export default function Products() {
   };
 
   // =====================================================
+  // REWARD TIER HELPERS
+  // =====================================================
+
+  const handleRewardTierChange = (index, field, value) => {
+    setRewardTiers((previous) =>
+      previous.map((tier, tierIndex) =>
+        tierIndex === index
+          ? { ...tier, [field]: value }
+          : tier
+      )
+    );
+  };
+
+  const handleAddRewardTier = () => {
+    setRewardTiers((previous) => [
+      ...previous,
+      { amount: "", quantity: "" },
+    ]);
+  };
+
+  const handleRemoveRewardTier = (index) => {
+    setRewardTiers((previous) =>
+      previous.length === 1
+        ? previous
+        : previous.filter(
+            (_, tierIndex) => tierIndex !== index
+          )
+    );
+  };
+
+  const getValidRewardTiers = () =>
+    rewardTiers
+      .map((tier) => ({
+        amount: Number(tier.amount),
+        quantity: Number(tier.quantity),
+      }))
+      .filter(
+        (tier) =>
+          Number.isFinite(tier.amount) &&
+          tier.amount >= 0 &&
+          Number.isInteger(tier.quantity) &&
+          tier.quantity > 0
+      );
+
+  const getRewardTiersTotal = () =>
+    getValidRewardTiers().reduce(
+      (sum, tier) => sum + tier.quantity,
+      0
+    );
+
+  // =====================================================
   // OPEN ADD
   // =====================================================
 
@@ -201,9 +263,12 @@ export default function Products() {
       price: "",
       stock: "",
       category_id: "",
+      bg_color: "transparent",
     });
 
+    setRewardTiers([{ amount: "", quantity: "" }]);
     setImage(null);
+    setFormStep(1);
     setOpenForm(true);
   };
 
@@ -220,10 +285,73 @@ export default function Products() {
       price: product.price ?? "",
       stock: product.stock ?? "",
       category_id: product.category_id || "",
+      bg_color: product.bg_color || "transparent",
     });
 
+    setRewardTiers([{ amount: "", quantity: "" }]);
     setImage(null);
+    setFormStep(1);
     setOpenForm(true);
+  };
+
+  // =====================================================
+  // VALIDATE STEP 1 (BASIC DETAILS)
+  // =====================================================
+
+  const validateStepOne = () => {
+    if (!form.name.trim()) {
+      showMessage("Product name is required", "error");
+      return false;
+    }
+
+    if (
+      form.price === "" ||
+      Number(form.price) < 0
+    ) {
+      showMessage(
+        "Valid product price is required",
+        "error"
+      );
+      return false;
+    }
+
+    if (
+      form.stock === "" ||
+      Number(form.stock) < 0
+    ) {
+      showMessage(
+        "Valid product stock is required",
+        "error"
+      );
+      return false;
+    }
+
+    if (!form.category_id) {
+      showMessage("Please select a category", "error");
+      return false;
+    }
+
+    return true;
+  };
+
+  // =====================================================
+  // GO TO NEXT STEP
+  // =====================================================
+
+  const handleNextStep = () => {
+    if (!validateStepOne()) {
+      return;
+    }
+
+    setFormStep(2);
+  };
+
+  // =====================================================
+  // GO BACK TO PREVIOUS STEP
+  // =====================================================
+
+  const handleBackStep = () => {
+    setFormStep(1);
   };
 
   // =====================================================
@@ -232,35 +360,54 @@ export default function Products() {
 
   const handleSubmit = async () => {
     try {
-      if (!form.name.trim()) {
-        showMessage("Product name is required", "error");
+      if (!validateStepOne()) {
         return;
       }
 
+      // -------------------------------------------------
+      // VALIDATE REWARD TIERS (MANDATORY)
+      //
+      // QR reward tiers must be defined and must exactly
+      // account for every QR code being generated - no
+      // silent fallback to random rewards. For a new
+      // product that's the full stock; for an edit it's
+      // only the newly added units, since existing QR
+      // codes already have their rewards. Use a ₹0 tier
+      // for units that should have no gift.
+      // -------------------------------------------------
+
+      const validRewardTiers = getValidRewardTiers();
+      const rewardTiersTotal = getRewardTiersTotal();
+
+      const stockForRewardTiers = editingProduct
+        ? Math.max(
+            Number(form.stock) -
+              Number(editingProduct.stock || 0),
+            0
+          )
+        : Number(form.stock);
+
       if (
-        form.price === "" ||
-        Number(form.price) < 0
+        stockForRewardTiers > 0 &&
+        validRewardTiers.length === 0
       ) {
         showMessage(
-          "Valid product price is required",
+          "QR reward tiers are required",
           "error"
         );
         return;
       }
 
       if (
-        form.stock === "" ||
-        Number(form.stock) < 0
+        stockForRewardTiers > 0 &&
+        rewardTiersTotal !== stockForRewardTiers
       ) {
         showMessage(
-          "Valid product stock is required",
+          editingProduct
+            ? "Reward tier quantities must add up to exactly the newly added stock"
+            : "Reward tier quantities must add up to exactly the total stock",
           "error"
         );
-        return;
-      }
-
-      if (!form.category_id) {
-        showMessage("Please select a category", "error");
         return;
       }
 
@@ -276,6 +423,18 @@ export default function Products() {
       formData.append(
         "category_id",
         String(form.category_id)
+      );
+
+      if (validRewardTiers.length > 0) {
+        formData.append(
+          "reward_tiers",
+          JSON.stringify(validRewardTiers)
+        );
+      }
+
+      formData.append(
+        "bg_color",
+        form.bg_color || "transparent"
       );
 
       if (image) {
@@ -457,71 +616,6 @@ const fetchProductQRCodes = async (product) => {
       return [];
     } finally {
       setQrGenerating(false);
-    }
-  };
-
-  // =====================================================
-  // GENERATE QR FOR ALL PRODUCTS
-  // =====================================================
-
-  const generateAllProductQRCodes = async () => {
-    if (products.length === 0) {
-      showMessage("No products available", "error");
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Generate QR codes for all ${products.length} products according to their stock?`
-    );
-
-    if (!confirmed) return;
-
-    try {
-      setGeneratingAll(true);
-
-      let totalGenerated = 0;
-      let totalProducts = 0;
-
-      for (const product of products) {
-        const stock = Number(product.stock || 0);
-
-        if (stock <= 0) continue;
-
-        totalProducts++;
-
-        try {
-          const response = await axios.post(
-            `${QR_API_BASE}/product/${product.id}/generate`,
-            {
-              stock,
-            }
-          );
-
-         const generated = response.data?.data;
-
-if (Array.isArray(generated)) {
-  totalGenerated += generated.length;
-} else if (generated?.createdCount) {
-  totalGenerated += Number(generated.createdCount);
-}
-        } catch (error) {
-          console.error(
-            `QR GENERATION FAILED FOR ${product.name}:`,
-            error?.response?.data || error.message
-          );
-        }
-      }
-
-      showMessage(
-        `QR generation completed. ${totalGenerated} new QR codes generated for ${totalProducts} products.`,
-        "success"
-      );
-    } catch (error) {
-      console.error("GENERATE ALL QR ERROR:", error);
-
-      showMessage("QR generation failed", "error");
-    } finally {
-      setGeneratingAll(false);
     }
   };
 
@@ -797,42 +891,6 @@ if (Array.isArray(generated)) {
         >
           <Button
             fullWidth
-            variant="outlined"
-            startIcon={
-              generatingAll ? (
-                <CircularProgress size={18} />
-              ) : (
-                <QrCode2Icon />
-              )
-            }
-            disabled={
-              generatingAll || products.length === 0
-            }
-            onClick={generateAllProductQRCodes}
-            sx={{
-              borderColor: "#00843d",
-              color: "#00843d",
-              borderRadius: "10px",
-              px: 2,
-              py: 1.2,
-              fontFamily: "Inter",
-              fontWeight: 600,
-              minHeight: 44,
-              whiteSpace: "nowrap",
-
-              "&:hover": {
-                borderColor: "#006f34",
-                backgroundColor: "#e8f7ee",
-              },
-            }}
-          >
-            {generatingAll
-              ? "Generating..."
-              : "Generate All QR"}
-          </Button>
-
-          <Button
-            fullWidth
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleOpenAdd}
@@ -1012,7 +1070,7 @@ if (Array.isArray(generated)) {
       sm: 190,
     },
     width: "100%",
-    backgroundColor: "transparent",
+    backgroundColor: product.bg_color || "transparent",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -1032,7 +1090,6 @@ if (Array.isArray(generated)) {
         width: "100%",
         height: "100%",
         objectFit: "contain",
-        mixBlendMode: "multiply",
       }}
     />
   ) : (
@@ -1332,6 +1389,21 @@ if (Array.isArray(generated)) {
           }}
         >
           {editingProduct ? "Edit Product" : "Add Product"}
+
+          <Typography
+            sx={{
+              mt: 0.5,
+              fontSize: 13,
+              fontFamily: "Inter",
+              fontWeight: 500,
+              color: "#6b7280",
+            }}
+          >
+            Step {formStep} of 2 —{" "}
+            {formStep === 1
+              ? "Basic Details"
+              : "Rewards & Appearance"}
+          </Typography>
         </DialogTitle>
 
         <DialogContent
@@ -1342,6 +1414,7 @@ if (Array.isArray(generated)) {
             },
           }}
         >
+          {formStep === 1 ? (
           <Box
             sx={{
               display: "flex",
@@ -1431,6 +1504,166 @@ if (Array.isArray(generated)) {
                 ))}
               </Select>
             </FormControl>
+          </Box>
+          ) : (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              mt: 1,
+            }}
+          >
+            {/* =================================================
+                REWARD TIERS
+                (₹ amount + how many QR codes get that amount)
+            ================================================= */}
+
+            <Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 1,
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: 14,
+                    fontFamily: "Inter",
+                    fontWeight: 600,
+                    color: "#17201b",
+                  }}
+                >
+                  QR Reward Tiers *
+                  {editingProduct
+                    ? " (applies to newly added stock only)"
+                    : ""}
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1.5,
+                }}
+              >
+                {rewardTiers.map((tier, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns:
+                        "1fr 1fr auto",
+                      gap: 1,
+                      alignItems: "center",
+                    }}
+                  >
+                    <TextField
+                      label="Reward Amount (₹)"
+                      type="number"
+                      size="small"
+                      value={tier.amount}
+                      onChange={(event) =>
+                        handleRewardTierChange(
+                          index,
+                          "amount",
+                          event.target.value
+                        )
+                      }
+                      slotProps={{
+                        htmlInput: { min: 0 },
+                      }}
+                    />
+
+                    <TextField
+                      label="Quantity"
+                      type="number"
+                      size="small"
+                      value={tier.quantity}
+                      onChange={(event) =>
+                        handleRewardTierChange(
+                          index,
+                          "quantity",
+                          event.target.value
+                        )
+                      }
+                      slotProps={{
+                        htmlInput: { min: 1, step: 1 },
+                      }}
+                    />
+
+                    <IconButton
+                      onClick={() =>
+                        handleRemoveRewardTier(index)
+                      }
+                      disabled={rewardTiers.length === 1}
+                      sx={{
+                        color: "#d32f2f",
+                      }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Box>
+
+              <Button
+                startIcon={<AddIcon />}
+                onClick={handleAddRewardTier}
+                sx={{
+                  mt: 1,
+                  color: "#00843d",
+                  fontFamily: "Inter",
+                  fontWeight: 600,
+                  textTransform: "none",
+                }}
+              >
+                Add Reward Tier
+              </Button>
+
+              <Typography
+                sx={{
+                  mt: 0.5,
+                  fontSize: 12,
+                  fontFamily: "Inter",
+                  color: "#6b7280",
+                }}
+              >
+                {(() => {
+                  const total = getRewardTiersTotal();
+
+                  const applicableStock = editingProduct
+                    ? Math.max(
+                        Number(form.stock || 0) -
+                          Number(
+                            editingProduct.stock || 0
+                          ),
+                        0
+                      )
+                    : Number(form.stock || 0);
+
+                  const remaining =
+                    applicableStock - total;
+
+                  if (applicableStock === 0) {
+                    return "No new QR codes will be generated for this product.";
+                  }
+
+                  return `${total} of ${applicableStock} QR codes assigned. ${
+                    remaining > 0
+                      ? `Add ${remaining} more (use a ₹0 tier for no-gift units) to continue.`
+                      : remaining < 0
+                      ? `${Math.abs(
+                          remaining
+                        )} too many - reduce a quantity.`
+                      : "All units accounted for."
+                  }`;
+                })()}
+              </Typography>
+            </Box>
 
             {/* IMAGE */}
 
@@ -1464,7 +1697,124 @@ if (Array.isArray(generated)) {
                 }}
               />
             </Button>
+
+            {/* =================================================
+                IMAGE BACKGROUND COLOR
+            ================================================= */}
+
+            <Box>
+              <Typography
+                sx={{
+                  fontSize: 14,
+                  fontFamily: "Inter",
+                  fontWeight: 600,
+                  color: "#17201b",
+                  mb: 1,
+                }}
+              >
+                Image Background Color
+              </Typography>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                }}
+              >
+                <Box
+                  component="input"
+                  type="color"
+                  value={
+                    form.bg_color === "transparent"
+                      ? "#ffffff"
+                      : form.bg_color
+                  }
+                  onChange={(event) =>
+                    setForm((previous) => ({
+                      ...previous,
+                      bg_color: event.target.value,
+                    }))
+                  }
+                  sx={{
+                    width: 48,
+                    height: 40,
+                    border: "1px solid #d1d5db",
+                    borderRadius: "8px",
+                    padding: 0,
+                    cursor: "pointer",
+                    backgroundColor: "transparent",
+                  }}
+                />
+
+                <TextField
+                  size="small"
+                  label="Color"
+                  value={form.bg_color}
+                  onChange={(event) =>
+                    setForm((previous) => ({
+                      ...previous,
+                      bg_color: event.target.value,
+                    }))
+                  }
+                  sx={{ flex: 1 }}
+                />
+
+                <Button
+                  onClick={() =>
+                    setForm((previous) => ({
+                      ...previous,
+                      bg_color: "transparent",
+                    }))
+                  }
+                  sx={{
+                    color: "#6b7280",
+                    fontFamily: "Inter",
+                    fontWeight: 600,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Reset
+                </Button>
+
+                {/* PREVIEW */}
+
+                <Box
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: "8px",
+                    border: "1px solid #d1d5db",
+                    backgroundColor:
+                      form.bg_color === "transparent"
+                        ? "#ffffff"
+                        : form.bg_color,
+                    backgroundImage:
+                      form.bg_color === "transparent"
+                        ? "linear-gradient(45deg, #eee 25%, transparent 25%), linear-gradient(-45deg, #eee 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #eee 75%), linear-gradient(-45deg, transparent 75%, #eee 75%)"
+                        : "none",
+                    backgroundSize: "12px 12px",
+                    backgroundPosition:
+                      "0 0, 0 6px, 6px -6px, -6px 0px",
+                    flexShrink: 0,
+                  }}
+                />
+              </Box>
+
+              <Typography
+                sx={{
+                  mt: 0.5,
+                  fontSize: 12,
+                  fontFamily: "Inter",
+                  color: "#6b7280",
+                }}
+              >
+                This color shows behind the product image
+                in the app. Default is transparent.
+              </Typography>
+            </Box>
           </Box>
+          )}
         </DialogContent>
 
         <DialogActions
@@ -1500,22 +1850,53 @@ if (Array.isArray(generated)) {
             Cancel
           </Button>
 
-          <Button
-            variant="contained"
-            onClick={handleSubmit}
-            sx={{
-              backgroundColor: "#00843d",
-              borderRadius: "9px",
-              fontFamily: "Inter",
-              fontWeight: 600,
+          {formStep === 2 && (
+            <Button
+              onClick={handleBackStep}
+              sx={{
+                fontFamily: "Inter",
+                fontWeight: 600,
+              }}
+            >
+              Back
+            </Button>
+          )}
 
-              "&:hover": {
-                backgroundColor: "#006f34",
-              },
-            }}
-          >
-            {editingProduct ? "Update Product" : "Add Product"}
-          </Button>
+          {formStep === 1 ? (
+            <Button
+              variant="contained"
+              onClick={handleNextStep}
+              sx={{
+                backgroundColor: "#00843d",
+                borderRadius: "9px",
+                fontFamily: "Inter",
+                fontWeight: 600,
+
+                "&:hover": {
+                  backgroundColor: "#006f34",
+                },
+              }}
+            >
+              Next
+            </Button>
+          ) : (
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              sx={{
+                backgroundColor: "#00843d",
+                borderRadius: "9px",
+                fontFamily: "Inter",
+                fontWeight: 600,
+
+                "&:hover": {
+                  backgroundColor: "#006f34",
+                },
+              }}
+            >
+              {editingProduct ? "Update Product" : "Add Product"}
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
 

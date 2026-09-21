@@ -21,6 +21,7 @@ type Product = {
   description: string;
   price: string;
   image: string | null;
+  bg_color?: string | null;
   stock: number;
   category_id: number;
   category_name: string;
@@ -355,6 +356,7 @@ renderItem={({ item }) => {
               }
             : require('@/assets/images/product1.png')
         }
+        bgColor={item.bg_color || undefined}
         name={item.name}
         price={Number(item.price)}
         style={styles.highlightedCard}
