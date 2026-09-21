@@ -202,17 +202,7 @@ const handleBack = () => {
   // OPEN ORDER DETAILS
   // =====================================================
 
-  // const openOrderDetails = (order: Order) => {
-  //   console.log('OPENING ORDER DETAILS:', order.id);
-
-  //   router.push({
-  //     pathname: '/(home)/order-details',
-  //     params: {
-  //       orderId: String(order.id),
-  //       from: 'my-orders',
-  //     },
-  //   });
-  // };
+  
 const openOrderDetails = (order: Order) => {
   console.log('================================');
   console.log('OPENING ORDER DETAILS');

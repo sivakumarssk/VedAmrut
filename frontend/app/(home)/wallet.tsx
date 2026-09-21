@@ -1,6 +1,6 @@
     
 import React, { useCallback,useState,} from 'react';
-import { ActivityIndicator,Alert, FlatList,RefreshControl,StyleSheet,Text,TouchableOpacity,View,} from 'react-native';
+import { ActivityIndicator,Modal, FlatList,RefreshControl,StyleSheet,Text,TouchableOpacity,View,} from 'react-native';
 import {router,useFocusEffect,} from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { API_BASE_URL } from '@/constants/api';
@@ -42,7 +42,17 @@ export default function WalletScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const [addingMoney, setAddingMoney] =useState(false);
-
+const [alertVisible, setAlertVisible] = useState(false);
+const [alertTitle, setAlertTitle] = useState('');
+const [alertMessage, setAlertMessage] = useState('');
+const showCustomAlert = (
+  title: string,
+  message: string
+) => {
+  setAlertTitle(title);
+  setAlertMessage(message);
+  setAlertVisible(true);
+};
   // ===================================================
   // LOAD WALLET
   // ===================================================
@@ -161,11 +171,11 @@ export default function WalletScreen() {
         error
       );
 
-      Alert.alert(
-        'Wallet',
-        error?.message ||
-          'Unable to load wallet'
-      );
+    showCustomAlert(
+  'Wallet',
+  error?.message ||
+    'Unable to load wallet'
+);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -204,10 +214,10 @@ export default function WalletScreen() {
           await getToken();
 
         if (!token) {
-          Alert.alert(
-            'Login Required',
-            'Please login again.'
-          );
+         showCustomAlert(
+  'Login Required',
+  'Please login again.'
+);
           return;
         }
 
@@ -273,13 +283,10 @@ export default function WalletScreen() {
           );
         }
 
-        Alert.alert(
-          'Money Added',
-          `₹${amount.toFixed(
-            2
-          )} added to your wallet.`
-        );
-
+      showCustomAlert(
+  'Money Added',
+  `₹${amount.toFixed(2)} added to your wallet.`
+);
         // ---------------------------------------------
         // REFRESH WALLET
         // ---------------------------------------------
@@ -291,11 +298,11 @@ export default function WalletScreen() {
           error
         );
 
-        Alert.alert(
-          'Error',
-          error?.message ||
-            'Failed to add money'
-        );
+      showCustomAlert(
+  'Error',
+  error?.message ||
+    'Failed to add money'
+);
       } finally {
         setAddingMoney(false);
       }
@@ -666,6 +673,34 @@ export default function WalletScreen() {
           />
         }
       />
+      <Modal
+  visible={alertVisible}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setAlertVisible(false)}
+>
+  <View style={styles.alertOverlay}>
+    <View style={styles.alertBox}>
+      <Text style={styles.alertTitle}>
+        {alertTitle}
+      </Text>
+
+      <Text style={styles.alertMessage}>
+        {alertMessage}
+      </Text>
+
+      <TouchableOpacity
+        style={styles.alertButton}
+        onPress={() => setAlertVisible(false)}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.alertButtonText}>
+          OK
+        </Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
     </View>
   );
 }
@@ -947,4 +982,52 @@ const styles = StyleSheet.create({
   bottomSpace: {
     height: 30,
   },
+  alertOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 24,
+},
+
+alertBox: {
+  width: '100%',
+  maxWidth: 360,
+  backgroundColor: '#FFFFFF',
+  borderRadius: 20,
+  padding: 24,
+  alignItems: 'center',
+},
+
+alertTitle: {
+  fontSize: 20,
+  fontFamily: 'InterBold',
+  color: '#222222',
+  textAlign: 'center',
+  marginBottom: 10,
+},
+
+alertMessage: {
+  fontSize: 14,
+  fontFamily: 'InterRegular',
+  color: '#666666',
+  textAlign: 'center',
+  lineHeight: 22,
+  marginBottom: 24,
+},
+
+alertButton: {
+  width: '100%',
+  height: 48,
+  borderRadius: 24,
+  backgroundColor: '#1C9C57',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+alertButtonText: {
+  color: '#FFFFFF',
+  fontSize: 15,
+  fontFamily: 'InterSemiBold',
+},
 });
