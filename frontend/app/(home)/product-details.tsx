@@ -651,7 +651,14 @@ const handleDeliveryPress = () => {
         paddingBottom: 40 +insets.bottom,},]}
         showsVerticalScrollIndicator={false}>
         {/* ==================  TOP BAR =============== */}
-        <View style={styles.topBar}>
+        <View
+          style={[
+            styles.topBar,
+            product.bgColor && product.bgColor !== 'transparent'
+              ? { backgroundColor: product.bgColor }
+              : null,
+          ]}
+        >
 
           <TouchableOpacity style={styles.iconButton}
             onPress={() =>router.back()}>
@@ -1432,6 +1439,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 8,
+    paddingBottom: 8,
   },
 
   iconButton: {
@@ -1440,6 +1448,7 @@ const styles = StyleSheet.create({
     borderRadius: 19,
     borderWidth: 1,
     borderColor: '#E5E5E5',
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
   },

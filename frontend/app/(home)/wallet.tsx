@@ -344,8 +344,9 @@ const showCustomAlert = (
     item: WalletTransaction;
   }) => {
     const isCredit =
-      item.transaction_type ===
-      'CREDIT';
+      String(item.transaction_type || '')
+        .trim()
+        .toUpperCase() === 'CREDIT';
 
     const amount =
       Number(item.amount);

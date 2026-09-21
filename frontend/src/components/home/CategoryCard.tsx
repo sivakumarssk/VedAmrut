@@ -39,14 +39,12 @@ export default function CategoryCard({
       activeOpacity={0.85}
       onPress={onPress}
     >
+      {/* Image Section - fills the whole top of the card */}
       <View
         style={[
-          styles.imageContainer,
+          styles.imageSection,
           imageBgColor && imageBgColor !== 'transparent'
-            ? {
-                backgroundColor: imageBgColor,
-                borderRadius: 10,
-              }
+            ? { backgroundColor: imageBgColor }
             : null,
         ]}
       >
@@ -81,12 +79,15 @@ export default function CategoryCard({
         )}
       </View>
 
-      <Text
-        style={styles.title}
-        numberOfLines={2}
-      >
-        {title}
-      </Text>
+      {/* Title Section */}
+      <View style={styles.titleSection}>
+        <Text
+          style={styles.title}
+          numberOfLines={2}
+        >
+          {title}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 }
@@ -95,10 +96,8 @@ const styles = StyleSheet.create({
   flex: 1,
   marginHorizontal: 4,
   borderRadius: 14,
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    alignItems: 'center',
     backgroundColor: '#FFFFFF',
+    overflow: 'hidden',
 
     shadowColor: '#000',
     shadowOpacity: 0.10,
@@ -112,16 +111,17 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
 
-  imageContainer: {
-    width: 65,
-    height: 65,
+  // Top of the card - fully filled with the
+  // category's background color.
+  imageSection: {
+    height: 72,
     justifyContent: 'center',
     alignItems: 'center',
   },
 
   image: {
-    width: 65,
-    height: 65,
+    width: 56,
+    height: 56,
   },
 
   hiddenImage: {
@@ -133,8 +133,8 @@ const styles = StyleSheet.create({
   },
 
   imageError: {
-    width: 65,
-    height: 65,
+    width: 56,
+    height: 56,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -146,8 +146,14 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
+  // Bottom of the card - category name.
+  titleSection: {
+    paddingVertical: 8,
+    paddingHorizontal: 5,
+    alignItems: 'center',
+  },
+
   title: {
-    marginTop: 6,
     fontSize: 11,
     fontFamily: 'InterSemiBold',
     color: '#222222',

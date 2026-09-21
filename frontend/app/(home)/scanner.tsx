@@ -102,6 +102,7 @@ useFocusEffect(
     scannerLocked.current = false;
     setScanned(false);
     setProcessing(false);
+    setAlertVisible(false);
   }, [])
 );
   // =====================================================
@@ -113,9 +114,16 @@ useFocusEffect(
   }: {
     data: string;
   }) => {
-    // Prevent duplicate scans while processing
-   // Prevent duplicate scans completely
-if (scanned || processing || scannerLocked.current) {
+    // Prevent duplicate scans while processing, and while
+    // an alert (e.g. "Already Claimed") is still on screen -
+    // otherwise the camera re-fires on the same QR still in
+    // view and the alert flickers open/closed in a loop.
+if (
+  scanned ||
+  processing ||
+  alertVisible ||
+  scannerLocked.current
+) {
   return;
 }
 
@@ -293,14 +301,25 @@ scannerLocked.current = true;
       // =================================================
       // IMPORTANT:
       // IF THIS QR WAS ALREADY CLAIMED
-      // DO NOT OPEN GIFT CARD
+      // DO NOT OPEN GIFT CARD - SHOW A POPUP INSTEAD
+      //
+      // Do NOT unlock the scanner here. The same QR is
+      // usually still in view, so unlocking immediately
+      // would let the camera re-fire the scan and
+      // re-trigger this alert in a tight loop, flickering
+      // the screen. handleBarcodeScanned's guard already
+      // blocks re-entry while alertVisible is true; the
+      // scanner only unlocks when the user dismisses the
+      // alert (OK button below) or leaves and re-focuses
+      // the screen.
       // =================================================
 
-     
-      
 if (isClaimed) {
-  setProcessing(false);
-  setScanned(false);
+  showCustomAlert(
+    "Already Claimed",
+    "This QR code's reward has already been claimed."
+  );
+
   return;
 }
       // =================================================
@@ -627,6 +646,7 @@ if (isClaimed) {
           setAlertVisible(false);
           setScanned(false);
           setProcessing(false);
+          scannerLocked.current = false;
         }}
         activeOpacity={0.8}
       >

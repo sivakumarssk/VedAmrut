@@ -2459,7 +2459,7 @@ const claimQRCodeAndReward = async (qrCode, userId) => {
           wallet.id,
           numericUserId,
           rewardAmount,
-          "credit",
+          "CREDIT",
           "QR Code Reward",
           Number(wallet.balance),
         ]
