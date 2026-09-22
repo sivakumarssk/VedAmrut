@@ -3,6 +3,7 @@ import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Modal,
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -35,6 +36,7 @@ type OrderItem = {
   created_at: string;
   name: string;
   image: string | null;
+   bg_color?: string | null;
 };
 
 type Order = {
@@ -108,16 +110,6 @@ const [alertMessage, setAlertMessage] = useState('');
 const [alertAction, setAlertAction] = useState<
   (() => void | Promise<void>) | null
 >(null);
-const showCustomAlert = (
-  title: string,
-  message: string,
-  action?: () => void | Promise<void>
-) => {
-  setAlertTitle(title);
-  setAlertMessage(message);
-  setAlertAction(() => action || null);
-  setAlertVisible(true);
-};
   // =====================================================
   // FETCH ORDER
   // =====================================================
@@ -193,13 +185,110 @@ const showCustomAlert = (
   // CANCEL ORDER
   // =====================================================
 
-  const handleCancelOrder = () => {
+//  const handleCancelOrder = () => {
+//   Alert.alert(
+//     'Cancel Order',
+//     'Are you sure you want to cancel this order?',
+//     [
+//       {
+//         text: 'No',
+//         style: 'cancel',
+//       },
+//       {
+//         text: 'Yes, Cancel',
+//         style: 'destructive',
+//         onPress: async () => {
+//           try {
+//             setCancelling(true);
+//             setError('');
+
+//             if (!orderId) {
+//               throw new Error('Order ID is missing');
+//             }
+
+//             const token = await getToken();
+
+//             if (!token) {
+//               throw new Error('Please login again');
+//             }
+
+//             const url =
+//               `${API_BASE_URL}/api/orders/${orderId}/cancel`;
+
+//             console.log('================================');
+//             console.log('CANCEL ORDER');
+//             console.log('ORDER ID:', orderId);
+//             console.log('URL:', url);
+
+//             const response = await fetch(url, {
+//               method: 'PUT',
+//               headers: {
+//                 Authorization: `Bearer ${token}`,
+//                 'Content-Type': 'application/json',
+//               },
+//             });
+
+//             console.log(
+//               'CANCEL ORDER STATUS:',
+//               response.status
+//             );
+
+//             const result = await response.json();
+
+//             console.log(
+//               'CANCEL ORDER RESPONSE:',
+//               JSON.stringify(result, null, 2)
+//             );
+
+//             if (!response.ok || !result.success) {
+//               throw new Error(
+//                 result.message || 'Failed to cancel order'
+//               );
+//             }
+
+//             const updatedOrder =
+//               result.data?.order || result.data;
+
+//             if (updatedOrder) {
+//               setOrder(updatedOrder);
+//             }
+
+//             Alert.alert(
+//               'Order Cancelled',
+//               'Your order has been cancelled successfully.'
+//             );
+
+//           } catch (err) {
+//             console.error(
+//               'CANCEL ORDER ERROR:',
+//               err
+//             );
+
+//             Alert.alert(
+//               'Unable to Cancel',
+//               err instanceof Error
+//                 ? err.message
+//                 : 'Failed to cancel order'
+//             );
+
+//           } finally {
+//             setCancelling(false);
+//           }
+//         },
+//       },
+//     ]
+//   );
+// };
+const handleCancelOrder = () => {
   setAlertTitle('Cancel Order');
+
   setAlertMessage(
     'Are you sure you want to cancel this order?'
   );
+
   setAlertAction(() => async () => {
     try {
+      setAlertVisible(false);
       setCancelling(true);
       setError('');
 
@@ -213,15 +302,25 @@ const showCustomAlert = (
         throw new Error('Please login again');
       }
 
-      const response = await fetch(
-        `${API_BASE_URL}/api/orders/${orderId}/cancel`,
-        {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
+      const url =
+        `${API_BASE_URL}/api/orders/${orderId}/cancel`;
+
+      console.log('================================');
+      console.log('CANCEL ORDER');
+      console.log('ORDER ID:', orderId);
+      console.log('URL:', url);
+
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      console.log(
+        'CANCEL ORDER STATUS:',
+        response.status
       );
 
       const result = await response.json();
@@ -244,19 +343,32 @@ const showCustomAlert = (
         setOrder(updatedOrder);
       }
 
-      showCustomAlert(
-        'Order Cancelled',
+      setAlertTitle('Order Cancelled');
+
+      setAlertMessage(
         'Your order has been cancelled successfully.'
       );
-    } catch (err) {
-      console.error('CANCEL ORDER ERROR:', err);
 
-      showCustomAlert(
-        'Unable to Cancel',
+      setAlertAction(null);
+      setAlertVisible(true);
+
+    } catch (err) {
+      console.error(
+        'CANCEL ORDER ERROR:',
+        err
+      );
+
+      setAlertTitle('Unable to Cancel');
+
+      setAlertMessage(
         err instanceof Error
           ? err.message
           : 'Failed to cancel order'
       );
+
+      setAlertAction(null);
+      setAlertVisible(true);
+
     } finally {
       setCancelling(false);
     }
@@ -264,7 +376,6 @@ const showCustomAlert = (
 
   setAlertVisible(true);
 };
-
   // =====================================================
   // LOAD WHEN SCREEN FOCUSES
   // =====================================================
@@ -509,6 +620,68 @@ const handleBack = () => {
   return (
     <View style={styles.container}>
       <Header onBack={handleBack} />
+      <Modal
+  visible={alertVisible}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setAlertVisible(false)}
+>
+  <View style={styles.alertOverlay}>
+    <View style={styles.alertBox}>
+
+      <Text style={styles.alertTitle}>
+        {alertTitle}
+      </Text>
+
+      <Text style={styles.alertMessage}>
+        {alertMessage}
+      </Text>
+
+      {alertAction ? (
+        <View style={styles.alertButtons}>
+
+          <TouchableOpacity
+            style={styles.alertNoButton}
+            onPress={() => {
+              setAlertVisible(false);
+              setAlertAction(null);
+            }}
+          >
+            <Text style={styles.alertNoText}>
+              No
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.alertYesButton}
+            onPress={async () => {
+              const action = alertAction;
+
+              if (action) {
+                await action();
+              }
+            }}
+          >
+            <Text style={styles.alertYesText}>
+              Yes, Cancel
+            </Text>
+          </TouchableOpacity>
+
+        </View>
+      ) : (
+        <TouchableOpacity
+          style={styles.alertOkButton}
+          onPress={() => setAlertVisible(false)}
+        >
+          <Text style={styles.alertOkText}>
+            OK
+          </Text>
+        </TouchableOpacity>
+      )}
+
+    </View>
+  </View>
+</Modal>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -1605,4 +1778,80 @@ const styles = StyleSheet.create({
   bottomSpace: {
     height: 30,
   },
+  alertOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  paddingHorizontal: 24,
+},
+
+alertBox: {
+  width: '100%',
+  maxWidth: 360,
+  backgroundColor: '#FFFFFF',
+  borderRadius: 20,
+  padding: 24,
+},
+
+alertTitle: {
+  fontSize: 20,
+  fontFamily: 'InterSemiBold',
+  color: '#222222',
+  marginBottom: 10,
+},
+
+alertMessage: {
+  fontSize: 15,
+  lineHeight: 22,
+  fontFamily: 'InterRegular',
+  color: '#666666',
+  marginBottom: 24,
+},
+
+alertButtons: {
+  flexDirection: 'row',
+  justifyContent: 'flex-end',
+  gap: 10,
+},
+
+alertNoButton: {
+  paddingHorizontal: 18,
+  paddingVertical: 11,
+  borderRadius: 10,
+  backgroundColor: '#F3F4F6',
+},
+
+alertNoText: {
+  fontSize: 14,
+  fontFamily: 'InterMedium',
+  color: '#374151',
+},
+
+alertYesButton: {
+  paddingHorizontal: 18,
+  paddingVertical: 11,
+  borderRadius: 10,
+  backgroundColor: '#DC2626',
+},
+
+alertYesText: {
+  fontSize: 14,
+  fontFamily: 'InterSemiBold',
+  color: '#FFFFFF',
+},
+
+alertOkButton: {
+  alignSelf: 'flex-end',
+  paddingHorizontal: 22,
+  paddingVertical: 11,
+  borderRadius: 10,
+  backgroundColor: '#1C9C57',
+},
+
+alertOkText: {
+  fontSize: 14,
+  fontFamily: 'InterSemiBold',
+  color: '#FFFFFF',
+},
 });
