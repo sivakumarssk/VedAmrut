@@ -508,7 +508,7 @@ export default function Header({ onMenuClick }) {
             flexShrink: 0,
           }}
         >
-          <Box
+          {/* <Box
             component="img"
             src={logo}
             alt="Vedhamruth"
@@ -518,7 +518,7 @@ export default function Header({ onMenuClick }) {
               borderRadius: "11px",
               objectFit: "cover",
             }}
-          />
+          /> */}
 
           <Box
             sx={{
@@ -528,7 +528,7 @@ export default function Header({ onMenuClick }) {
               },
             }}
           >
-            <Typography
+            {/* <Typography
               sx={{
                 fontSize: 20,
                 fontWeight: 700,
@@ -538,8 +538,8 @@ export default function Header({ onMenuClick }) {
               }}
             >
               Vedhamruth
-            </Typography>
-
+            </Typography> */}
+{/* 
             <Typography
               sx={{
                 fontSize: 11,
@@ -548,7 +548,7 @@ export default function Header({ onMenuClick }) {
               }}
             >
               Admin Panel
-            </Typography>
+            </Typography> */}
           </Box>
         </Box>
         {/* SIDEBAR MENU */}

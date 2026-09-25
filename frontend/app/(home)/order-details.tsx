@@ -185,100 +185,7 @@ const [alertAction, setAlertAction] = useState<
   // CANCEL ORDER
   // =====================================================
 
-//  const handleCancelOrder = () => {
-//   Alert.alert(
-//     'Cancel Order',
-//     'Are you sure you want to cancel this order?',
-//     [
-//       {
-//         text: 'No',
-//         style: 'cancel',
-//       },
-//       {
-//         text: 'Yes, Cancel',
-//         style: 'destructive',
-//         onPress: async () => {
-//           try {
-//             setCancelling(true);
-//             setError('');
 
-//             if (!orderId) {
-//               throw new Error('Order ID is missing');
-//             }
-
-//             const token = await getToken();
-
-//             if (!token) {
-//               throw new Error('Please login again');
-//             }
-
-//             const url =
-//               `${API_BASE_URL}/api/orders/${orderId}/cancel`;
-
-//             console.log('================================');
-//             console.log('CANCEL ORDER');
-//             console.log('ORDER ID:', orderId);
-//             console.log('URL:', url);
-
-//             const response = await fetch(url, {
-//               method: 'PUT',
-//               headers: {
-//                 Authorization: `Bearer ${token}`,
-//                 'Content-Type': 'application/json',
-//               },
-//             });
-
-//             console.log(
-//               'CANCEL ORDER STATUS:',
-//               response.status
-//             );
-
-//             const result = await response.json();
-
-//             console.log(
-//               'CANCEL ORDER RESPONSE:',
-//               JSON.stringify(result, null, 2)
-//             );
-
-//             if (!response.ok || !result.success) {
-//               throw new Error(
-//                 result.message || 'Failed to cancel order'
-//               );
-//             }
-
-//             const updatedOrder =
-//               result.data?.order || result.data;
-
-//             if (updatedOrder) {
-//               setOrder(updatedOrder);
-//             }
-
-//             Alert.alert(
-//               'Order Cancelled',
-//               'Your order has been cancelled successfully.'
-//             );
-
-//           } catch (err) {
-//             console.error(
-//               'CANCEL ORDER ERROR:',
-//               err
-//             );
-
-//             Alert.alert(
-//               'Unable to Cancel',
-//               err instanceof Error
-//                 ? err.message
-//                 : 'Failed to cancel order'
-//             );
-
-//           } finally {
-//             setCancelling(false);
-//           }
-//         },
-//       },
-//     ]
-//   );
-// };
 const handleCancelOrder = () => {
   setAlertTitle('Cancel Order');
 
@@ -390,35 +297,7 @@ const handleCancelOrder = () => {
   // CORRECT BACK NAVIGATION
   // =====================================================
 
-  // const handleBack = () => {
-  //   console.log(
-  //     'ORDER DETAILS BACK PRESSED'
-  //   );
-
-  //   console.log('FROM:', from);
-  //   console.log('ORDER ID:', orderId);
-
-  //   // Coming from My Orders
-  //   if (from === 'my-orders') {
-  //     router.replace('/(home)/my-orders');
-  //     return;
-  //   }
-
-  //   // Coming directly from Order Success
-  //   if (from === 'order-success') {
-  //     router.replace('/(home)/order-success');
-  //     return;
-  //   }
-
-  //   // Coming from Home
-  //   if (from === 'home') {
-  //     router.replace('/(home)/home');
-  //     return;
-  //   }
-
-  //   // Default
-  //   router.replace('/(home)/my-orders');
-  // };
+  
 const handleBack = () => {
   console.log('================================');
   console.log('ORDER DETAILS BACK PRESSED');

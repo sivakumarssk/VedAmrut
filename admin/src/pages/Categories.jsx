@@ -468,7 +468,7 @@ export default function Categories() {
                       category.bg_color &&
                       category.bg_color !== "transparent"
                         ? category.bg_color
-                        : "#f6f8f7",
+                       : "transparent",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",

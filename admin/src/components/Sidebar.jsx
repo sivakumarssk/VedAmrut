@@ -115,7 +115,7 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
             fontFamily: "Inter",
           }}
         >
-          Vedhamruth
+          Vedaamurut
         </Typography>
 
         {/* CLOSE BUTTON ONLY MOBILE */}

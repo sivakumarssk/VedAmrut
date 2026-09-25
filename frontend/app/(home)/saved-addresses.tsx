@@ -197,7 +197,16 @@ const handleBack = () => {
     router.replace('/(home)/cart');
     return;
   }
-
+// Product Details
+if (returnTo === 'product-details') {
+  router.replace({
+    pathname: '/(home)/product-details',
+    params: {
+      id: productId,
+    },
+  });
+  return;
+}
   router.replace('/home');
 };
 

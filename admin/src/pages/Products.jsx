@@ -1021,47 +1021,7 @@ const fetchProductQRCodes = async (product) => {
                   flexDirection: "column",
                 }}
               >
-                {/* IMAGE */}
-
-                {/* <Box
-                  sx={{
-                    height: {
-                      xs: 170,
-                      sm: 190,
-                    },
-                    width: "100%",
-                    backgroundColor: "transparent",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    overflow: "hidden",
-                  }}
-                >
-                  {product.image ? (
-                    <Box
-                      component="img"
-                      src={getImageUrl(product.image)}
-                      alt={product.name}
-                      sx={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "contain",
-                        mixBlendMode: "multiply",
-                      }}
-                    />
-                  ) : (
-                    <Typography
-                      sx={{
-                        color: "#999",
-                        fontSize: 13,
-                        fontFamily: "Inter",
-                        fontWeight: 400,
-                      }}
-                    >
-                      No Image
-                    </Typography>
-                  )}
-                </Box> */}
+               
 
 <Box
   sx={{
@@ -1070,7 +1030,7 @@ const fetchProductQRCodes = async (product) => {
       sm: 190,
     },
     width: "100%",
-    backgroundColor: product.bg_color || "transparent",
+   backgroundColor: "transparent",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -1105,6 +1065,9 @@ const fetchProductQRCodes = async (product) => {
     </Typography>
   )}
 </Box>
+
+
+
                 <CardContent
                   sx={{
                     p: {

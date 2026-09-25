@@ -2,7 +2,7 @@ export const products = [
   {
     id: '1',
     name: 'Tulsi Drops\n30ml',
-    category: 'Herbal Juices',
+    category: 'Herbal juices',
     image: require('../assets/images/TulsiDrops.png'),
     price: 199,
     oldPrice: 249,
@@ -82,8 +82,8 @@ export const products = [
   {
     id: '4',
     name: 'Amla Juice\n500ml',
-    category: 'Herbal Juices',
-    image: require('../assets/images/HerbalJuices.png'),
+    category: 'Herbal juices',
+    image: require('../assets/images/Herbaljuices.png'),
     price: 249,
     oldPrice: 299,
     rating: 4.6,
@@ -106,8 +106,8 @@ export const products = [
   {
     id: '5',
     name: 'Aloe Vera Juice\n500ml',
-    category: 'Herbal Juices',
-    image: require('../assets/images/HerbalJuices.png'),
+    category: 'Herbal juices',
+    image: require('../assets/images/Herbaljuices.png'),
     price: 229,
     oldPrice: 269,
     rating: 4.5,
@@ -130,8 +130,8 @@ export const products = [
   {
     id: '6',
     name: 'Wheatgrass Juice\n500ml',
-    category: 'Herbal Juices',
-    image: require('../assets/images/HerbalJuices.png'),
+    category: 'Herbal juices',
+    image: require('../assets/images/Herbaljuices.png'),
     price: 279,
     oldPrice: 319,
     rating: 4.4,
@@ -154,8 +154,8 @@ export const products = [
   {
     id: '7',
     name: 'Karela Jamun Juice\n500ml',
-    category: 'Herbal Juices',
-    image: require('../assets/images/HerbalJuices.png'),
+    category: 'Herbal juices',
+    image: require('../assets/images/Herbaljuices.png'),
     price: 259,
     oldPrice: 299,
     rating: 4.3,
@@ -178,8 +178,8 @@ export const products = [
   {
     id: '8',
     name: 'Giloy Juice\n500ml',
-    category: 'Herbal Juices',
-    image: require('../assets/images/HerbalJuices.png'),
+    category: 'Herbal juices',
+    image: require('../assets/images/Herbaljuices.png'),
     price: 239,
     oldPrice: 279,
     rating: 4.6,
