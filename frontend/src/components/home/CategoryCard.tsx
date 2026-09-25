@@ -92,27 +92,49 @@ export default function CategoryCard({
   );
 }
 const styles = StyleSheet.create({
-  container: {
-  flex: 1,
-  marginHorizontal: 4,
-  borderRadius: 14,
-    backgroundColor: '#FFFFFF',
-    overflow: 'hidden',
+  // container: {
+  // flex: 1,
+  // marginHorizontal: 4,
+  // borderRadius: 14,
+  //   backgroundColor: '#FFFFFF',
+  //   overflow: 'hidden',
 
-    shadowColor: '#000',
-    shadowOpacity: 0.10,
-    shadowRadius: 6,
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
+  //   shadowColor: '#000',
+  //   shadowOpacity: 0.10,
+  //   shadowRadius: 6,
+  //   shadowOffset: {
+  //     width: 0,
+  //     height: 3,
+  //   },
 
-    elevation: 4,
-    marginBottom: 4,
-  },
+  //   elevation: 4,
+  //   marginBottom: 4,
+  // },
 
   // Top of the card - fully filled with the
   // category's background color.
+  
+  container: {
+  width: '22%',
+  flexGrow: 0,
+  flexShrink: 0,
+  marginHorizontal: 4,
+  borderRadius: 14,
+  backgroundColor: '#FFFFFF',
+  overflow: 'hidden',
+
+  shadowColor: '#000',
+  shadowOpacity: 0.10,
+  shadowRadius: 6,
+  shadowOffset: {
+    width: 0,
+    height: 3,
+  },
+
+  elevation: 4,
+  marginBottom: 4,
+},
+  
   imageSection: {
     height: 72,
     justifyContent: 'center',

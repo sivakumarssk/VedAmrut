@@ -22,6 +22,9 @@ const {
   claimQRReward,
    markQRClaimed,
   deleteProductQRCodes,
+   getRewardsSummaryController,
+    getClaimedRewardsController
+
 } = require("../controllers/qrCodeController");
 
 // =====================================================
@@ -100,6 +103,25 @@ router.delete(
   deleteProductQRCodes
 );
 
+
+// ========================================
+// GET PRODUCT-WISE REWARDS SUMMARY
+// GET /api/product-qr/rewards-summary
+// ========================================
+
+router.get(
+  "/rewards-summary",
+  getRewardsSummaryController
+);
+// ========================================
+// GET CUSTOMER-WISE CLAIMED REWARDS
+// GET /api/product-qr/claimed-rewards
+// ========================================
+
+router.get(
+  "/claimed-rewards",
+  getClaimedRewardsController
+);
 // =====================================================
 // EXPORT
 // =====================================================

@@ -27,8 +27,9 @@ type Product = {
   reviews?: number | string | null;
   review_count?: number | string | null;
 
-  image?: string | null;
-  bg_color?: string | null;
+ image?: string | null;
+images?: string[] | string | null;
+bg_color?: string | null;
 };
 
 export type ProductSectionHandle = {
@@ -122,7 +123,52 @@ const ProductSection = forwardRef<ProductSectionHandle>(
       },
     });
   };
+const getProductImages = (
+  product: Product
+): { uri: string }[] => {
+  let imageList: string[] = [];
 
+  if (Array.isArray(product.images)) {
+    imageList = product.images;
+  } else if (
+    typeof product.images === 'string' &&
+    product.images.trim()
+  ) {
+    try {
+      const parsed = JSON.parse(product.images);
+
+      imageList = Array.isArray(parsed)
+        ? parsed
+        : [product.images];
+    } catch {
+      imageList = product.images
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+  }
+
+  // Fallback to the old single image
+  if (imageList.length === 0 && product.image) {
+    imageList = [product.image];
+  }
+
+  return imageList
+    .filter(Boolean)
+    .map((image) => {
+      const filename = String(image).trim();
+
+      if (/^https?:\/\//i.test(filename)) {
+        return {
+          uri: filename,
+        };
+      }
+
+      return {
+        uri: `${API_BASE_URL}/uploads/${filename.replace(/^\/?uploads\//, '')}`,
+      };
+    });
+};
   // ==========================================
   // RENDER
   // ==========================================
@@ -207,13 +253,7 @@ const ProductSection = forwardRef<ProductSectionHandle>(
             >
     
               <ProductCard 
-  //             image={
-  //   item.image
-  //     ? {
-  //         uri: `${API_BASE_URL}/uploads/${item.image}?v=${Date.now()}`,
-  //       }
-  //     : require('@/assets/images/product1.png')
-  // }
+ 
 image={
   item.id === 13
     ? require('@/assets/images/bestselling1.png')

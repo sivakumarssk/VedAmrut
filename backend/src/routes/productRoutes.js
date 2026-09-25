@@ -1,4 +1,7 @@
+
+
 // const express = require("express");
+
 // const router = express.Router();
 
 // const {
@@ -12,36 +15,65 @@
 
 // const upload = require("../middleware/uploadMiddleware");
 
+// // ========================================
+// // SEARCH PRODUCTS
+// // IMPORTANT: MUST COME BEFORE /:id
+// // ========================================
 
-// // Create Product with Image
+// router.get(
+//   "/search",
+//   searchProductsController
+// );
+
+// // ========================================
+// // GET ALL PRODUCTS
+// // ========================================
+
+// router.get(
+//   "/",
+//   getProducts
+// );
+
+// // ========================================
+// // GET PRODUCT BY ID
+// // ========================================
+
+// router.get(
+//   "/:id",
+//   getProduct
+// );
+
+// // ========================================
+// // CREATE PRODUCT
+// // ========================================
+
 // router.post(
 //   "/",
 //   upload.single("image"),
 //   addProduct
 // );
 
-// router.get("/search", searchProductsController);
-// // Get All Products
-// router.get("/", getProducts);
+// // ========================================
+// // UPDATE PRODUCT
+// // ========================================
 
-
-// // Get Product By ID
-// router.get("/:id", getProduct);
-
-
-// // Update Product with Image
 // router.put(
 //   "/:id",
 //   upload.single("image"),
 //   editProduct
 // );
 
+// // ========================================
+// // DELETE PRODUCT
+// // ========================================
 
-// // Delete Product
-// router.delete("/:id", removeProduct);
-
+// router.delete(
+//   "/:id",
+//   removeProduct
+// );
 
 // module.exports = router;
+
 
 const express = require("express");
 
@@ -87,22 +119,24 @@ router.get(
 );
 
 // ========================================
-// CREATE PRODUCT
+// CREATE PRODUCT - MULTIPLE IMAGES
+// Maximum 10 images
 // ========================================
 
 router.post(
   "/",
-  upload.single("image"),
+  upload.array("images", 10),
   addProduct
 );
 
 // ========================================
-// UPDATE PRODUCT
+// UPDATE PRODUCT - MULTIPLE IMAGES
+// Maximum 10 images
 // ========================================
 
 router.put(
   "/:id",
-  upload.single("image"),
+  upload.array("images", 10),
   editProduct
 );
 
@@ -116,3 +150,4 @@ router.delete(
 );
 
 module.exports = router;
+

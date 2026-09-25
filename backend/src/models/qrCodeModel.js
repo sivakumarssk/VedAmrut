@@ -665,7 +665,86 @@ const deleteQRCodesByProductId = async (productId) => {
 
   return result.rows;
 };
+// ========================================
+// GET PRODUCT-WISE REWARDS SUMMARY
+// ========================================
 
+const getRewardsSummary = async () => {
+  const result = await pool.query(`
+    SELECT
+      p.id AS product_id,
+      p.name AS product_name,
+
+      COUNT(q.id)::int AS total_qr_codes,
+
+      COUNT(q.id) FILTER (
+        WHERE q.is_claimed = true
+      )::int AS claimed,
+
+      COUNT(q.id) FILTER (
+        WHERE COALESCE(q.is_claimed, false) = false
+      )::int AS unclaimed,
+
+      COALESCE(
+        SUM(q.reward_amount) FILTER (
+          WHERE q.is_claimed = true
+        ),
+        0
+      ) AS claimed_amount,
+
+      COALESCE(
+        SUM(q.reward_amount) FILTER (
+          WHERE COALESCE(q.is_claimed, false) = false
+        ),
+        0
+      ) AS unclaimed_amount
+
+    FROM products p
+
+    LEFT JOIN product_qr_codes q
+      ON p.id = q.product_id
+
+    GROUP BY p.id, p.name
+
+    ORDER BY p.name ASC
+  `);
+
+  return result.rows;
+};
+// ========================================
+// GET CUSTOMER-WISE CLAIMED REWARDS
+// ========================================
+
+const getClaimedRewards = async () => {
+  const result = await pool.query(`
+    SELECT
+      qr.id AS qr_id,
+      qr.qr_code,
+      qr.reward_amount,
+      qr.claimed_at,
+
+      p.id AS product_id,
+      p.name AS product_name,
+
+      u.id AS user_id,
+      u.name AS customer_name,
+      u.email AS customer_email
+
+    FROM product_qr_codes qr
+
+    JOIN products p
+      ON p.id = qr.product_id
+
+    LEFT JOIN users u
+      ON u.id = qr.claimed_by
+
+    WHERE qr.is_claimed = TRUE
+
+    ORDER BY qr.claimed_at DESC
+  `);
+
+  return result.rows;
+};
 module.exports = {
   createProductQRCodes,
   createAllProductQRCodes,
@@ -675,4 +754,6 @@ module.exports = {
   markQRCodeClaimed,
   deleteQRCodesByProductId,
   normalizeRewardTiers,
+   getRewardsSummary,
+   getClaimedRewards,
 };

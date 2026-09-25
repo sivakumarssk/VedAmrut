@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   BrowserRouter,
@@ -15,35 +16,25 @@ import Users from "./pages/Users";
 import Orders from "./pages/Orders";
 import CustomerOrderDetails from "./pages/CustomerOrderDetails";
 import OrderDetails from "./pages/OrderDetails";
+import StatusOrders from "./pages/StatusOrders";
 import Products from "./pages/Products";
 import Categories from "./pages/Categories";
-
+import Rewards from "./pages/Rewards";
+import RewardDetails from "./pages/RewardDetails";
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         {/* LOGIN */}
+        <Route path="/login" element={<Login />} />
 
-        <Route
-          path="/login"
-          element={<Login />}
-        />
-
-        {/* DEFAULT → DASHBOARD */}
-
+        {/* DEFAULT */}
         <Route
           path="/"
-          element={
-            <Navigate
-              to="/dashboard"
-              replace
-            />
-          }
+          element={<Navigate to="/dashboard" replace />}
         />
 
         {/* DASHBOARD */}
-
         <Route
           path="/dashboard"
           element={
@@ -56,7 +47,6 @@ export default function App() {
         />
 
         {/* USERS */}
-
         <Route
           path="/users"
           element={
@@ -68,8 +58,7 @@ export default function App() {
           }
         />
 
-        {/* ORDERS */}
-
+        {/* ALL ORDERS */}
         <Route
           path="/orders"
           element={
@@ -81,6 +70,19 @@ export default function App() {
           }
         />
 
+        {/* FILTERED ORDERS */}
+        <Route
+          path="/orders/status/:status"
+          element={
+            <RequireAuth>
+              <AdminLayout>
+                <StatusOrders />
+              </AdminLayout>
+            </RequireAuth>
+          }
+        />
+
+        {/* CUSTOMER ORDER DETAILS */}
         <Route
           path="/orders/customer/:userId"
           element={
@@ -91,7 +93,6 @@ export default function App() {
         />
 
         {/* ORDER DETAILS */}
-
         <Route
           path="/orders/:id"
           element={
@@ -104,7 +105,6 @@ export default function App() {
         />
 
         {/* PRODUCTS */}
-
         <Route
           path="/products"
           element={
@@ -117,7 +117,6 @@ export default function App() {
         />
 
         {/* CATEGORIES */}
-
         <Route
           path="/categories"
           element={
@@ -128,17 +127,30 @@ export default function App() {
             </RequireAuth>
           }
         />
-
-        {/* UNKNOWN URL → DASHBOARD */}
-
+<Route
+  path="/rewards"
+  element={
+    <RequireAuth>
+      <AdminLayout>
+        <Rewards />
+      </AdminLayout>
+    </RequireAuth>
+  }
+/>
+<Route
+  path="/rewards/:productId"
+  element={
+    <RequireAuth>
+      <AdminLayout>
+        <RewardDetails />
+      </AdminLayout>
+    </RequireAuth>
+  }
+  />
+        {/* UNKNOWN URL */}
         <Route
           path="*"
-          element={
-            <Navigate
-              to="/dashboard"
-              replace
-            />
-          }
+          element={<Navigate to="/dashboard" replace />}
         />
       </Routes>
     </BrowserRouter>

@@ -444,10 +444,14 @@ export default function Categories() {
           spacing={{ xs: 1.5, sm: 2, md: 2.5 }}
         >
           {categories.map((category) => (
+            // <Grid
+            //   key={category.id}
+            //   size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+            // >
             <Grid
-              key={category.id}
-              size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
-            >
+  key={category.id}
+  size={{ xs: 6, sm: 4, md: 3, lg: 3 }}
+>
               <Card
                 sx={{
                   height: "100%",
@@ -460,44 +464,49 @@ export default function Categories() {
                   flexDirection: "column",
                 }}
               >
-                <Box
-                  sx={{
-                    height: { xs: 130, sm: 150 },
-                    width: "100%",
-                    backgroundColor:
-                      category.bg_color &&
-                      category.bg_color !== "transparent"
-                        ? category.bg_color
-                       : "transparent",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    overflow: "hidden",
-                  }}
-                >
-                  {category.image ? (
-                    <Box
-                      component="img"
-                      src={getImageUrl(category.image)}
-                      alt={category.name}
-                      sx={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "contain",
-                      }}
-                    />
-                  ) : (
-                    <Typography
-                      sx={{
-                        color: "#999",
-                        fontSize: 13,
-                        fontFamily: "Inter",
-                      }}
-                    >
-                      No Image
-                    </Typography>
-                  )}
-                </Box>
+              {/* Category Image */}
+<Box
+  sx={{
+    height: 150,
+    width: "100%",
+    flexShrink: 0,
+    backgroundColor:
+      category.bg_color && category.bg_color !== "transparent"
+        ? category.bg_color
+        : "#ffffff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    p: 2,
+  }}
+>
+  {category.image ? (
+    <Box
+      component="img"
+      src={getImageUrl(category.image)}
+      alt={category.name}
+      sx={{
+        maxWidth: "80%",
+        maxHeight: "100%",
+        width: "auto",
+        height: "auto",
+        objectFit: "contain",
+        display: "block",
+      }}
+    />
+  ) : (
+    <Typography
+      sx={{
+        color: "#999",
+        fontSize: 13,
+        fontFamily: "Inter",
+      }}
+    >
+      No Image
+    </Typography>
+  )}
+</Box>
 
                 <CardContent
                   sx={{

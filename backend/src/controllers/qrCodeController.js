@@ -8,6 +8,8 @@ const {
   claimQRCodeAndReward,
     markQRCodeClaimed,
   deleteQRCodesByProductId,
+   getRewardsSummary,
+   getClaimedRewards,
 } = require("../models/qrCodeModel");
 
 // =====================================================
@@ -479,7 +481,48 @@ const deleteProductQRCodes = async (req, res) => {
     });
   }
 };
+// ========================================
+// GET REWARDS SUMMARY
+// ========================================
 
+const getRewardsSummaryController = async (req, res) => {
+  try {
+    const rewards = await getRewardsSummary();
+
+    res.status(200).json({
+      success: true,
+      data: rewards,
+    });
+  } catch (error) {
+    console.error("Rewards Summary Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch rewards summary",
+    });
+  }
+};
+// ========================================
+// GET CUSTOMER-WISE CLAIMED REWARDS
+// ========================================
+
+const getClaimedRewardsController = async (req, res) => {
+  try {
+    const rewards = await getClaimedRewards();
+
+    res.status(200).json({
+      success: true,
+      data: rewards,
+    });
+  } catch (error) {
+    console.error("Claimed Rewards Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch claimed rewards",
+    });
+  }
+};
 // =====================================================
 // EXPORTS
 // =====================================================
@@ -492,4 +535,6 @@ module.exports = {
   claimQRReward,
    markQRClaimed,
   deleteProductQRCodes,
+  getRewardsSummaryController,
+   getClaimedRewardsController
 };

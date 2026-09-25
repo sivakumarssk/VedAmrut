@@ -52,7 +52,7 @@ const parseRewardTiers = (rawRewardTiers) => {
 // ========================================
 
 const BG_COLOR_PATTERN =
-  /^(transparent|#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})|rgba?\([^)]+\))$/;
+  /^(transparent|#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})|rgba?\([^)]+\))$/i;
 
 const normalizeBgColor = (rawBgColor) => {
   const value = String(rawBgColor || "").trim();
@@ -65,21 +65,46 @@ const normalizeBgColor = (rawBgColor) => {
     ? value
     : "transparent";
 };
+// ========================================
+// PARSE IMAGE BACKGROUNDS
+// ========================================
 
+const parseImageBackgrounds = (rawBackgrounds) => {
+  if (!rawBackgrounds) {
+    return [];
+  }
+
+  try {
+    const parsed = Array.isArray(rawBackgrounds)
+      ? rawBackgrounds
+      : JSON.parse(rawBackgrounds);
+
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.map((item) => ({
+      image: String(item.image || ""),
+      bg_color: normalizeBgColor(item.bg_color),
+    }));
+  } catch (error) {
+    return [];
+  }
+};
+const mapImageBackgrounds = (images, backgrounds) => {
+  return images.map((image, index) => ({
+    image,
+    bg_color: normalizeBgColor(
+      backgrounds[index]?.bg_color
+    ),
+  }));
+};
 // ========================================
 // CREATE PRODUCT
 // ========================================
 
 const addProduct = async (req, res) => {
   try {
-    // const {
-    //   name,
-    //   description,
-    //   price,
-    //   stock,
-    //   category_id,
-    //   reward_amount,
-    // } = req.body;
 const {
   name,
   description,
@@ -90,13 +115,25 @@ const {
   reward_amount,
   reward_tiers,
   bg_color,
+  image_backgrounds,
 } = req.body;
-    const image = req.file
-      ? req.file.filename
-      : null;
+  
 
-    const normalizedBgColor =
-      normalizeBgColor(bg_color);
+const images = req.files
+  ? req.files.map((file) => file.filename)
+  : [];
+
+const image = images[0] || null;
+
+const normalizedBgColor = normalizeBgColor(bg_color);
+
+const parsedImageBackgrounds =
+  parseImageBackgrounds(image_backgrounds);
+
+const finalImageBackgrounds = mapImageBackgrounds(
+  images,
+  parsedImageBackgrounds
+);
 
     // ------------------------------------
     // VALIDATION
@@ -224,7 +261,7 @@ if (
     // CREATE PRODUCT
     // ------------------------------------
 
-   const product = await createProduct(
+  const product = await createProduct(
   name.trim(),
   description || "",
   numericPrice,
@@ -233,7 +270,9 @@ if (
   numericStock,
   category_id,
   numericReward,
-  normalizedBgColor
+  normalizedBgColor,
+  images,
+  finalImageBackgrounds
 );
 
     // ------------------------------------
@@ -360,8 +399,9 @@ const editProduct = async (req, res) => {
   reward_amount,
   reward_tiers,
   bg_color,
+  image_backgrounds,
 } = req.body;
-
+const normalizedBgColor = normalizeBgColor(bg_color);
     // ------------------------------------
     // GET EXISTING PRODUCT
     // ------------------------------------
@@ -506,36 +546,81 @@ if (
       }
     }
 
-    // ------------------------------------
-    // IMAGE
-    // ------------------------------------
+   // ------------------------------------
+// IMAGE
+// ------------------------------------
 
-    const image = req.file
-      ? req.file.filename
-      : existingProduct.image;
+const newImages = req.files
+  ? req.files.map((file) => file.filename)
+  : [];
 
-    const normalizedBgColor =
-      bg_color !== undefined
-        ? normalizeBgColor(bg_color)
-        : existingProduct.bg_color || "transparent";
+const existingImages =
+  Array.isArray(existingProduct.images) &&
+  existingProduct.images.length > 0
+    ? existingProduct.images
+    : existingProduct.image
+    ? [existingProduct.image]
+    : [];
+
+const images =
+  newImages.length > 0
+    ? newImages
+    : existingImages;
+
+const image = images[0] || null;
+
+const parsedImageBackgrounds =
+  parseImageBackgrounds(image_backgrounds);
+
+let finalImageBackgrounds;
+
+if (newImages.length > 0) {
+  // New images: map the submitted colors to the new files.
+  finalImageBackgrounds = mapImageBackgrounds(
+    newImages,
+    parsedImageBackgrounds
+  );
+} else {
+  // No new images: preserve the existing backgrounds.
+  const existingBackgrounds =
+    Array.isArray(existingProduct.image_backgrounds)
+      ? existingProduct.image_backgrounds
+      : [];
+
+  finalImageBackgrounds = images.map((image, index) => {
+    const existingBackground = existingBackgrounds.find(
+      (item) => item.image === image
+    );
+
+    return {
+      image,
+      bg_color: normalizeBgColor(
+        existingBackground?.bg_color
+      ),
+    };
+  });
+}
+
+   
 
     // ------------------------------------
     // UPDATE PRODUCT
     // ------------------------------------
 
-   const product =
-  await updateProduct(
-    id,
-    name.trim(),
-    description || "",
-    numericPrice,
-    numericOldPrice,
-    image,
-    numericStock,
-    category_id,
-    numericReward,
-    normalizedBgColor
-  );
+  const product = await updateProduct(
+  id,
+  name.trim(),
+  description || "",
+  numericPrice,
+  numericOldPrice,
+  image,
+  numericStock,
+  category_id,
+  numericReward,
+  normalizedBgColor,
+  images,
+  finalImageBackgrounds
+);
 
     // ------------------------------------
     // CREATE MISSING QR CODES

@@ -23,7 +23,7 @@ import Inventory2Icon from "@mui/icons-material/Inventory2";
 import CategoryIcon from "@mui/icons-material/Category";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
-
+import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import logo from "../assets/logo.png";
 
 // export default function Sidebar() {
@@ -60,6 +60,11 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
       path: "/orders",
       icon: <ShoppingCartIcon />,
     },
+    {
+  name: "Rewards",
+  path: "/rewards",
+  icon: <CardGiftcardIcon />,
+},
   ];
 
   const handleClose = () => {

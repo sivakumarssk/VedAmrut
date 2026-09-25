@@ -6,7 +6,8 @@
 // ========================================
 // CREATE PRODUCT
 // ========================================
-  const createProduct = async (
+
+const createProduct = async (
   name,
   description,
   price,
@@ -15,42 +16,47 @@
   stock,
   category_id,
   reward_amount = 0,
-  bg_color = "transparent"
+  bg_color = "transparent",
+  images = [],
+  image_backgrounds = []
 ) => {
   const result = await pool.query(
     `
-   INSERT INTO products
-(
-  name,
-  description,
-  price,
-  old_price,
-  image,
-  stock,
-  category_id,
-  reward_amount,
-  bg_color
-)
-VALUES
-($1, $2, $3, $4, $5, $6, $7, $8, $9)
+    INSERT INTO products
+    (
+      name,
+      description,
+      price,
+      old_price,
+      image,
+      images,
+      stock,
+      category_id,
+      reward_amount,
+      bg_color,
+      image_backgrounds
+    )
+    VALUES
+    ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
     RETURNING *
     `,
-   [
-  name,
-  description,
-  price,
-  old_price,
-  image,
-  stock,
-  category_id,
-  reward_amount,
-  bg_color,
-]
+    [
+      name,
+      description,
+      price,
+      old_price,
+      image,
+      images,
+      stock,
+      category_id,
+      reward_amount,
+      bg_color,
+      JSON.stringify(image_backgrounds),
+    ]
   );
 
   return result.rows[0];
 };
-
 // ========================================
 // GET ALL PRODUCTS
 // ========================================
@@ -129,6 +135,7 @@ const getProductById = async (id) => {
 // UPDATE PRODUCT
 // ========================================
 
+
 const updateProduct = async (
   id,
   name,
@@ -139,42 +146,47 @@ const updateProduct = async (
   stock,
   category_id,
   reward_amount = 0,
-  bg_color = "transparent"
+  bg_color = "transparent",
+  images = [],
+  image_backgrounds = []
 ) => {
   const result = await pool.query(
     `
     UPDATE products
-   SET
-  name = $1,
-  description = $2,
-  price = $3,
-  old_price = $4,
-  image = $5,
-  stock = $6,
-  category_id = $7,
-  reward_amount = $8,
-  bg_color = $9,
-  updated_at = CURRENT_TIMESTAMP
-WHERE id = $10
+    SET
+      name = $1,
+      description = $2,
+      price = $3,
+      old_price = $4,
+      image = $5,
+      images = $6,
+      stock = $7,
+      category_id = $8,
+      reward_amount = $9,
+      bg_color = $10,
+      image_backgrounds = $11,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = $12
     RETURNING *
     `,
     [
-  name,
-  description,
-  price,
-  old_price,
-  image,
-  stock,
-  category_id,
-  reward_amount,
-  bg_color,
-  id,
-]
+      name,
+      description,
+      price,
+      old_price,
+      image,
+      images,
+      stock,
+      category_id,
+      reward_amount,
+      bg_color,
+      JSON.stringify(image_backgrounds),
+      id,
+    ]
   );
 
   return result.rows[0];
 };
-
 // ========================================
 // DELETE PRODUCT
 // ========================================
